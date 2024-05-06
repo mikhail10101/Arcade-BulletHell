@@ -18,7 +18,9 @@ def main():
         "up": False,
         "down": False,
         "left": False,
-        "right": False
+        "right": False,
+        "click": False,
+        "click_pos": [0,0]
     }
 
     while run:
@@ -51,9 +53,14 @@ def main():
                     inputs["left"] = False
                 if event.key == pygame.K_d:
                     inputs["right"] = False
-            
+
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                inputs["click"] = True
+            if event.type == pygame.MOUSEBUTTONUP:
+                inputs["click"] = False
+
+        inputs["click_pos"] = pygame.mouse.get_pos()
+
         game.update(inputs)
-        
-        
 
 main()
