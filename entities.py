@@ -1,6 +1,9 @@
 import pygame
 import math
 
+def dist(pos, pos2):
+    return math.sqrt((pos[0] - pos2[0])**2 + (pos[1] - pos2[1])**2) 
+
 class Player:
     def __init__(self):
         #draw
@@ -72,7 +75,7 @@ class Player:
 
         #SHOOT
         if inputs["click"]:
-            if  current_time > self.last_shot + self.shot_interval:
+            if current_time > self.last_shot + self.shot_interval:
                 mx, my = inputs["click_pos"]
 
                 mx += offset[0]
@@ -133,4 +136,90 @@ class Bullet:
         pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.radius)
 
 
+class Triangle:
+    def __init__(self, pos, speed, size):
+        self.pos = list(pos)
+        self.speed = speed
+        self.size = size
 
+        self.angle_accel = 0.2
+        self.curr_angle = 0
+
+        top = (self.pos[0] + self.size*2/3 * math.cos(self.curr_angle), self.pos[1] + self.size*2/3 * math.sin(self.curr_angle))
+        b1 = (self.pos[0] + self.size*2/3 * math.cos(self.curr_angle + math.pi*2/3), self.pos[1] + self.size*2/3 * math.sin(self.curr_angle + math.pi*2/3))
+        b2 = (self.pos[0] + self.size*2/3 * math.cos(self.curr_angle - math.pi*2/3), self.pos[1] + self.size*2/3 * math.sin(self.curr_angle - math.pi*2/3))
+
+        self.points = [top, b1, b2]
+
+        #force calculations to be added on top
+        self.force_accel = 0.1
+        self.force_deccel = 0.05
+        self.curr_vel = [0,0]
+        self.target_vel = [0,0]
+        self.last_force_added = -1000
+        self.force_duration = 50
+
+
+    def update(self, players):
+
+        if self.last_force_added + self.force_duration < pygame.time.get_ticks():
+            self.target_vel = [0,0]
+
+        top = (self.pos[0] + self.size*2/3 * math.cos(self.curr_angle), self.pos[1] + self.size*2/3 * math.sin(self.curr_angle))
+        b1 = (self.pos[0] + self.size*2/3 * math.cos(self.curr_angle + math.pi*2/3), self.pos[1] + self.size*2/3 * math.sin(self.curr_angle + math.pi*2/3))
+        b2 = (self.pos[0] + self.size*2/3 * math.cos(self.curr_angle - math.pi*2/3), self.pos[1] + self.size*2/3 * math.sin(self.curr_angle - math.pi*2/3))
+
+        self.points = [top,b1,b2]
+
+        closest = players[0]
+        for i in range(1,len(players)):
+            if dist(players[i].pos, self.pos) < dist(closest.pos, self.pos):
+                closest = players[i]
+
+        target_angle = math.atan2(closest.pos[1] - self.pos[1], closest.pos[0] - self.pos[0])
+
+        #implement angle matching
+        self.curr_angle = target_angle
+
+        if self.target_vel[0] == 0 and self.target_vel[1] == 0:
+            if abs(self.curr_vel[0] - self.target_vel[0] < self.force_deccel):
+                self.curr_vel[0] = self.target_vel[0]
+            elif self.curr_vel[0] < self.target_vel[0]:
+                self.curr_vel[0] += self.force_deccel
+            else:
+                self.curr_vel[0] -= self.force_deccel
+                
+            if abs(self.curr_vel[1] - self.target_vel[1] < self.force_deccel):
+                self.curr_vel[1] = self.target_vel[1]
+            elif self.curr_vel[1] < self.target_vel[1]:
+                self.curr_vel[1] += self.force_accel
+            else:
+                self.curr_vel[1] -= self.force_accel
+        else:
+            if abs(self.curr_vel[0] - self.target_vel[0] < self.force_accel):
+                self.curr_vel[0] = self.target_vel[0]
+            elif self.curr_vel[0] < self.target_vel[0]:
+                self.curr_vel[0] += self.force_accel
+            else:
+                self.curr_vel[0] -= self.force_accel
+                
+            if abs(self.curr_vel[1] - self.target_vel[1] < self.force_accel):
+                self.curr_vel[1] = self.target_vel[1]
+            elif self.curr_vel[1] < self.target_vel[1]:
+                self.curr_vel[1] += self.force_accel
+            else:
+                self.curr_vel[1] -= self.force_accel
+
+        
+        self.pos[0] += self.speed * math.cos(self.curr_angle) + self.curr_vel[0]
+        self.pos[1] += self.speed * math.sin(self.curr_angle) + self.curr_vel[1]
+
+    def add_force(self,vector):
+        self.target_vel = list(vector)
+        self.last_force_added = pygame.time.get_ticks()
+
+    def draw(self, window, offset):
+        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
+
+        pygame.draw.polygon(window, (255,255,255), drawpoints)
+        #pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.size)

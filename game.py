@@ -4,10 +4,12 @@ from map import Map
 
 class Game:
     def __init__(self, length, width):
-        self.player = Player()
         self.enemies = []
         self.map = Map()
+
+        self.player_container = [Player()]
         self.bullet_container = []
+        self.shape_container = [Triangle((400,400),2,30), Triangle((450,400),2,30), Triangle((400,450),2,30), Triangle((425,425),2,30), Triangle((500,500),2,30), Triangle((475,400),2,30), Triangle((400,475),2,30), Triangle((475,475),2,30)]
 
         self.window = pygame.display.set_mode((length, width))
         pygame.display.set_caption("Arcade Game")
@@ -18,16 +20,21 @@ class Game:
         self.window.fill((0,0,0))
         
         self.map.draw(self.window, self.scroll)
-        self.player.draw(self.window, self.scroll)
+
+        for p in self.player_container:
+            p.draw(self.window, self.scroll)
 
         for b in self.bullet_container:
             b.draw(self.window, self.scroll)
 
+        for s in self.shape_container:
+            s.draw(self.window, self.scroll)
+
         pygame.display.update()
 
     def update(self, inputs):
-
-        self.player.update(inputs, self.bullet_container, self.map, self.scroll)
+        for p in self.player_container:
+            p.update(inputs, self.bullet_container, self.map, self.scroll)
 
         self.bullet_container[:] = [b for b in self.bullet_container if b.active]
         for b in self.bullet_container:
@@ -35,5 +42,25 @@ class Game:
                 b.active = False
             b.update()
 
-        self.scroll[0] += (self.player.pos[0] - self.window.get_width()/2 - self.scroll[0]) / 10
-        self.scroll[1] += (self.player.pos[1] - self.window.get_height()/2 - self.scroll[1]) / 10
+        for i in range(len(self.shape_container)):
+            self.shape_container[i].update(self.player_container)
+            for j in range(i+1, len(self.shape_container)):
+                s1 = self.shape_container[i]
+                s2 = self.shape_container[j]
+
+                if dist(s1.pos, s2.pos) < max(s1.size, s2.size):
+                    if (s1.size < s2.size):
+                        #move s1
+                        pass
+                    elif (s2.size > s1.size):
+                        #move s2
+                        pass
+                    else:
+                        rads = math.atan2(s1.pos[0] - s2.pos[0], s1.pos[1] - s2.pos[1])
+                        strength = s1.size/10
+                        s1.add_force((strength * math.cos(rads), strength * math.sin(rads)))
+                        s2.add_force((-strength * math.cos(rads), -strength * math.sin(rads)))
+
+        #update later on
+        self.scroll[0] += (self.player_container[0].pos[0] - self.window.get_width()/2 - self.scroll[0]) / 10
+        self.scroll[1] += (self.player_container[0].pos[1] - self.window.get_height()/2 - self.scroll[1]) / 10
