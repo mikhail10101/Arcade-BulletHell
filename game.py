@@ -1,22 +1,21 @@
 import pygame
 from entities import *
+from map import Map
 
 class Game:
     def __init__(self):
         self.player = Player()
         self.enemies = []
-        self.map = [
-
-        ]
+        self.map = Map()
         self.bullet_container = []
 
     def draw(self, window):
+        self.map.draw(window)
         self.player.draw(window)
         for b in self.bullet_container:
             b.draw(window)
 
     def update(self, inputs):
-        print(self.bullet_container)
 
         self.player.update(inputs, self.bullet_container)
 

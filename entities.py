@@ -4,7 +4,7 @@ import math
 class Player:
     def __init__(self):
         #draw
-        self.size = 30
+        self.size = 20
 
         #movement
         self.pos = [300,300]
@@ -89,7 +89,7 @@ class Bullet:
     def __init__(self, pos, speed, angle):
         self.pos = list(pos)
         self.speed = speed
-        self.angle = angle
+        self.angle = float(angle)
         self.radius = 10
 
         self.active = True
@@ -101,6 +101,8 @@ class Bullet:
 
         if self.createTime + 5000 < pygame.time.get_ticks():
             self.active = False
+
+        print(self.angle)
 
     def draw(self, window):
         pygame.draw.circle(window, (255,255,255), self.pos, self.radius)
