@@ -15,19 +15,19 @@ class Game:
         self.scroll = [0,0]
 
     def draw(self):
-        render_scroll = [int(self.scroll[0]), int(self.scroll[1])]
         self.window.fill((0,0,0))
         
-        self.map.draw(self.window, render_scroll)
-        self.player.draw(self.window, render_scroll)
+        self.map.draw(self.window, self.scroll)
+        self.player.draw(self.window, self.scroll)
+
         for b in self.bullet_container:
-            b.draw(self.window, render_scroll)
+            b.draw(self.window, self.scroll)
 
         pygame.display.update()
 
     def update(self, inputs):
 
-        self.player.update(inputs, self.bullet_container, self.scroll)
+        self.player.update(inputs, self.bullet_container, self.map, self.scroll)
 
         self.bullet_container[:] = [b for b in self.bullet_container if b.active]
         for b in self.bullet_container:

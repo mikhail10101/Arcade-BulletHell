@@ -4,7 +4,7 @@ import math
 class Player:
     def __init__(self):
         #draw
-        self.size = 20
+        self.size = 30
 
         #movement
         self.pos = [300,300]
@@ -15,13 +15,13 @@ class Player:
 
         #shot in milliseconds
         self.last_shot = -1000
-        self.shot_interval = 100
+        self.shot_interval = 333
         
 
     def draw(self, window, offset=(0,0)):
-        pygame.draw.circle(window, (255,255,255), (self.pos[0] - offset[0], self.pos[1] - offset[1]), self.size)
+        pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.size)
 
-    def update(self, inputs, bullets, offset=(0,0)):
+    def update(self, inputs, bullets, map, offset=(0,0)):
         current_time = pygame.time.get_ticks()
 
         #MOVEMENT
@@ -68,8 +68,7 @@ class Player:
             else:
                 self.curr_vel[1] -= self.deccel
 
-        self.pos[0] += self.curr_vel[0]
-        self.pos[1] += self.curr_vel[1]
+        self.move([self.pos[0] + self.curr_vel[0], self.pos[1] + self.curr_vel[1]], map)
 
         #SHOOT
         if inputs["click"]:
@@ -81,11 +80,39 @@ class Player:
 
                 dx = mx - self.pos[0]
                 dy = my - self.pos[1]
+
                 rads = math.atan2(dy,dx)
 
-                bullets.append(Bullet(self.pos, 15, rads))
+                bullets.append(Bullet(self.pos, 10, rads))
 
                 self.last_shot = current_time
+
+    def move(self, new_pos, map):
+        i = int(self.pos[0] // map.tile_size)
+        j = int(self.pos[1] // map.tile_size)
+        newI = int(new_pos[0] // map.tile_size)
+        newJ = int(new_pos[1] // map.tile_size)
+
+        if 0 <= newI < len(map.map_values) and 0 <= newJ < len(map.map_values[0]):
+            if (map.map_values[newI][newJ] == 1):
+                if abs(i - newI) == 1 and abs(j - newJ) == 1:
+                    print("RAWR")
+                    if map.map_values[i][newJ] == 0:
+                        self.pos[1] = new_pos[1]
+                    elif map.map_values[newI][j] == 0:
+                        self.pos[0] = new_pos[0]
+                    else:
+                        pass
+                elif abs(j - newJ) == 1:
+                    self.pos[0] = new_pos[0]
+                else:
+                    self.pos[1] = new_pos[1]
+            else:
+                self.pos[0] = new_pos[0]
+                self.pos[1] = new_pos[1]
+        else:
+            pass
+
 
 
 class Bullet:
@@ -103,7 +130,7 @@ class Bullet:
         self.pos[1] += self.speed * math.sin(self.angle)
 
     def draw(self, window, offset=(0,0)):
-        pygame.draw.circle(window, (255,255,255), (self.pos[0] - offset[0], self.pos[1] - offset[1]), self.radius)
+        pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.radius)
 
 
 
