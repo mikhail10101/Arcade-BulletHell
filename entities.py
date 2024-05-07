@@ -1,8 +1,6 @@
 import pygame
 import math
-
-def dist(pos, pos2):
-    return math.sqrt((pos[0] - pos2[0])**2 + (pos[1] - pos2[1])**2) 
+from helper import *
 
 class Player:
     def __init__(self):
@@ -41,9 +39,8 @@ class Player:
             if inputs["down"]:
                 target_vel[1] = self.speed
         
-        helper(self.curr_vel, target_vel, self.accel, self.deccel)
+        phys_helper(self.curr_vel, target_vel, self.accel, self.deccel)
 
-        
         self.move([self.pos[0] + self.curr_vel[0], self.pos[1] + self.curr_vel[1]], map)
 
         #SHOOT
@@ -154,7 +151,7 @@ class Triangle:
         #implement angle matching
         self.curr_angle = target_angle
 
-        helper(self.curr_vel, self.target_vel, self.force_accel, self.force_deccel)
+        phys_helper(self.curr_vel, self.target_vel, self.force_accel, self.force_deccel)
 
         self.pos[0] += self.speed * math.cos(self.curr_angle) + self.curr_vel[0]
         self.pos[1] += self.speed * math.sin(self.curr_angle) + self.curr_vel[1]
@@ -170,33 +167,3 @@ class Triangle:
         #pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.size)
 
 
-def helper(curr_vel, target_vel, accel, deccel):
-    if (target_vel[0] != 0):
-        if (abs(curr_vel[0] - target_vel[0]) < accel):
-            curr_vel[0] = target_vel[0]
-        elif (curr_vel[0] < target_vel[0]):
-            curr_vel[0] += accel
-        else:
-            curr_vel[0] -= accel
-    else:
-        if (abs(curr_vel[0] - target_vel[0]) < deccel):
-            curr_vel[0] = target_vel[0]
-        elif (curr_vel[0] < target_vel[0]):
-            curr_vel[0] += deccel
-        else:
-            curr_vel[0] -= deccel
-
-    if (target_vel[1] != 0):
-        if (abs(curr_vel[1] - target_vel[1]) < accel):
-            curr_vel[1] = target_vel[1]
-        elif (curr_vel[1] < target_vel[1]):
-            curr_vel[1] += accel
-        else:
-            curr_vel[1] -= accel
-    else:
-        if (abs(curr_vel[1] - target_vel[1]) < deccel):
-            curr_vel[1] = target_vel[1]
-        elif (curr_vel[1] < target_vel[1]):
-            curr_vel[1] += deccel
-        else:
-            curr_vel[1] -= deccel
