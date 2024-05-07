@@ -18,10 +18,10 @@ class Player:
         self.shot_interval = 100
         
 
-    def draw(self, window):
-        pygame.draw.circle(window, (255,255,255), self.pos, self.size)
+    def draw(self, window, offset=(0,0)):
+        pygame.draw.circle(window, (255,255,255), (self.pos[0] - offset[0], self.pos[1] - offset[1]), self.size)
 
-    def update(self, inputs, bullets):
+    def update(self, inputs, bullets, offset=(0,0)):
         current_time = pygame.time.get_ticks()
 
         #MOVEMENT
@@ -76,6 +76,9 @@ class Player:
             if  current_time > self.last_shot + self.shot_interval:
                 mx, my = inputs["click_pos"]
 
+                mx += offset[0]
+                my += offset[1]
+
                 dx = mx - self.pos[0]
                 dy = my - self.pos[1]
                 rads = math.atan2(dy,dx)
@@ -99,13 +102,8 @@ class Bullet:
         self.pos[0] += self.speed * math.cos(self.angle)
         self.pos[1] += self.speed * math.sin(self.angle)
 
-        if self.createTime + 5000 < pygame.time.get_ticks():
-            self.active = False
-
-        print(self.angle)
-
-    def draw(self, window):
-        pygame.draw.circle(window, (255,255,255), self.pos, self.radius)
+    def draw(self, window, offset=(0,0)):
+        pygame.draw.circle(window, (255,255,255), (self.pos[0] - offset[0], self.pos[1] - offset[1]), self.radius)
 
 
 

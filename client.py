@@ -1,3 +1,4 @@
+import sys
 import pygame
 from game import Game
 pygame.font.init()
@@ -5,13 +6,10 @@ pygame.font.init()
 LENGTH = 1440
 WIDTH = 810
 
-window = pygame.display.set_mode((LENGTH, WIDTH))
-pygame.display.set_caption("Arcade Game")
-
 def main():
     run = True
+    game = Game(LENGTH, WIDTH)
     clock = pygame.time.Clock()
-    game = Game()
     
     #Inputs to be passed to the game
     inputs = {
@@ -25,15 +23,13 @@ def main():
 
     while run:
         clock.tick(60)        
-
-        window.fill((0,0,0))
-        game.draw(window)
-        pygame.display.update()
+        game.draw()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
                 pygame.quit()
+                sys.exit()
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_w:
