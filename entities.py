@@ -122,8 +122,10 @@ class Bullet:
 
 
 
-class Triangle:
+class Triangle(ForceObject):
     def __init__(self, pos, speed, size, health=3):
+        super().__init__()
+
         self.pos = list(pos)
         self.speed = speed
         self.size = size
@@ -133,26 +135,16 @@ class Triangle:
         self.angle_accel = 0.2
         self.curr_angle = 0
 
-        top = (self.pos[0] + self.size*2/3 * math.cos(self.curr_angle), self.pos[1] + self.size*2/3 * math.sin(self.curr_angle))
-        b1 = (self.pos[0] + self.size*2/3 * math.cos(self.curr_angle + math.pi*2/3), self.pos[1] + self.size*2/3 * math.sin(self.curr_angle + math.pi*2/3))
-        b2 = (self.pos[0] + self.size*2/3 * math.cos(self.curr_angle - math.pi*2/3), self.pos[1] + self.size*2/3 * math.sin(self.curr_angle - math.pi*2/3))
+        top = (self.pos[0] + self.size * math.cos(self.curr_angle), self.pos[1] + self.size * math.sin(self.curr_angle))
+        b1 = (self.pos[0] + self.size * math.cos(self.curr_angle + math.pi*2/3), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi*2/3))
+        b2 = (self.pos[0] + self.size * math.cos(self.curr_angle - math.pi*2/3), self.pos[1] + self.size * math.sin(self.curr_angle - math.pi*2/3))
 
         self.points = [top, b1, b2]
-
-        #force calculations to be added on top
-        self.force_accel = 0.1
-        self.force_deccel = 0.05
-        self.curr_vel = [0,0]
-        self.target_vel = [0,0]
-        self.last_force_added = -1000
-        self.force_duration = 50
 
         self.active = True
 
     def update(self, players):
-
-        if self.last_force_added + self.force_duration < pygame.time.get_ticks():
-            self.target_vel = [0,0]
+        super().update()
 
         closest = players[0]
         for i in range(1,len(players)):
@@ -164,20 +156,12 @@ class Triangle:
         #implement angle matching
         self.curr_angle = target_angle
 
-        top = (self.pos[0] + self.size*2/3 * math.cos(self.curr_angle), self.pos[1] + self.size*2/3 * math.sin(self.curr_angle))
-        b1 = (self.pos[0] + self.size*2/3 * math.cos(self.curr_angle + math.pi*2/3), self.pos[1] + self.size*2/3 * math.sin(self.curr_angle + math.pi*2/3))
-        b2 = (self.pos[0] + self.size*2/3 * math.cos(self.curr_angle - math.pi*2/3), self.pos[1] + self.size*2/3 * math.sin(self.curr_angle - math.pi*2/3))
+        self.points[0] = (self.pos[0] + self.size * math.cos(self.curr_angle), self.pos[1] + self.size * math.sin(self.curr_angle))
+        self.points[1] = (self.pos[0] + self.size * math.cos(self.curr_angle + math.pi*2/3), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi*2/3))
+        self.points[2] = (self.pos[0] + self.size * math.cos(self.curr_angle - math.pi*2/3), self.pos[1] + self.size * math.sin(self.curr_angle - math.pi*2/3))
 
-        self.points = [top,b1,b2]
-
-        phys_helper(self.curr_vel, self.target_vel, self.force_accel, self.force_deccel)
-
-        self.pos[0] += self.speed * math.cos(self.curr_angle) + self.curr_vel[0]
-        self.pos[1] += self.speed * math.sin(self.curr_angle) + self.curr_vel[1]
-
-    def add_force(self,vector):
-        self.target_vel = list(vector)
-        self.last_force_added = pygame.time.get_ticks()
+        self.pos[0] += self.speed * math.cos(self.curr_angle) + self.fx
+        self.pos[1] += self.speed * math.sin(self.curr_angle) + self.fy
 
     def draw(self, window, offset):
         drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
@@ -188,8 +172,9 @@ class Triangle:
 
 
 
-class Square:
+class Square(ForceObject):
     def __init__(self, pos, speed, size, health=4):
+        super().__init__()
         self.pos = list(pos)
         self.speed = speed
         self.size = size
@@ -199,28 +184,17 @@ class Square:
         self.angle_accel = 0.2
         self.curr_angle = 0
 
-        a = (self.pos[0] + self.size/2 * math.cos(self.curr_angle), self.pos[1] + self.size * math.sin(self.curr_angle))
-        b = (self.pos[0] + self.size/2 * math.cos(self.curr_angle + math.pi/2), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi/2))
-        c = (self.pos[0] + self.size/2 * math.cos(self.curr_angle + math.pi), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi))
-        d = (self.pos[0] + self.size/2 * math.cos(self.curr_angle + 3*math.pi/2), self.pos[1] + self.size * math.sin(self.curr_angle + 3*math.pi/2))
+        a = (self.pos[0] + self.size * math.cos(self.curr_angle), self.pos[1] + self.size * math.sin(self.curr_angle))
+        b = (self.pos[0] + self.size * math.cos(self.curr_angle + math.pi/2), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi/2))
+        c = (self.pos[0] + self.size * math.cos(self.curr_angle + math.pi), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi))
+        d = (self.pos[0] + self.size * math.cos(self.curr_angle + 3*math.pi/2), self.pos[1] + self.size * math.sin(self.curr_angle + 3*math.pi/2))
 
         self.points = [a,b,c,d]
-
-        #force calculations to be added on top
-        self.force_accel = 0.1
-        self.force_deccel = 0.05
-        self.curr_vel = [0,0]
-        self.target_vel = [0,0]
-        self.last_force_added = -1000
-        self.force_duration = 50
 
         self.active = True
 
     def update(self, players):
-        if self.last_force_added + self.force_duration < pygame.time.get_ticks():
-            self.target_vel = [0,0]
-
-
+        super().update()
         closest = players[0]
         for i in range(1,len(players)):
             if dist(players[i].pos, self.pos) < dist(closest.pos, self.pos):
@@ -231,19 +205,13 @@ class Square:
         #implement angle matching
         self.curr_angle = target_angle
 
-        a = (self.pos[0] + self.size * 0.7 * math.cos(self.curr_angle), self.pos[1] + self.size * 0.7 * math.sin(self.curr_angle))
-        b = (self.pos[0] + self.size * 0.7 * math.cos(self.curr_angle + math.pi/2), self.pos[1] + self.size * 0.7 * math.sin(self.curr_angle + math.pi/2))
-        c = (self.pos[0] + self.size * 0.7 * math.cos(self.curr_angle + math.pi), self.pos[1] + self.size * 0.7 * math.sin(self.curr_angle + math.pi))
-        d = (self.pos[0] + self.size * 0.7 * math.cos(self.curr_angle + 3*math.pi/2), self.pos[1] + self.size * 0.7 * math.sin(self.curr_angle + 3*math.pi/2))
+        self.points[0] = (self.pos[0] + self.size * math.cos(self.curr_angle), self.pos[1] + self.size * math.sin(self.curr_angle))
+        self.points[1] = (self.pos[0] + self.size * math.cos(self.curr_angle + math.pi/2), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi/2))
+        self.points[2] = (self.pos[0] + self.size * math.cos(self.curr_angle + math.pi), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi))
+        self.points[3] = (self.pos[0] + self.size * math.cos(self.curr_angle + 3*math.pi/2), self.pos[1] + self.size * math.sin(self.curr_angle + 3*math.pi/2))
 
-        self.points = [a,b,c,d]
-
-        self.pos[0] += self.speed * math.cos(self.curr_angle) + self.curr_vel[0]
-        self.pos[1] += self.speed * math.sin(self.curr_angle) + self.curr_vel[1]
-
-    def add_force(self,vector):
-        self.target_vel = list(vector)
-        self.last_force_added = pygame.time.get_ticks()
+        self.pos[0] += self.speed * math.cos(self.curr_angle) + self.fx
+        self.pos[1] += self.speed * math.sin(self.curr_angle) + self.fy
 
     def draw(self,window,offset):
         drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
@@ -252,10 +220,10 @@ class Square:
 
 
 
-
-
-class Squarelet:
+class Squarelet(ForceObject):
     def __init__(self, pos, speed, size, health=1):
+        super().__init__()
+
         self.pos = list(pos)
         self.speed = speed
         self.size = size
@@ -283,26 +251,11 @@ class Squarelet:
         self.accel = 0.1
         self.deccel = 0.05
 
-        #force calculations to be added on top
-        self.force_accel = 0.1
-        self.force_deccel = 0.
-        
-        self.curr_force_accel = self.force_accel
-        self.curr_force_deccel = self.force_deccel
-
-        self.curr_vel = [0,0]
-        self.target_vel = [0,0]
-        self.last_force_added = -1000
-        self.force_duration = 50
-
 
     def update(self, players, bullets):
+        super().update()
+
         current_time = pygame.time.get_ticks()
-        if self.last_force_added + self.force_duration < pygame.time.get_ticks():
-            self.target_vel = [0,0]
-            self.curr_force_accel = self.force_accel
-        if self.last_force_added + 2*self.force_duration < pygame.time.get_ticks():
-            self.curr_force_deccel = self.force_deccel
 
         closest = players[0]
         for i in range(1,len(players)):
@@ -321,46 +274,24 @@ class Squarelet:
 
         self.points = [a,b,c,d]
 
+        #control distance
         d = dist(closest.pos, self.pos)
-
         target_speed = 0
         if d > 350:
             target_speed = self.speed
         else:
             target_speed = -self.speed
 
-        
         self.curr_speed = phys_single_helper(self.curr_speed, target_speed, self.accel, self.deccel)
-
-        self.pos[0] += self.curr_speed * math.cos(self.curr_angle) 
-        self.pos[1] += self.curr_speed * math.sin(self.curr_angle)
-
-
-        phys_helper(self.curr_vel, self.target_vel, self.curr_force_accel, self.curr_force_deccel)
-
-        self.pos[0] += self.curr_vel[0]
-        self.pos[1] += self.curr_vel[1]
-
+        self.pos[0] += self.curr_speed * math.cos(self.curr_angle) + self.fx 
+        self.pos[1] += self.curr_speed * math.sin(self.curr_angle) + self.fy
 
         if current_time > self.last_shot + self.shot_interval:
             dx = closest.pos[0] - self.pos[0]
             dy = closest.pos[1] - self.pos[1]
-
             rads = math.atan2(dy,dx)
-
             bullets.append(Bullet(self.pos, 13, rads, False, 5))
-
             self.last_shot = current_time
-
-    def add_force(self, vector):
-        self.target_vel = list(vector)
-        self.last_force_added = pygame.time.get_ticks()
-
-    def add_force_acc(self, vector, accel, deccel):
-        self.add_force(vector)
-        self.curr_force_accel = accel
-        self.curr_force_deccel = deccel
-
 
     def draw(self,window,offset):
         drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]

@@ -26,7 +26,6 @@ class ForceObject:
 
             if force_lifetime > accel_time + duration + deccel_time:
                 force[5] = False
-                print("Gone!!")
                 continue
 
             curr_vel = [0,0]
@@ -45,15 +44,13 @@ class ForceObject:
             fx += curr_vel[0]
             fy += curr_vel[1]
 
-            print(fx,fy)
+        self.fx = fx
+        self.fy = fy
     
-    def add_force(self, target_vel, duration, accel_time, deccel_time):
+    def add_force(self, target_vel, accel_time, duration, deccel_time):
         #0 at the end is passed time in milliseconds
         #True shows that the force is still valid
-        self.forces.append([target_vel, duration, accel_time, deccel_time, pygame.time.get_ticks(), True])
-
-
-        
+        self.forces.append([target_vel, duration, accel_time, deccel_time, pygame.time.get_ticks(), True])        
 
 
 def phys_helper(curr_vel, target_vel, accel, deccel):
