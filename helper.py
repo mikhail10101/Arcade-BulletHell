@@ -32,22 +32,22 @@ def phys_helper(curr_vel, target_vel, accel, deccel):
         else:
             curr_vel[1] -= deccel
 
-#pass vel in as an array to allow for mutation
 def phys_single_helper(curr_vel, target_vel, accel, deccel):
-    if (target_vel[0] != 0):
-        if (abs(curr_vel[0] - target_vel[0]) < accel):
-            curr_vel[0] = target_vel[0]
-        elif (curr_vel[0] < target_vel[0]):
-            curr_vel[0] += accel
+    if (target_vel != 0):
+        if (abs(curr_vel - target_vel) < accel):
+            curr_vel = target_vel
+        elif (curr_vel < target_vel):
+            curr_vel += accel
         else:
-            curr_vel[0] -= accel
+            curr_vel -= accel
     else:
-        if (abs(curr_vel[0] - target_vel[0]) < deccel):
-            curr_vel[0] = target_vel[0]
-        elif (curr_vel[0] < target_vel[0]):
-            curr_vel[0] += deccel
+        if (abs(curr_vel - target_vel) < deccel):
+            curr_vel = target_vel
+        elif (curr_vel < target_vel):
+            curr_vel += deccel
         else:
-            curr_vel[0] -= deccel
+            curr_vel -= deccel
+    return curr_vel
 
 
 def dist(pos, pos2):

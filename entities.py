@@ -56,7 +56,7 @@ class Player:
 
                 rads = math.atan2(dy,dx)
 
-                bullets.append(Bullet(self.pos, 10, rads, 7))
+                bullets.append(Bullet(self.pos, 10, rads, True, 7))
 
                 self.last_shot = current_time
 
@@ -88,20 +88,19 @@ class Player:
 
 
 class Bullet:
-    def __init__(self, pos, speed, angle, radius=10):
+    def __init__(self, pos, speed, angle, target_shapes, radius=10):
         self.pos = list(pos)
         self.speed = speed
         self.angle = float(angle)
         self.radius = radius
 
         self.active = True
-        self.can_kill = False
-        self.createTime = pygame.time.get_ticks()
+
+        self.target_shapes = target_shapes
+        
+        self.active = True
 
     def update(self):
-        if pygame.time.get_ticks() > self.createTime + 200:
-            self.can_kill = True
-
         self.pos[0] += self.speed * math.cos(self.angle)
         self.pos[1] += self.speed * math.sin(self.angle)
 
@@ -118,12 +117,18 @@ class Bullet:
                 return True
             p1 = p2
         return point_in_polygon(self.pos, points)
+    
+
+
+
 
 class Triangle:
-    def __init__(self, pos, speed, size):
+    def __init__(self, pos, speed, size, health=3):
         self.pos = list(pos)
         self.speed = speed
         self.size = size
+
+        self.health = health
 
         self.angle_accel = 0.2
         self.curr_angle = 0
@@ -142,6 +147,7 @@ class Triangle:
         self.last_force_added = -1000
         self.force_duration = 50
 
+        self.active = True
 
     def update(self, players):
 
@@ -183,10 +189,12 @@ class Triangle:
 
 
 class Square:
-    def __init__(self, pos, speed, size):
+    def __init__(self, pos, speed, size, health=4):
         self.pos = list(pos)
         self.speed = speed
         self.size = size
+
+        self.health = health
 
         self.angle_accel = 0.2
         self.curr_angle = 0
@@ -205,6 +213,8 @@ class Square:
         self.target_vel = [0,0]
         self.last_force_added = -1000
         self.force_duration = 50
+
+        self.active = True
 
     def update(self, players):
         if self.last_force_added + self.force_duration < pygame.time.get_ticks():
@@ -242,14 +252,20 @@ class Square:
 
 
 
+
+
 class Squarelet:
-    def __init__(self, pos, speed, size):
+    def __init__(self, pos, speed, size, health=1):
         self.pos = list(pos)
         self.speed = speed
         self.size = size
 
+        self.health = 1
+
         self.angle_accel = 0.2
         self.curr_angle = 0
+
+        self.active = True
 
         a = (self.pos[0] + self.size/2 * math.cos(self.curr_angle), self.pos[1] + self.size * math.sin(self.curr_angle))
         b = (self.pos[0] + self.size/2 * math.cos(self.curr_angle + math.pi/2), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi/2))
@@ -262,24 +278,31 @@ class Squarelet:
         self.last_shot = -1000
         self.shot_interval = 333
 
+        #vel
+        self.curr_speed = 0
+        self.accel = 0.1
+        self.deccel = 0.05
+
         #force calculations to be added on top
         self.force_accel = 0.1
-        self.force_deccel = 0.05
+        self.force_deccel = 0.
+        
+        self.curr_force_accel = self.force_accel
+        self.curr_force_deccel = self.force_deccel
+
         self.curr_vel = [0,0]
         self.target_vel = [0,0]
         self.last_force_added = -1000
         self.force_duration = 50
-
-        #switch between moving to and away from player
-        self.last_switch = -1000
-        self.switch_interval = 333
-        self.switch_value = False
 
 
     def update(self, players, bullets):
         current_time = pygame.time.get_ticks()
         if self.last_force_added + self.force_duration < pygame.time.get_ticks():
             self.target_vel = [0,0]
+            self.curr_force_accel = self.force_accel
+        if self.last_force_added + 2*self.force_duration < pygame.time.get_ticks():
+            self.curr_force_deccel = self.force_deccel
 
         closest = players[0]
         for i in range(1,len(players)):
@@ -300,18 +323,21 @@ class Squarelet:
 
         d = dist(closest.pos, self.pos)
 
-        if d > 300 and (not self.switch_value) and pygame.time.get_ticks() > self.last_switch + self.switch_interval:
-            self.last_switch = pygame.time.get_ticks()
-            self.switch_value = True
-        if d < 300 and (self.switch_value) and pygame.time.get_ticks() > self.last_switch + self.switch_interval:
-            self.switch_value = False
+        target_speed = 0
+        if d > 350:
+            target_speed = self.speed
+        else:
+            target_speed = -self.speed
 
-        if self.switch_value:
-            self.pos[0] += self.speed * math.cos(self.curr_angle) 
-            self.pos[1] += self.speed * math.sin(self.curr_angle)
-        elif d < 300:
-            self.pos[0] -= self.speed * math.cos(self.curr_angle) 
-            self.pos[1] -= self.speed * math.sin(self.curr_angle)
+        
+        self.curr_speed = phys_single_helper(self.curr_speed, target_speed, self.accel, self.deccel)
+
+        self.pos[0] += self.curr_speed * math.cos(self.curr_angle) 
+        self.pos[1] += self.curr_speed * math.sin(self.curr_angle)
+
+
+        phys_helper(self.curr_vel, self.target_vel, self.curr_force_accel, self.curr_force_deccel)
+
         self.pos[0] += self.curr_vel[0]
         self.pos[1] += self.curr_vel[1]
 
@@ -322,13 +348,19 @@ class Squarelet:
 
             rads = math.atan2(dy,dx)
 
-            bullets.append(Bullet(self.pos, 10, rads,5))
+            bullets.append(Bullet(self.pos, 13, rads, False, 5))
 
             self.last_shot = current_time
 
     def add_force(self, vector):
         self.target_vel = list(vector)
         self.last_force_added = pygame.time.get_ticks()
+
+    def add_force_acc(self, vector, accel, deccel):
+        self.add_force(vector)
+        self.curr_force_accel = accel
+        self.curr_force_deccel = deccel
+
 
     def draw(self,window,offset):
         drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
