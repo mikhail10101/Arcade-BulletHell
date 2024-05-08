@@ -10,7 +10,7 @@ class Player:
         #movement
         self.pos = [300,300]
         self.speed = 4
-        self.accel = 0.1
+        self.accel = 0.2
         self.deccel = 0.05
         self.curr_vel = [0,0]
 
@@ -69,7 +69,6 @@ class Player:
         if 0 <= newI < len(map.map_values) and 0 <= newJ < len(map.map_values[0]):
             if (map.map_values[newI][newJ] == 1):
                 if abs(i - newI) == 1 and abs(j - newJ) == 1:
-                    print("RAWR")
                     if map.map_values[i][newJ] == 0:
                         self.pos[1] = new_pos[1]
                     elif map.map_values[newI][j] == 0:
@@ -89,11 +88,11 @@ class Player:
 
 
 class Bullet:
-    def __init__(self, pos, speed, angle):
+    def __init__(self, pos, speed, angle, radius=10):
         self.pos = list(pos)
         self.speed = speed
         self.angle = float(angle)
-        self.radius = 10
+        self.radius = radius
 
         self.active = True
         self.createTime = pygame.time.get_ticks()
@@ -104,6 +103,7 @@ class Bullet:
 
     def draw(self, window, offset=(0,0)):
         pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.radius)
+
 
 
 class Triangle:
@@ -135,12 +135,6 @@ class Triangle:
         if self.last_force_added + self.force_duration < pygame.time.get_ticks():
             self.target_vel = [0,0]
 
-        top = (self.pos[0] + self.size*2/3 * math.cos(self.curr_angle), self.pos[1] + self.size*2/3 * math.sin(self.curr_angle))
-        b1 = (self.pos[0] + self.size*2/3 * math.cos(self.curr_angle + math.pi*2/3), self.pos[1] + self.size*2/3 * math.sin(self.curr_angle + math.pi*2/3))
-        b2 = (self.pos[0] + self.size*2/3 * math.cos(self.curr_angle - math.pi*2/3), self.pos[1] + self.size*2/3 * math.sin(self.curr_angle - math.pi*2/3))
-
-        self.points = [top,b1,b2]
-
         closest = players[0]
         for i in range(1,len(players)):
             if dist(players[i].pos, self.pos) < dist(closest.pos, self.pos):
@@ -150,6 +144,12 @@ class Triangle:
 
         #implement angle matching
         self.curr_angle = target_angle
+
+        top = (self.pos[0] + self.size*2/3 * math.cos(self.curr_angle), self.pos[1] + self.size*2/3 * math.sin(self.curr_angle))
+        b1 = (self.pos[0] + self.size*2/3 * math.cos(self.curr_angle + math.pi*2/3), self.pos[1] + self.size*2/3 * math.sin(self.curr_angle + math.pi*2/3))
+        b2 = (self.pos[0] + self.size*2/3 * math.cos(self.curr_angle - math.pi*2/3), self.pos[1] + self.size*2/3 * math.sin(self.curr_angle - math.pi*2/3))
+
+        self.points = [top,b1,b2]
 
         phys_helper(self.curr_vel, self.target_vel, self.force_accel, self.force_deccel)
 
@@ -165,5 +165,151 @@ class Triangle:
 
         pygame.draw.polygon(window, (255,255,255), drawpoints)
         #pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.size)
+
+
+
+
+class Square:
+    def __init__(self, pos, speed, size):
+        self.pos = list(pos)
+        self.speed = speed
+        self.size = size
+
+        self.angle_accel = 0.2
+        self.curr_angle = 0
+
+        a = (self.pos[0] + self.size/2 * math.cos(self.curr_angle), self.pos[1] + self.size * math.sin(self.curr_angle))
+        b = (self.pos[0] + self.size/2 * math.cos(self.curr_angle + math.pi/2), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi/2))
+        c = (self.pos[0] + self.size/2 * math.cos(self.curr_angle + math.pi), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi))
+        d = (self.pos[0] + self.size/2 * math.cos(self.curr_angle + 3*math.pi/2), self.pos[1] + self.size * math.sin(self.curr_angle + 3*math.pi/2))
+
+        self.points = [a,b,c,d]
+
+        #force calculations to be added on top
+        self.force_accel = 0.1
+        self.force_deccel = 0.05
+        self.curr_vel = [0,0]
+        self.target_vel = [0,0]
+        self.last_force_added = -1000
+        self.force_duration = 50
+
+    def update(self, players):
+        if self.last_force_added + self.force_duration < pygame.time.get_ticks():
+            self.target_vel = [0,0]
+
+
+        closest = players[0]
+        for i in range(1,len(players)):
+            if dist(players[i].pos, self.pos) < dist(closest.pos, self.pos):
+                closest = players[i]
+
+        target_angle = math.atan2(closest.pos[1] - self.pos[1], closest.pos[0] - self.pos[0])
+
+        #implement angle matching
+        self.curr_angle = target_angle
+
+        a = (self.pos[0] + self.size * 0.7 * math.cos(self.curr_angle), self.pos[1] + self.size * 0.7 * math.sin(self.curr_angle))
+        b = (self.pos[0] + self.size * 0.7 * math.cos(self.curr_angle + math.pi/2), self.pos[1] + self.size * 0.7 * math.sin(self.curr_angle + math.pi/2))
+        c = (self.pos[0] + self.size * 0.7 * math.cos(self.curr_angle + math.pi), self.pos[1] + self.size * 0.7 * math.sin(self.curr_angle + math.pi))
+        d = (self.pos[0] + self.size * 0.7 * math.cos(self.curr_angle + 3*math.pi/2), self.pos[1] + self.size * 0.7 * math.sin(self.curr_angle + 3*math.pi/2))
+
+        self.points = [a,b,c,d]
+
+        self.pos[0] += self.speed * math.cos(self.curr_angle) + self.curr_vel[0]
+        self.pos[1] += self.speed * math.sin(self.curr_angle) + self.curr_vel[1]
+
+    def add_force(self,vector):
+        self.target_vel = list(vector)
+        self.last_force_added = pygame.time.get_ticks()
+
+    def draw(self,window,offset):
+        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
+
+        pygame.draw.polygon(window, (255,255,255), drawpoints)
+
+
+
+class Squarelet:
+    def __init__(self, pos, speed, size):
+        self.pos = list(pos)
+        self.speed = speed
+        self.size = size
+
+        self.angle_accel = 0.2
+        self.curr_angle = 0
+
+        a = (self.pos[0] + self.size/2 * math.cos(self.curr_angle), self.pos[1] + self.size * math.sin(self.curr_angle))
+        b = (self.pos[0] + self.size/2 * math.cos(self.curr_angle + math.pi/2), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi/2))
+        c = (self.pos[0] + self.size/2 * math.cos(self.curr_angle + math.pi), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi))
+        d = (self.pos[0] + self.size/2 * math.cos(self.curr_angle + 3*math.pi/2), self.pos[1] + self.size * math.sin(self.curr_angle + 3*math.pi/2))
+
+        self.points = [a,b,c,d]
+
+        #shot in milliseconds
+        self.last_shot = -1000
+        self.shot_interval = 333
+
+        #force calculations to be added on top
+        self.force_accel = 0.1
+        self.force_deccel = 0.05
+        self.curr_vel = [0,0]
+        self.target_vel = [0,0]
+        self.last_force_added = -1000
+        self.force_duration = 50
+
+    def update(self, players, bullets):
+        current_time = pygame.time.get_ticks()
+        if self.last_force_added + self.force_duration < pygame.time.get_ticks():
+            self.target_vel = [0,0]
+
+        closest = players[0]
+        for i in range(1,len(players)):
+            if dist(players[i].pos, self.pos) < dist(closest.pos, self.pos):
+                closest = players[i]
+
+        target_angle = math.atan2(closest.pos[1] - self.pos[1], closest.pos[0] - self.pos[0])
+
+        #implement angle matching
+        self.curr_angle = target_angle
+
+        a = (self.pos[0] + self.size * 0.7 * math.cos(self.curr_angle), self.pos[1] + self.size * 0.7 * math.sin(self.curr_angle))
+        b = (self.pos[0] + self.size * 0.7 * math.cos(self.curr_angle + math.pi/2), self.pos[1] + self.size * 0.7 * math.sin(self.curr_angle + math.pi/2))
+        c = (self.pos[0] + self.size * 0.7 * math.cos(self.curr_angle + math.pi), self.pos[1] + self.size * 0.7 * math.sin(self.curr_angle + math.pi))
+        d = (self.pos[0] + self.size * 0.7 * math.cos(self.curr_angle + 3*math.pi/2), self.pos[1] + self.size * 0.7 * math.sin(self.curr_angle + 3*math.pi/2))
+
+        self.points = [a,b,c,d]
+
+        d = dist(closest.pos, self.pos)
+        if d > 300:
+            self.pos[0] += self.speed * math.cos(self.curr_angle) 
+            self.pos[1] += self.speed * math.sin(self.curr_angle)
+        elif d < 300:
+            self.pos[0] -= self.speed * math.cos(self.curr_angle) 
+            self.pos[1] -= self.speed * math.sin(self.curr_angle)
+        self.pos[0] += self.curr_vel[0]
+        self.pos[1] += self.curr_vel[1]
+
+
+        if current_time > self.last_shot + self.shot_interval:
+            dx = closest.pos[0] - self.pos[0]
+            dy = closest.pos[1] - self.pos[1]
+
+            rads = math.atan2(dy,dx)
+
+            bullets.append(Bullet(self.pos, 10, rads,5))
+
+            self.last_shot = current_time
+
+    def add_force(self,vector):
+        self.target_vel = list(vector)
+        self.last_force_added = pygame.time.get_ticks()
+
+    def draw(self,window,offset):
+        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
+
+        pygame.draw.polygon(window, (255,255,255), drawpoints)
+
+
+    
 
 

@@ -9,7 +9,8 @@ class Game:
 
         self.player_container = [Player()]
         self.bullet_container = []
-        self.shape_container = [Triangle((400,400),2,30), Triangle((450,400),2,30), Triangle((400,450),2,30), Triangle((425,425),2,30), Triangle((500,500),2,30), Triangle((475,400),2,30), Triangle((400,475),2,30), Triangle((475,475),2,30)]
+        #self.shape_container = [Squarelet((300,300),3,25),Triangle((400,400),2,30), Triangle((450,400),2,30), Triangle((400,450),2,30), Triangle((425,425),2,30), Triangle((500,500),2,30), Triangle((475,400),2,30), Triangle((400,475),2,30), Triangle((475,475),2,30)]
+        self.shape_container = [Squarelet((300,300),3,25)]
 
         self.window = pygame.display.set_mode((length, width))
         pygame.display.set_caption("Arcade Game")
@@ -43,20 +44,22 @@ class Game:
             b.update()
 
         for i in range(len(self.shape_container)):
-            self.shape_container[i].update(self.player_container)
+            #temp
+            self.shape_container[i].update(self.player_container, self.bullet_container)
+
             for j in range(i+1, len(self.shape_container)):
                 s1 = self.shape_container[i]
                 s2 = self.shape_container[j]
 
+                rads = math.atan2(s1.pos[0] - s2.pos[0], s1.pos[1] - s2.pos[1])
                 if dist(s1.pos, s2.pos) < max(s1.size, s2.size):
                     if (s1.size < s2.size):
-                        #move s1
-                        pass
+                        strength = s1.size/10
+                        s1.add_force((strength * math.cos(rads), strength * math.sin(rads)))
                     elif (s2.size > s1.size):
-                        #move s2
-                        pass
+                        strength = s2.size/10
+                        s2.add_force((-strength * math.cos(rads), -strength * math.sin(rads)))
                     else:
-                        rads = math.atan2(s1.pos[0] - s2.pos[0], s1.pos[1] - s2.pos[1])
                         strength = s1.size/10
                         s1.add_force((strength * math.cos(rads), strength * math.sin(rads)))
                         s2.add_force((-strength * math.cos(rads), -strength * math.sin(rads)))
