@@ -56,7 +56,7 @@ class Player:
 
                 rads = math.atan2(dy,dx)
 
-                bullets.append(Bullet(self.pos, 10, rads))
+                bullets.append(Bullet(self.pos, 10, rads, 7))
 
                 self.last_shot = current_time
 
@@ -104,7 +104,16 @@ class Bullet:
     def draw(self, window, offset=(0,0)):
         pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.radius)
 
-
+    #bullet collisions with an ordered set of points (any polygon)
+    def collision(self, points):
+        n = len(points)
+        p1 = 0
+        for i in range(1, n+1):
+            p2 = i%n
+            if intersect_circle(points[p1],points[p2],self.pos,self.radius):
+                return True
+            p1 = p2
+        return point_in_polygon(self.pos, points)
 
 class Triangle:
     def __init__(self, pos, speed, size):
@@ -300,7 +309,7 @@ class Squarelet:
 
             self.last_shot = current_time
 
-    def add_force(self,vector):
+    def add_force(self, vector):
         self.target_vel = list(vector)
         self.last_force_added = pygame.time.get_ticks()
 
@@ -308,6 +317,9 @@ class Squarelet:
         drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
 
         pygame.draw.polygon(window, (255,255,255), drawpoints)
+
+
+
 
 
     

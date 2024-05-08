@@ -19,7 +19,7 @@ class Game:
 
     def draw(self):
         self.window.fill((0,0,0))
-        
+
         self.map.draw(self.window, self.scroll)
 
         for p in self.player_container:
@@ -39,6 +39,10 @@ class Game:
 
         self.bullet_container[:] = [b for b in self.bullet_container if b.active]
         for b in self.bullet_container:
+            for s in self.shape_container:
+                if b.collision(s.points):
+                    b.active = False
+
             if self.map.is_in_wall(b.pos):
                 b.active = False
             b.update()
