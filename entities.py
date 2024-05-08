@@ -95,9 +95,13 @@ class Bullet:
         self.radius = radius
 
         self.active = True
+        self.can_kill = False
         self.createTime = pygame.time.get_ticks()
 
     def update(self):
+        if pygame.time.get_ticks() > self.createTime + 200:
+            self.can_kill = True
+
         self.pos[0] += self.speed * math.cos(self.angle)
         self.pos[1] += self.speed * math.sin(self.angle)
 
@@ -266,6 +270,12 @@ class Squarelet:
         self.last_force_added = -1000
         self.force_duration = 50
 
+        #switch between moving to and away from player
+        self.last_switch = -1000
+        self.switch_interval = 333
+        self.switch_value = False
+
+
     def update(self, players, bullets):
         current_time = pygame.time.get_ticks()
         if self.last_force_added + self.force_duration < pygame.time.get_ticks():
@@ -289,7 +299,14 @@ class Squarelet:
         self.points = [a,b,c,d]
 
         d = dist(closest.pos, self.pos)
-        if d > 300:
+
+        if d > 300 and (not self.switch_value) and pygame.time.get_ticks() > self.last_switch + self.switch_interval:
+            self.last_switch = pygame.time.get_ticks()
+            self.switch_value = True
+        if d < 300 and (self.switch_value) and pygame.time.get_ticks() > self.last_switch + self.switch_interval:
+            self.switch_value = False
+
+        if self.switch_value:
             self.pos[0] += self.speed * math.cos(self.curr_angle) 
             self.pos[1] += self.speed * math.sin(self.curr_angle)
         elif d < 300:

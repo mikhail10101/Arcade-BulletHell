@@ -40,7 +40,7 @@ class Game:
         self.bullet_container[:] = [b for b in self.bullet_container if b.active]
         for b in self.bullet_container:
             for s in self.shape_container:
-                if b.collision(s.points):
+                if b.collision(s.points) and b.can_kill:
                     b.active = False
 
             if self.map.is_in_wall(b.pos):
