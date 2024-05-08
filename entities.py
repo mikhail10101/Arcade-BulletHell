@@ -1,6 +1,6 @@
 import pygame
 import math
-from helper import *
+from physics import *
 
 class Player:
     def __init__(self):
