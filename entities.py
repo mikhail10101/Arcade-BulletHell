@@ -301,6 +301,53 @@ class Squarelet(ForceObject):
 
 
 
+class Pentagon(ForceObject):
+    def __init__(self, pos, size, health=5):
+        super().__init__()
+
+        self.pos = list(pos)
+        self.size = size
+
+        self.health = health
+
+        self.curr_angle = 0
+
+        p1 = (self.pos[0], self.pos[1])
+        p2 = (self.pos[0] + self.size * math.cos(self.curr_angle + math.pi/4), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi/4))
+        p3 = (self.pos[0] + self.size * math.cos(self.curr_angle + math.pi/3), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi/3))
+        p4 = (self.pos[0] + self.size * math.cos(self.curr_angle - math.pi/3), self.pos[1] + self.size * math.sin(self.curr_angle - math.pi/3))
+        p5 = (self.pos[0] + self.size * math.cos(self.curr_angle - math.pi/4), self.pos[1] + self.size * math.sin(self.curr_angle - math.pi/4))
+
+        self.points = [p1,p2,p3,p4,p5]
+
+        self.active = True
+    
+    def update(self,players):
+        super().update()
+
+        closest = players[0]
+        for i in range(1,len(players)):
+            if dist(players[i].pos, self.pos) < dist(closest.pos, self.pos):
+                closest = players[i]
+
+        target_angle = math.atan2(closest.pos[1] - self.pos[1], closest.pos[0] - self.pos[0])
+
+        #implement angle matching
+        self.curr_angle = target_angle
+
+        self.points[0] = (self.pos[0], self.pos[1])
+        self.points[1] = (self.pos[0] + self.size * math.cos(self.curr_angle + math.pi/3), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi/3))
+        self.points[2] = (self.pos[0] + self.size * math.cos(self.curr_angle + math.pi*2/3), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi*2/3))
+        self.points[3] = (self.pos[0] + self.size * math.cos(self.curr_angle - math.pi*2/3), self.pos[1] + self.size * math.sin(self.curr_angle - math.pi*2/3))
+        self.points[4] = (self.pos[0] + self.size * math.cos(self.curr_angle - math.pi/3), self.pos[1] + self.size * math.sin(self.curr_angle - math.pi/3))
+
+    def draw(self, window, offset):
+        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
+
+        pygame.draw.polygon(window, (255,255,255), drawpoints)
+        #pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.size)
+
+
 
     
 
