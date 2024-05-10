@@ -170,13 +170,3 @@ def middle_bounds(size,w):
 def signed_angle(angle, target_angle):
     a = target_angle - angle
     return (a + math.pi) % (2*math.pi) - math.pi
-
-def angle_helper(angle, target_angle, curr_angle_vel, angle_speed, angle_accel):
-    s = signed_angle(angle, target_angle)
-    if s < 0:
-        target_vel = -angle_speed
-    elif s > 0:
-        target_vel = +angle_speed
-    else:
-        target_vel = 0
-    return phys_single_helper(curr_angle_vel, target_vel, angle_accel, angle_accel)

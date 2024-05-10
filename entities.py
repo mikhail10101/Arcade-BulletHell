@@ -1,5 +1,6 @@
 import pygame
 import math
+import random
 from physics import *
 
 class Player:
@@ -311,9 +312,6 @@ class Pentagon(ForceObject):
         self.health = health
 
         self.angle_pos = 0
-        self.angle_speed = 0.05
-        self.curr_angle_vel = 0
-        self.angle_accel = 0.005
 
         p1 = (self.pos[0], self.pos[1])
         p2 = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi/4), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi/4))
@@ -337,6 +335,8 @@ class Pentagon(ForceObject):
         self.laser_duration = 2000
         self.lasers = []
         self.bounds = [0,0]
+
+        self.laser_warning = []
     
     def update(self,players,map):
         super().update()
@@ -354,35 +354,41 @@ class Pentagon(ForceObject):
 
             target_angle = math.atan2(closest.pos[1] - self.pos[1], closest.pos[0] - self.pos[0])
             #implement angle matching
-            self.curr_angle_vel = angle_helper(self.angle_pos, target_angle, self.curr_angle_vel, self.angle_speed, self.angle_accel)
-            if abs(signed_angle(self.angle_pos, target_angle)) < abs(self.curr_angle_vel):
-                self.angle_pos = target_angle
             
-            self.angle_pos += self.curr_angle_vel
+            self.angle_pos = target_angle
 
             if current_time > self.laser_interval + self.last_laser:
                 self.mode = 1
                 self.last_laser = current_time
         
         if self.mode == 1:
+            if len(self.laser_warning) == 0:
+                self.laser_warning.append((self.pos,map.raycast(self.pos,self.angle_pos,10000)))
+        
             if current_time > + self.pause_duration + self.last_laser:
                 self.mode = 2
                 self.shoot_laser(map)
-        
+                
         if self.mode == 2:
+            if len(self.laser_warning) > 0:
+                self.laser_warning = []
+
             #shooting laser mode
             laser_time = self.laser_duration + current_time - (self.laser_duration + self.pause_duration + self.last_laser)
             
             #ratio goes from 0 to 1
             time_ratio = min(laser_time/self.laser_duration,1)
             w_ratio = 0
-            if time_ratio < 0.25:
-                w_ratio = time_ratio * 4
+            if time_ratio < 0.1:
+                w_ratio = time_ratio**2 * 10**2
             elif time_ratio >= 0.9:
                 time_ratio -= 0.9
                 w_ratio = (0.1 - time_ratio)/0.1
             else:
-                w_ratio = 1
+                if current_time%7 == 0:
+                    w_ratio = 1
+                else:
+                    w_ratio = 0.9
 
             self.bounds[0], self.bounds[1] = middle_bounds(len(self.lasers), w_ratio)
 
@@ -410,6 +416,13 @@ class Pentagon(ForceObject):
                 (laser[0][0] - offset[0], laser[0][1] - offset[1]), 
                 (laser[1][0] - offset[0], laser[1][1] - offset[1]), 
             2)
+
+        for warn in self.laser_warning:
+            pygame.draw.line(window, (255,0,0), 
+                (warn[0][0] - offset[0], warn[0][1] - offset[1]), 
+                (warn[1][0] - offset[0], warn[1][1] - offset[1]), 
+            2)
+
     
     def shoot_laser(self, map):
         self.lasers = []
