@@ -1,4 +1,5 @@
 import pygame
+import math
 
 TILESIZE = 64
 
@@ -30,4 +31,56 @@ class Map:
             y = int(pos[1] // TILESIZE)
             return self.map_values[x][y] == 1
         return False
+    
+    #angle in radians
+    def raycast(self, start_pos, angle, max_distance):
+        dirx = math.cos(angle)
+        diry = math.sin(angle)
+
+        unit_step_size = [
+            math.sqrt( 1 + (diry/dirx)**2 ),
+            math.sqrt( 1 + (dirx/diry)**2 )
+        ]
+
+        map_check = [int(i//self.tile_size) for i in start_pos]
+        #step in index
+        step = [0,0]
+        #step in 1-component raylength
+        ray_length = [0,0]
+
+        #initlialize raylengths
+        if dirx < 0:
+            step[0] = -1
+            ray_length[0] = (start_pos[0] - map_check[0] * self.tile_size) * unit_step_size[0] / self.tile_size
+        else:
+            step[0] = 1
+            ray_length[0] = ((map_check[0] + 1) * self.tile_size - start_pos[0]) * unit_step_size[0] / self.tile_size
+        if diry < 0:
+            step[1] = -1
+            ray_length[1] = (start_pos[1] - map_check[1] * self.tile_size) * unit_step_size[1] / self.tile_size 
+        else:
+            step[1] = 1
+            ray_length[1] = ((map_check[1] + 1) * self.tile_size - start_pos[1]) * unit_step_size[1] / self.tile_size 
+
+        tileFound = False
+        curr_distance = 0
+        while not tileFound and curr_distance < max_distance:
+            if ray_length[0] < ray_length[1]:
+                map_check[0] += step[0]
+                curr_distance = ray_length[0]
+                ray_length[0] += unit_step_size[0]
+            else:
+                map_check[1] += step[1]
+                curr_distance = ray_length[1]
+                ray_length[1] += unit_step_size[1]
+            if 0 <= map_check[0] < len(self.map_values) and 0 <= map_check[1] < len(self.map_values[0]):
+                if self.map_values[map_check[0]][map_check[1]] == 1:
+                    tileFound = True
         
+        if tileFound:
+            return [
+                start_pos[0] + curr_distance * dirx * self.tile_size,
+                start_pos[1] + curr_distance * diry * self.tile_size
+            ]
+    
+        return None

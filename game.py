@@ -27,11 +27,9 @@ class Game:
 
         self.scroll = [0,0]
 
+        
 
-        self.test = ForceObject()
-        self.test.add_force([5,5],500, 500, 500)
-        self.test.add_force([-5,-5],500, 500, 500)
-
+    
     def draw(self):
         self.window.fill((0,0,0))
 
@@ -49,7 +47,7 @@ class Game:
         pygame.display.update()
 
     def update(self, inputs):
-        self.test.update()
+        
 
         for p in self.player_container:
             p.update(inputs, self.bullet_container, self.map, self.scroll)
@@ -63,7 +61,6 @@ class Game:
                         if s.health == 0:
                             if s.__class__.__name__ == "Square":
                                 self.spawn_squarelets(s.pos,s.size/2,0,0)
-
                             s.active = False
                         b.active = False
                         break
@@ -75,11 +72,12 @@ class Game:
         self.shape_container[:] = [s for s in self.shape_container if s.active]
         for i in range(len(self.shape_container)):
             s1 = self.shape_container[i]
-            if (s1.__class__.__name__ == "Squarelet"):
+            if s1.__class__.__name__ == "Squarelet":
                 s1.update(self.player_container, self.bullet_container)
+            elif s1.__class__.__name__ == "Pentagon":
+                s1.update(self.player_container, self.map)
             else:
                 s1.update(self.player_container)
-
             for j in range(i+1, len(self.shape_container)):
                 s2 = self.shape_container[j]
 

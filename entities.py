@@ -310,44 +310,120 @@ class Pentagon(ForceObject):
 
         self.health = health
 
-        self.curr_angle = 0
+        self.angle_pos = 0
+        self.angle_speed = 0.05
+        self.curr_angle_vel = 0
+        self.angle_accel = 0.005
 
         p1 = (self.pos[0], self.pos[1])
-        p2 = (self.pos[0] + self.size * math.cos(self.curr_angle + math.pi/4), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi/4))
-        p3 = (self.pos[0] + self.size * math.cos(self.curr_angle + math.pi/3), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi/3))
-        p4 = (self.pos[0] + self.size * math.cos(self.curr_angle - math.pi/3), self.pos[1] + self.size * math.sin(self.curr_angle - math.pi/3))
-        p5 = (self.pos[0] + self.size * math.cos(self.curr_angle - math.pi/4), self.pos[1] + self.size * math.sin(self.curr_angle - math.pi/4))
+        p2 = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi/4), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi/4))
+        p3 = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi/3), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi/3))
+        p4 = (self.pos[0] + self.size * math.cos(self.angle_pos - math.pi/3), self.pos[1] + self.size * math.sin(self.angle_pos - math.pi/3))
+        p5 = (self.pos[0] + self.size * math.cos(self.angle_pos - math.pi/4), self.pos[1] + self.size * math.sin(self.angle_pos - math.pi/4))
 
         self.points = [p1,p2,p3,p4,p5]
 
         self.active = True
+
+
+        self.mode = 0
+        #0 normal
+        #1 shooting
+
+        #laser details
+        self.pause_duration = 1000
+        self.laser_interval = 6000
+        self.last_laser = 0
+        self.laser_duration = 2000
+        self.lasers = []
+        self.bounds = [0,0]
     
-    def update(self,players):
+    def update(self,players,map):
         super().update()
+        current_time = pygame.time.get_ticks()
 
-        closest = players[0]
-        for i in range(1,len(players)):
-            if dist(players[i].pos, self.pos) < dist(closest.pos, self.pos):
-                closest = players[i]
+        if self.mode == 0:
+            if len(self.lasers) > 0:
+                self.bounds[0] = 0
+                self.bounds[1] = 0
 
-        target_angle = math.atan2(closest.pos[1] - self.pos[1], closest.pos[0] - self.pos[0])
+            closest = players[0]
+            for i in range(1,len(players)):
+                if dist(players[i].pos, self.pos) < dist(closest.pos, self.pos):
+                    closest = players[i]
 
-        #implement angle matching
-        self.curr_angle = target_angle
+            target_angle = math.atan2(closest.pos[1] - self.pos[1], closest.pos[0] - self.pos[0])
+            #implement angle matching
+            self.curr_angle_vel = angle_helper(self.angle_pos, target_angle, self.curr_angle_vel, self.angle_speed, self.angle_accel)
+            if abs(signed_angle(self.angle_pos, target_angle)) < abs(self.curr_angle_vel):
+                self.angle_pos = target_angle
+            
+            self.angle_pos += self.curr_angle_vel
+
+            if current_time > self.laser_interval + self.last_laser:
+                self.mode = 1
+                self.last_laser = current_time
+        
+        if self.mode == 1:
+            if current_time > + self.pause_duration + self.last_laser:
+                self.mode = 2
+                self.shoot_laser(map)
+        
+        if self.mode == 2:
+            #shooting laser mode
+            laser_time = self.laser_duration + current_time - (self.laser_duration + self.pause_duration + self.last_laser)
+            
+            #ratio goes from 0 to 1
+            time_ratio = min(laser_time/self.laser_duration,1)
+            w_ratio = 0
+            if time_ratio < 0.25:
+                w_ratio = time_ratio * 4
+            elif time_ratio >= 0.9:
+                time_ratio -= 0.9
+                w_ratio = (0.1 - time_ratio)/0.1
+            else:
+                w_ratio = 1
+
+            self.bounds[0], self.bounds[1] = middle_bounds(len(self.lasers), w_ratio)
+
+            if current_time > self.laser_duration + self.pause_duration + self.last_laser:
+                self.mode = 0
+
+        
 
         self.points[0] = (self.pos[0], self.pos[1])
-        self.points[1] = (self.pos[0] + self.size * math.cos(self.curr_angle + math.pi/3), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi/3))
-        self.points[2] = (self.pos[0] + self.size * math.cos(self.curr_angle + math.pi*2/3), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi*2/3))
-        self.points[3] = (self.pos[0] + self.size * math.cos(self.curr_angle - math.pi*2/3), self.pos[1] + self.size * math.sin(self.curr_angle - math.pi*2/3))
-        self.points[4] = (self.pos[0] + self.size * math.cos(self.curr_angle - math.pi/3), self.pos[1] + self.size * math.sin(self.curr_angle - math.pi/3))
+        self.points[1] = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi/3), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi/3))
+        self.points[2] = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi*2/3), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi*2/3))
+        self.points[3] = (self.pos[0] + self.size * math.cos(self.angle_pos - math.pi*2/3), self.pos[1] + self.size * math.sin(self.angle_pos - math.pi*2/3))
+        self.points[4] = (self.pos[0] + self.size * math.cos(self.angle_pos - math.pi/3), self.pos[1] + self.size * math.sin(self.angle_pos - math.pi/3))
+
+
 
     def draw(self, window, offset):
         drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
 
         pygame.draw.polygon(window, (255,255,255), drawpoints)
-        #pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.size)
 
+        for i in range(self.bounds[0],self.bounds[1]):
+            laser = self.lasers[i]
+            pygame.draw.line(window, (255,255,255), 
+                (laser[0][0] - offset[0], laser[0][1] - offset[1]), 
+                (laser[1][0] - offset[0], laser[1][1] - offset[1]), 
+            2)
+    
+    def shoot_laser(self, map):
+        self.lasers = []
+        s = int(self.size//4)
+        for i in range(-s,s+1,1):
+            p1 = (
+                self.pos[0] - i * math.cos(self.angle_pos + math.pi/2),
+                self.pos[1] - i * math.sin(self.angle_pos + math.pi/2)
+            )
+            p2 = map.raycast(p1, self.angle_pos, 10000)
+            self.lasers.append((p1,p2))
+        print(len(self.lasers))
 
+        
 
     
 

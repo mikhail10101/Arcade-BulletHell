@@ -148,3 +148,35 @@ def intersect_circle(pointA, pointB , center, radius):
         return True
     return False
 
+def middle_bounds(size,w):
+    if w==1:
+        return (0,size)
+    if w==0:
+        return (0, 0)
+    
+    amount = int(size*w)
+    
+    if size%2 == 0:
+        if amount%2 == 1:
+            amount += 1
+        return (max(0,size//2 - amount//2), min(size//2 + amount//2,size))
+
+    if size%2 == 1:
+        if amount%2 == 0:
+            amount += 1
+        return (max(0,size//2 - amount//2), min(size//2 + amount//2 + 1,size))
+
+
+def signed_angle(angle, target_angle):
+    a = target_angle - angle
+    return (a + math.pi) % (2*math.pi) - math.pi
+
+def angle_helper(angle, target_angle, curr_angle_vel, angle_speed, angle_accel):
+    s = signed_angle(angle, target_angle)
+    if s < 0:
+        target_vel = -angle_speed
+    elif s > 0:
+        target_vel = +angle_speed
+    else:
+        target_vel = 0
+    return phys_single_helper(curr_angle_vel, target_vel, angle_accel, angle_accel)
