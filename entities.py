@@ -143,6 +143,7 @@ class Triangle(ForceObject):
         self.points = [top, b1, b2]
 
         self.active = True
+        self.disp = [0,0]
 
     def update(self, players):
         super().update()
@@ -159,8 +160,11 @@ class Triangle(ForceObject):
         self.points[1] = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi*2/3), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi*2/3))
         self.points[2] = (self.pos[0] + self.size * math.cos(self.angle_pos - math.pi*2/3), self.pos[1] + self.size * math.sin(self.angle_pos - math.pi*2/3))
 
-        self.pos[0] += self.speed * math.cos(self.angle_pos) + self.fx
-        self.pos[1] += self.speed * math.sin(self.angle_pos) + self.fy
+        self.disp[0] = self.speed * math.cos(self.angle_pos) + self.fx
+        self.disp[1] = self.speed * math.sin(self.angle_pos) + self.fy
+
+        self.pos[0] += self.disp[0]
+        self.pos[1] += self.disp[1]
 
     def draw(self, window, offset):
         drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
@@ -191,6 +195,7 @@ class Square(ForceObject):
         self.points = [a,b,c,d]
 
         self.active = True
+        self.disp = [0,0]
 
         #charge details
         self.charge_interval = 3000
@@ -214,8 +219,8 @@ class Square(ForceObject):
             target_angle = math.atan2(closest.pos[1] - self.pos[1], closest.pos[0] - self.pos[0])
             self.angle_pos = move_angle(self.angle_pos, target_angle, self.angle_vel)
 
-            self.pos[0] += self.speed * math.cos(self.angle_pos) + self.fx
-            self.pos[1] += self.speed * math.sin(self.angle_pos) + self.fy
+            self.disp[0] = self.speed * math.cos(self.angle_pos) + self.fx
+            self.disp[1] = self.speed * math.sin(self.angle_pos) + self.fy
 
             if current_time > self.charge_interval + self.last_charge:
                 self.mode = 1
@@ -239,8 +244,8 @@ class Square(ForceObject):
                 )
 
         else:
-            self.pos[0] += self.fx
-            self.pos[1] += self.fy
+            self.disp[0] = self.fx
+            self.disp[1] = self.fy
 
             if current_time > self.charge_duration + self.pause_duration + self.last_charge:
                 self.mode = 0
@@ -250,6 +255,9 @@ class Square(ForceObject):
         self.points[1] = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi/2), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi/2))
         self.points[2] = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi))
         self.points[3] = (self.pos[0] + self.size * math.cos(self.angle_pos + 3*math.pi/2), self.pos[1] + self.size * math.sin(self.angle_pos + 3*math.pi/2))
+
+        self.pos[0] += self.disp[0]
+        self.pos[1] += self.disp[1]
 
     def draw(self,window,offset):
         drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
@@ -272,6 +280,7 @@ class Squarelet(ForceObject):
         self.angle_vel = 0.08
 
         self.active = True
+        self.disp = [0,0]
 
         a = (self.pos[0] + self.size/2 * math.cos(self.angle_pos), self.pos[1] + self.size * math.sin(self.angle_pos))
         b = (self.pos[0] + self.size/2 * math.cos(self.angle_pos + math.pi/2), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi/2))
@@ -319,8 +328,11 @@ class Squarelet(ForceObject):
             target_speed = -self.speed
 
         self.curr_speed = phys_single_helper(self.curr_speed, target_speed, self.accel, self.deccel)
-        self.pos[0] += self.curr_speed * math.cos(self.angle_pos) + self.fx 
-        self.pos[1] += self.curr_speed * math.sin(self.angle_pos) + self.fy
+        self.disp[0] = self.curr_speed * math.cos(self.angle_pos) + self.fx 
+        self.disp[1] = self.curr_speed * math.sin(self.angle_pos) + self.fy
+
+        self.pos[0] += self.disp[0]
+        self.pos[1] += self.disp[1]
 
         if current_time > self.last_shot + self.shot_interval:
             dx = closest.pos[0] - self.pos[0]
@@ -358,6 +370,7 @@ class Pentagon(ForceObject):
         self.points = [p1,p2,p3,p4,p5]
 
         self.active = True
+        self.disp = [0,0]
 
 
         self.mode = 0

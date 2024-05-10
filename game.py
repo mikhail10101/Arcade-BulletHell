@@ -85,12 +85,12 @@ class Game:
                 rads = math.atan2(s1.pos[0] - s2.pos[0], s1.pos[1] - s2.pos[1])
                 if dist(s1.pos, s2.pos) < s1.size + s2.size:
                     if (s1.size > s2.size):
-                        s2.add_force((s1.size/100 * math.cos(rads), s1.size/50 * math.sin(rads)),100,50,200)
+                        s2.add_force((s1.size/100 * math.cos(rads), s1.size/100 * math.sin(rads)),100,50,200)
                     elif (s2.size < s1.size):
-                        s1.add_force((s2.size/100 * math.cos(rads), s2.size/50 * math.sin(rads)),100,50,200)
+                        s1.add_force((s2.size/100 * math.cos(rads), s2.size/100 * math.sin(rads)),100,50,200)
                     else:
-                        s1.add_force((s2.size/100 * math.cos(rads), s2.size/50 * math.sin(rads)),100,50,200)
-                        s2.add_force((s1.size/100 * math.cos(rads), -s1.size/50 * math.sin(rads)),100,50,200)
+                        s1.add_force((s2.size/100 * math.cos(rads), s2.size/100 * math.sin(rads)),100,50,200)
+                        s2.add_force((s1.size/100 * math.cos(rads), -s1.size/100 * math.sin(rads)),100,50,200)
 
         #update later on
         self.scroll[0] += (self.player_container[0].pos[0] - self.window.get_width()/2 - self.scroll[0]) / 10
