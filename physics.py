@@ -170,3 +170,13 @@ def middle_bounds(size,w):
 def signed_angle(angle, target_angle):
     a = target_angle - angle
     return (a + math.pi) % (2*math.pi) - math.pi
+
+def move_angle(angle, target_angle, angle_vel):
+    diff = signed_angle(angle, target_angle)
+    if abs(diff) < angle_vel:
+        return target_angle
+    
+    if diff < 0:
+        return angle - angle_vel
+    else:
+        return angle + angle_vel

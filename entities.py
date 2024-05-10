@@ -133,12 +133,12 @@ class Triangle(ForceObject):
 
         self.health = health
 
-        self.angle_accel = 0.2
-        self.curr_angle = 0
+        self.angle_pos = 0
+        self.angle_vel = 0.08
 
-        top = (self.pos[0] + self.size * math.cos(self.curr_angle), self.pos[1] + self.size * math.sin(self.curr_angle))
-        b1 = (self.pos[0] + self.size * math.cos(self.curr_angle + math.pi*2/3), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi*2/3))
-        b2 = (self.pos[0] + self.size * math.cos(self.curr_angle - math.pi*2/3), self.pos[1] + self.size * math.sin(self.curr_angle - math.pi*2/3))
+        top = (self.pos[0] + self.size * math.cos(self.angle_pos), self.pos[1] + self.size * math.sin(self.angle_pos))
+        b1 = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi*2/3), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi*2/3))
+        b2 = (self.pos[0] + self.size * math.cos(self.angle_pos - math.pi*2/3), self.pos[1] + self.size * math.sin(self.angle_pos - math.pi*2/3))
 
         self.points = [top, b1, b2]
 
@@ -153,16 +153,14 @@ class Triangle(ForceObject):
                 closest = players[i]
 
         target_angle = math.atan2(closest.pos[1] - self.pos[1], closest.pos[0] - self.pos[0])
+        self.angle_pos = move_angle(self.angle_pos, target_angle, self.angle_vel)
 
-        #implement angle matching
-        self.curr_angle = target_angle
+        self.points[0] = (self.pos[0] + self.size * math.cos(self.angle_pos), self.pos[1] + self.size * math.sin(self.angle_pos))
+        self.points[1] = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi*2/3), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi*2/3))
+        self.points[2] = (self.pos[0] + self.size * math.cos(self.angle_pos - math.pi*2/3), self.pos[1] + self.size * math.sin(self.angle_pos - math.pi*2/3))
 
-        self.points[0] = (self.pos[0] + self.size * math.cos(self.curr_angle), self.pos[1] + self.size * math.sin(self.curr_angle))
-        self.points[1] = (self.pos[0] + self.size * math.cos(self.curr_angle + math.pi*2/3), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi*2/3))
-        self.points[2] = (self.pos[0] + self.size * math.cos(self.curr_angle - math.pi*2/3), self.pos[1] + self.size * math.sin(self.curr_angle - math.pi*2/3))
-
-        self.pos[0] += self.speed * math.cos(self.curr_angle) + self.fx
-        self.pos[1] += self.speed * math.sin(self.curr_angle) + self.fy
+        self.pos[0] += self.speed * math.cos(self.angle_pos) + self.fx
+        self.pos[1] += self.speed * math.sin(self.angle_pos) + self.fy
 
     def draw(self, window, offset):
         drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
@@ -182,13 +180,13 @@ class Square(ForceObject):
 
         self.health = health
 
-        self.angle_accel = 0.2
-        self.curr_angle = 0
+        self.angle_pos = 0
+        self.angle_vel = 0.08
 
-        a = (self.pos[0] + self.size * math.cos(self.curr_angle), self.pos[1] + self.size * math.sin(self.curr_angle))
-        b = (self.pos[0] + self.size * math.cos(self.curr_angle + math.pi/2), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi/2))
-        c = (self.pos[0] + self.size * math.cos(self.curr_angle + math.pi), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi))
-        d = (self.pos[0] + self.size * math.cos(self.curr_angle + 3*math.pi/2), self.pos[1] + self.size * math.sin(self.curr_angle + 3*math.pi/2))
+        a = (self.pos[0] + self.size * math.cos(self.angle_pos), self.pos[1] + self.size * math.sin(self.angle_pos))
+        b = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi/2), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi/2))
+        c = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi))
+        d = (self.pos[0] + self.size * math.cos(self.angle_pos + 3*math.pi/2), self.pos[1] + self.size * math.sin(self.angle_pos + 3*math.pi/2))
 
         self.points = [a,b,c,d]
 
@@ -202,17 +200,15 @@ class Square(ForceObject):
                 closest = players[i]
 
         target_angle = math.atan2(closest.pos[1] - self.pos[1], closest.pos[0] - self.pos[0])
+        self.angle_pos = move_angle(self.angle_pos, target_angle, self.angle_vel)
 
-        #implement angle matching
-        self.curr_angle = target_angle
+        self.points[0] = (self.pos[0] + self.size * math.cos(self.angle_pos), self.pos[1] + self.size * math.sin(self.angle_pos))
+        self.points[1] = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi/2), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi/2))
+        self.points[2] = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi))
+        self.points[3] = (self.pos[0] + self.size * math.cos(self.angle_pos + 3*math.pi/2), self.pos[1] + self.size * math.sin(self.angle_pos + 3*math.pi/2))
 
-        self.points[0] = (self.pos[0] + self.size * math.cos(self.curr_angle), self.pos[1] + self.size * math.sin(self.curr_angle))
-        self.points[1] = (self.pos[0] + self.size * math.cos(self.curr_angle + math.pi/2), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi/2))
-        self.points[2] = (self.pos[0] + self.size * math.cos(self.curr_angle + math.pi), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi))
-        self.points[3] = (self.pos[0] + self.size * math.cos(self.curr_angle + 3*math.pi/2), self.pos[1] + self.size * math.sin(self.curr_angle + 3*math.pi/2))
-
-        self.pos[0] += self.speed * math.cos(self.curr_angle) + self.fx
-        self.pos[1] += self.speed * math.sin(self.curr_angle) + self.fy
+        self.pos[0] += self.speed * math.cos(self.angle_pos) + self.fx
+        self.pos[1] += self.speed * math.sin(self.angle_pos) + self.fy
 
     def draw(self,window,offset):
         drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
@@ -231,15 +227,15 @@ class Squarelet(ForceObject):
 
         self.health = 1
 
-        self.angle_accel = 0.2
-        self.curr_angle = 0
+        self.angle_pos = 0
+        self.angle_vel = 0.08
 
         self.active = True
 
-        a = (self.pos[0] + self.size/2 * math.cos(self.curr_angle), self.pos[1] + self.size * math.sin(self.curr_angle))
-        b = (self.pos[0] + self.size/2 * math.cos(self.curr_angle + math.pi/2), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi/2))
-        c = (self.pos[0] + self.size/2 * math.cos(self.curr_angle + math.pi), self.pos[1] + self.size * math.sin(self.curr_angle + math.pi))
-        d = (self.pos[0] + self.size/2 * math.cos(self.curr_angle + 3*math.pi/2), self.pos[1] + self.size * math.sin(self.curr_angle + 3*math.pi/2))
+        a = (self.pos[0] + self.size/2 * math.cos(self.angle_pos), self.pos[1] + self.size * math.sin(self.angle_pos))
+        b = (self.pos[0] + self.size/2 * math.cos(self.angle_pos + math.pi/2), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi/2))
+        c = (self.pos[0] + self.size/2 * math.cos(self.angle_pos + math.pi), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi))
+        d = (self.pos[0] + self.size/2 * math.cos(self.angle_pos + 3*math.pi/2), self.pos[1] + self.size * math.sin(self.angle_pos + 3*math.pi/2))
 
         self.points = [a,b,c,d]
 
@@ -264,14 +260,12 @@ class Squarelet(ForceObject):
                 closest = players[i]
 
         target_angle = math.atan2(closest.pos[1] - self.pos[1], closest.pos[0] - self.pos[0])
+        self.angle_pos = move_angle(self.angle_pos, target_angle, self.angle_vel)
 
-        #implement angle matching
-        self.curr_angle = target_angle
-
-        a = (self.pos[0] + self.size * 0.7 * math.cos(self.curr_angle), self.pos[1] + self.size * 0.7 * math.sin(self.curr_angle))
-        b = (self.pos[0] + self.size * 0.7 * math.cos(self.curr_angle + math.pi/2), self.pos[1] + self.size * 0.7 * math.sin(self.curr_angle + math.pi/2))
-        c = (self.pos[0] + self.size * 0.7 * math.cos(self.curr_angle + math.pi), self.pos[1] + self.size * 0.7 * math.sin(self.curr_angle + math.pi))
-        d = (self.pos[0] + self.size * 0.7 * math.cos(self.curr_angle + 3*math.pi/2), self.pos[1] + self.size * 0.7 * math.sin(self.curr_angle + 3*math.pi/2))
+        a = (self.pos[0] + self.size * 0.7 * math.cos(self.angle_pos), self.pos[1] + self.size * 0.7 * math.sin(self.angle_pos))
+        b = (self.pos[0] + self.size * 0.7 * math.cos(self.angle_pos + math.pi/2), self.pos[1] + self.size * 0.7 * math.sin(self.angle_pos + math.pi/2))
+        c = (self.pos[0] + self.size * 0.7 * math.cos(self.angle_pos + math.pi), self.pos[1] + self.size * 0.7 * math.sin(self.angle_pos + math.pi))
+        d = (self.pos[0] + self.size * 0.7 * math.cos(self.angle_pos + 3*math.pi/2), self.pos[1] + self.size * 0.7 * math.sin(self.angle_pos + 3*math.pi/2))
 
         self.points = [a,b,c,d]
 
@@ -284,8 +278,8 @@ class Squarelet(ForceObject):
             target_speed = -self.speed
 
         self.curr_speed = phys_single_helper(self.curr_speed, target_speed, self.accel, self.deccel)
-        self.pos[0] += self.curr_speed * math.cos(self.curr_angle) + self.fx 
-        self.pos[1] += self.curr_speed * math.sin(self.curr_angle) + self.fy
+        self.pos[0] += self.curr_speed * math.cos(self.angle_pos) + self.fx 
+        self.pos[1] += self.curr_speed * math.sin(self.angle_pos) + self.fy
 
         if current_time > self.last_shot + self.shot_interval:
             dx = closest.pos[0] - self.pos[0]
@@ -312,6 +306,7 @@ class Pentagon(ForceObject):
         self.health = health
 
         self.angle_pos = 0
+        self.angle_vel = 0.03
 
         p1 = (self.pos[0], self.pos[1])
         p2 = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi/4), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi/4))
@@ -352,10 +347,8 @@ class Pentagon(ForceObject):
                 if dist(players[i].pos, self.pos) < dist(closest.pos, self.pos):
                     closest = players[i]
 
-            target_angle = math.atan2(closest.pos[1] - self.pos[1], closest.pos[0] - self.pos[0])
-            #implement angle matching
-            
-            self.angle_pos = target_angle
+            target_angle = math.atan2(closest.pos[1] - self.pos[1], closest.pos[0] - self.pos[0]) 
+            self.angle_pos = move_angle(self.angle_pos, target_angle, self.angle_vel)
 
             if current_time > self.laser_interval + self.last_laser:
                 self.mode = 1
@@ -426,7 +419,7 @@ class Pentagon(ForceObject):
     
     def shoot_laser(self, map):
         self.lasers = []
-        s = int(self.size//4)
+        s = int(self.size//2)
         for i in range(-s,s+1,1):
             p1 = (
                 self.pos[0] - i * math.cos(self.angle_pos + math.pi/2),
@@ -434,7 +427,6 @@ class Pentagon(ForceObject):
             )
             p2 = map.raycast(p1, self.angle_pos, 10000)
             self.lasers.append((p1,p2))
-        print(len(self.lasers))
 
         
 

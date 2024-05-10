@@ -11,6 +11,7 @@ class Game:
         self.bullet_container = []
         self.shape_container = [
             Pentagon((800,800),80),
+            Pentagon((2000,2000),160),
             Triangle((400,400),2,20),
             Triangle((450,400),2,20), 
             Triangle((400,450),2,20), 
