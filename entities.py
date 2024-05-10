@@ -192,23 +192,64 @@ class Square(ForceObject):
 
         self.active = True
 
+        #charge details
+        self.charge_interval = 3000
+        self.last_charge = 0
+        self.pause_duration = 1000
+        self.charge_duration = 2000
+        self.charge_strength = 10
+
+        self.mode = 0
+
     def update(self, players):
         super().update()
-        closest = players[0]
-        for i in range(1,len(players)):
-            if dist(players[i].pos, self.pos) < dist(closest.pos, self.pos):
-                closest = players[i]
+        current_time = pygame.time.get_ticks()
 
-        target_angle = math.atan2(closest.pos[1] - self.pos[1], closest.pos[0] - self.pos[0])
-        self.angle_pos = move_angle(self.angle_pos, target_angle, self.angle_vel)
+        if self.mode == 0:
+            closest = players[0]
+            for i in range(1,len(players)):
+                if dist(players[i].pos, self.pos) < dist(closest.pos, self.pos):
+                    closest = players[i]
+
+            target_angle = math.atan2(closest.pos[1] - self.pos[1], closest.pos[0] - self.pos[0])
+            self.angle_pos = move_angle(self.angle_pos, target_angle, self.angle_vel)
+
+            self.pos[0] += self.speed * math.cos(self.angle_pos) + self.fx
+            self.pos[1] += self.speed * math.sin(self.angle_pos) + self.fy
+
+            if current_time > self.charge_interval + self.last_charge:
+                self.mode = 1
+                self.last_charge = current_time
+        
+        elif self.mode == 1:
+            closest = players[0]
+            for i in range(1,len(players)):
+                if dist(players[i].pos, self.pos) < dist(closest.pos, self.pos):
+                    closest = players[i]
+
+            target_angle = math.atan2(closest.pos[1] - self.pos[1], closest.pos[0] - self.pos[0])
+            self.angle_pos = move_angle(self.angle_pos, target_angle, self.angle_vel)
+
+            if current_time > + self.pause_duration + self.last_charge:
+                self.mode = 2
+                self.add_force(( self.charge_strength* math.cos(self.angle_pos), self.charge_strength* math.sin(self.angle_pos) ),
+                    100,
+                    1500,
+                    500
+                )
+
+        else:
+            self.pos[0] += self.fx
+            self.pos[1] += self.fy
+
+            if current_time > self.charge_duration + self.pause_duration + self.last_charge:
+                self.mode = 0
+
 
         self.points[0] = (self.pos[0] + self.size * math.cos(self.angle_pos), self.pos[1] + self.size * math.sin(self.angle_pos))
         self.points[1] = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi/2), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi/2))
         self.points[2] = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi))
         self.points[3] = (self.pos[0] + self.size * math.cos(self.angle_pos + 3*math.pi/2), self.pos[1] + self.size * math.sin(self.angle_pos + 3*math.pi/2))
-
-        self.pos[0] += self.speed * math.cos(self.angle_pos) + self.fx
-        self.pos[1] += self.speed * math.sin(self.angle_pos) + self.fy
 
     def draw(self,window,offset):
         drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
