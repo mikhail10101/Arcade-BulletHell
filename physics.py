@@ -180,3 +180,33 @@ def move_angle(angle, target_angle, angle_vel):
         return angle - angle_vel
     else:
         return angle + angle_vel
+
+def calc_collision(m1, p1, v1, m2, p2, v2):
+    if p2 > p1:
+        return calc_collision(m2, p2, v2, m1, p1, v1)[::-1]
+
+    x = None
+    y = None
+    #assume p1 is less than p2
+    if v1[0] < 0 and v2[0] > 0:
+        x = [1, 1]
+    elif v1[0] < 0 and v2[0] < 0:
+        x = [1, -1]
+    elif v1[0] > 0 and v2[0] > 0:
+        x = [-1, 1]
+    else:
+        x = [-1, -1]
+
+    if v1[1] < 0 and v2[1] > 0:
+        y = [1, 1]
+    elif v1[1] < 0 and v2[1] < 0:
+        y = [1, -1]
+    elif v1[1] > 0 and v2[1] > 0:
+        y = [-1, 1]
+    else:
+        y = [-1, -1]
+
+    return (
+        (x[0] * m2 / m1 * v2[0], y[0] * m2 / m1 * v2[1]),
+        (x[1] * m1 / m2 * v1[0], y[1] * m1 / m2 * v1[0])
+    )

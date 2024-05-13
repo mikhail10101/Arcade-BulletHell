@@ -82,15 +82,12 @@ class Game:
             for j in range(i+1, len(self.shape_container)):
                 s2 = self.shape_container[j]
 
-                rads = math.atan2(s1.pos[0] - s2.pos[0], s1.pos[1] - s2.pos[1])
+                mult = 1/7
+                forces = calc_collision(s1.size, s1.pos, s1.disp, s2.size, s2.pos, s2.disp)
                 if dist(s1.pos, s2.pos) < s1.size + s2.size:
-                    if (s1.size > s2.size):
-                        s2.add_force((s1.size/100 * math.cos(rads), s1.size/100 * math.sin(rads)),100,50,200)
-                    elif (s2.size < s1.size):
-                        s1.add_force((s2.size/100 * math.cos(rads), s2.size/100 * math.sin(rads)),100,50,200)
-                    else:
-                        s1.add_force((s2.size/100 * math.cos(rads), s2.size/100 * math.sin(rads)),100,50,200)
-                        s2.add_force((s1.size/100 * math.cos(rads), -s1.size/100 * math.sin(rads)),100,50,200)
+                    s1.add_force((forces[0][0] * mult, forces[0][1] * mult),50,50,100)
+                    s2.add_force((forces[1][0] * mult, forces[1][1] * mult),50,50,100)
+                        
 
         #update later on
         self.scroll[0] += (self.player_container[0].pos[0] - self.window.get_width()/2 - self.scroll[0]) / 10
