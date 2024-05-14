@@ -10,17 +10,18 @@ class Game:
         self.player_container = [Player()]
         self.bullet_container = []
         self.shape_container = [
-            Pentagon((800,800),80),
-            Pentagon((2000,2000),160),
-            Triangle((400,400),2,20),
-            Triangle((450,400),2,20), 
-            Triangle((400,450),2,20), 
-            Triangle((425,425),2,20), 
-            Triangle((500,500),2,20), 
-            Triangle((475,400),2,20), 
-            Triangle((400,475),2,20), 
-            Triangle((475,475),2,20),
-            Square((100,500),3,50)
+            # Pentagon((800,800),80),
+            # Pentagon((2000,2000),160),
+            # Triangle((400,400),2,20),
+            # Triangle((450,400),2,20), 
+            # Triangle((400,450),2,20), 
+            # Triangle((425,425),2,20), 
+            # Triangle((500,500),2,20), 
+            # Triangle((475,400),2,20), 
+            # Triangle((400,475),2,20), 
+            # Triangle((475,475),2,20),
+            # Square((100,500),3,50),
+            Nonagon((800,800),30,3)
         ]
 
         self.window = pygame.display.set_mode((length, width))
@@ -62,6 +63,8 @@ class Game:
                         if s.health == 0:
                             if s.__class__.__name__ == "Square":
                                 self.spawn_squarelets(s.pos,s.size/2,0,0)
+                            elif s.__class__.__name__ == "Nonagon":
+                                self.nonagon_death(s.pos, s.size, s.angle_pos)
                             s.active = False
                         b.active = False
                         break
@@ -111,3 +114,9 @@ class Game:
         self.shape_container.append(s2)
         self.shape_container.append(s3)
         self.shape_container.append(s4)
+
+    def nonagon_death(self, pos, size, angle):
+        for i in range(9):
+            self.bullet_container.append(Bullet(pos, 13, angle + 2*i*math.pi/9, False, size/3))
+            self.bullet_container.append(Bullet(pos, 10, angle + 2*i*math.pi/9, False, size/3))
+            self.bullet_container.append(Bullet(pos, 8, angle + 2*i*math.pi/9, False, size/3))

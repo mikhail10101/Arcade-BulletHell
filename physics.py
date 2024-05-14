@@ -211,8 +211,6 @@ def calc_collision(m1, p1, v1, m2, p2, v2):
         (x[1] * m1 / m2 * v1[0], y[1] * m1 / m2 * v1[0])
     )
 
-def reg_poly_generator(center, n, size, angle):
-    res = []
+def points_modifier(points_array, center, n, size, angle):
     for i in range(n):
-        res.append((center[0] + size * math.cos(angle + i*math.pi/n), center[1] + size * math.sin(angle + i*math.pi/9)))
-    return res
+        points_array[i] = (center[0] + size * math.cos(angle + 2*i*math.pi/n), center[1] + size * math.sin(angle + 2*i*math.pi/n))

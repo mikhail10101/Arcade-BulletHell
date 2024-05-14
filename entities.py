@@ -136,11 +136,7 @@ class Triangle(ForceObject):
         self.angle_pos = 0
         self.angle_vel = 0.08
 
-        top = (self.pos[0] + self.size * math.cos(self.angle_pos), self.pos[1] + self.size * math.sin(self.angle_pos))
-        b1 = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi*2/3), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi*2/3))
-        b2 = (self.pos[0] + self.size * math.cos(self.angle_pos - math.pi*2/3), self.pos[1] + self.size * math.sin(self.angle_pos - math.pi*2/3))
-
-        self.points = [top, b1, b2]
+        self.points = [(0,0),(0,0),(0,0)]
 
         self.active = True
         self.disp = [0,0]
@@ -156,9 +152,7 @@ class Triangle(ForceObject):
         target_angle = math.atan2(closest.pos[1] - self.pos[1], closest.pos[0] - self.pos[0])
         self.angle_pos = move_angle(self.angle_pos, target_angle, self.angle_vel)
 
-        self.points[0] = (self.pos[0] + self.size * math.cos(self.angle_pos), self.pos[1] + self.size * math.sin(self.angle_pos))
-        self.points[1] = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi*2/3), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi*2/3))
-        self.points[2] = (self.pos[0] + self.size * math.cos(self.angle_pos - math.pi*2/3), self.pos[1] + self.size * math.sin(self.angle_pos - math.pi*2/3))
+        points_modifier(self.points, self.pos, 3, self.size, self.angle_pos)
 
         self.disp[0] = self.speed * math.cos(self.angle_pos) + self.fx
         self.disp[1] = self.speed * math.sin(self.angle_pos) + self.fy
@@ -170,8 +164,6 @@ class Triangle(ForceObject):
         drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
 
         pygame.draw.polygon(window, (255,255,255), drawpoints)
-        #pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.size)
-
 
 
 
@@ -187,12 +179,7 @@ class Square(ForceObject):
         self.angle_pos = 0
         self.angle_vel = 0.08
 
-        a = (self.pos[0] + self.size * math.cos(self.angle_pos), self.pos[1] + self.size * math.sin(self.angle_pos))
-        b = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi/2), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi/2))
-        c = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi))
-        d = (self.pos[0] + self.size * math.cos(self.angle_pos + 3*math.pi/2), self.pos[1] + self.size * math.sin(self.angle_pos + 3*math.pi/2))
-
-        self.points = [a,b,c,d]
+        self.points = [(0,0),(0,0),(0,0),(0,0)]
 
         self.active = True
         self.disp = [0,0]
@@ -251,10 +238,7 @@ class Square(ForceObject):
                 self.mode = 0
 
 
-        self.points[0] = (self.pos[0] + self.size * math.cos(self.angle_pos), self.pos[1] + self.size * math.sin(self.angle_pos))
-        self.points[1] = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi/2), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi/2))
-        self.points[2] = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi))
-        self.points[3] = (self.pos[0] + self.size * math.cos(self.angle_pos + 3*math.pi/2), self.pos[1] + self.size * math.sin(self.angle_pos + 3*math.pi/2))
+        points_modifier(self.points, self.pos, 4, self.size, self.angle_pos)
 
         self.pos[0] += self.disp[0]
         self.pos[1] += self.disp[1]
@@ -282,12 +266,7 @@ class Squarelet(ForceObject):
         self.active = True
         self.disp = [0,0]
 
-        a = (self.pos[0] + self.size/2 * math.cos(self.angle_pos), self.pos[1] + self.size * math.sin(self.angle_pos))
-        b = (self.pos[0] + self.size/2 * math.cos(self.angle_pos + math.pi/2), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi/2))
-        c = (self.pos[0] + self.size/2 * math.cos(self.angle_pos + math.pi), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi))
-        d = (self.pos[0] + self.size/2 * math.cos(self.angle_pos + 3*math.pi/2), self.pos[1] + self.size * math.sin(self.angle_pos + 3*math.pi/2))
-
-        self.points = [a,b,c,d]
+        self.points = [(0,0),(0,0),(0,0),(0,0)]
 
         #shot in milliseconds
         self.last_shot = -1000
@@ -312,12 +291,7 @@ class Squarelet(ForceObject):
         target_angle = math.atan2(closest.pos[1] - self.pos[1], closest.pos[0] - self.pos[0])
         self.angle_pos = move_angle(self.angle_pos, target_angle, self.angle_vel)
 
-        a = (self.pos[0] + self.size * 0.7 * math.cos(self.angle_pos), self.pos[1] + self.size * 0.7 * math.sin(self.angle_pos))
-        b = (self.pos[0] + self.size * 0.7 * math.cos(self.angle_pos + math.pi/2), self.pos[1] + self.size * 0.7 * math.sin(self.angle_pos + math.pi/2))
-        c = (self.pos[0] + self.size * 0.7 * math.cos(self.angle_pos + math.pi), self.pos[1] + self.size * 0.7 * math.sin(self.angle_pos + math.pi))
-        d = (self.pos[0] + self.size * 0.7 * math.cos(self.angle_pos + 3*math.pi/2), self.pos[1] + self.size * 0.7 * math.sin(self.angle_pos + 3*math.pi/2))
-
-        self.points = [a,b,c,d]
+        points_modifier(self.points, self.pos, 4, self.size, self.angle_pos)
 
         #control distance
         d = dist(closest.pos, self.pos)
@@ -361,13 +335,7 @@ class Pentagon(ForceObject):
         self.angle_pos = 0
         self.angle_vel = 0.03
 
-        p1 = (self.pos[0], self.pos[1])
-        p2 = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi/4), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi/4))
-        p3 = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi/3), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi/3))
-        p4 = (self.pos[0] + self.size * math.cos(self.angle_pos - math.pi/3), self.pos[1] + self.size * math.sin(self.angle_pos - math.pi/3))
-        p5 = (self.pos[0] + self.size * math.cos(self.angle_pos - math.pi/4), self.pos[1] + self.size * math.sin(self.angle_pos - math.pi/4))
-
-        self.points = [p1,p2,p3,p4,p5]
+        self.points = [(0,0),(0,0),(0,0),(0,0),(0,0)]
 
         self.active = True
         self.disp = [0,0]
@@ -487,3 +455,37 @@ class Pentagon(ForceObject):
     
 
 
+
+class Nonagon(ForceObject):
+    def __init__(self, pos, size, health=2):
+        super().__init__()
+
+        self.pos = list(pos)
+        self.size = size
+
+        self.health = health
+
+        self.angle_pos = 0
+        self.angle_vel = 0.03
+
+        self.points = [(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0)]
+
+        self.active = True
+        self.disp = [0,0]
+
+    def update(self,players):
+        super().update()
+        current_time = pygame.time.get_ticks()
+
+        points_modifier(self.points,self.pos,9,self.size,self.angle_pos)
+
+        self.disp[0] = self.fx
+        self.disp[1] = self.fy
+
+        self.pos[0] += self.disp[0]
+        self.pos[1] += self.disp[1]
+
+    def draw(self, window, offset):
+        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
+
+        pygame.draw.polygon(window, (255,255,255), drawpoints)
