@@ -85,8 +85,13 @@ class Game:
                 mult = 1/7
                 forces = calc_collision(s1.size, s1.pos, s1.disp, s2.size, s2.pos, s2.disp)
                 if dist(s1.pos, s2.pos) < s1.size + s2.size:
-                    s1.add_force((forces[0][0] * mult, forces[0][1] * mult),50,50,100)
-                    s2.add_force((forces[1][0] * mult, forces[1][1] * mult),50,50,100)
+                    if s1.size > s2.size:
+                        s2.add_force((forces[1][0] * mult, forces[1][1] * mult),50,100,50)
+                    elif s2.size < s1.size:
+                        s1.add_force((forces[0][0] * mult, forces[0][1] * mult),50,100,50)
+                    else:
+                        s1.add_force((forces[0][0] * mult, forces[0][1] * mult),50,100,50)
+                        s2.add_force((forces[1][0] * mult, forces[1][1] * mult),50,100,50)
                         
 
         #update later on

@@ -189,7 +189,7 @@ def calc_collision(m1, p1, v1, m2, p2, v2):
     y = None
     #assume p1 is less than p2
     if v1[0] < 0 and v2[0] > 0:
-        x = [1, 1]
+        x = [0, 0]
     elif v1[0] < 0 and v2[0] < 0:
         x = [1, -1]
     elif v1[0] > 0 and v2[0] > 0:
@@ -198,7 +198,7 @@ def calc_collision(m1, p1, v1, m2, p2, v2):
         x = [-1, -1]
 
     if v1[1] < 0 and v2[1] > 0:
-        y = [1, 1]
+        y = [0, 0]
     elif v1[1] < 0 and v2[1] < 0:
         y = [1, -1]
     elif v1[1] > 0 and v2[1] > 0:
@@ -210,3 +210,9 @@ def calc_collision(m1, p1, v1, m2, p2, v2):
         (x[0] * m2 / m1 * v2[0], y[0] * m2 / m1 * v2[1]),
         (x[1] * m1 / m2 * v1[0], y[1] * m1 / m2 * v1[0])
     )
+
+def reg_poly_generator(center, n, size, angle):
+    res = []
+    for i in range(n):
+        res.append((center[0] + size * math.cos(angle + i*math.pi/n), center[1] + size * math.sin(angle + i*math.pi/9)))
+    return res
