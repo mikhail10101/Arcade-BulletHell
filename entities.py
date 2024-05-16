@@ -468,14 +468,24 @@ class Nonagon(ForceObject):
         self.angle_pos = 0
         self.angle_vel = 0.03
 
+        #shot in milliseconds
+        self.last_shot = -1000
+        self.shot_interval = 333
+
         self.points = [(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0)]
 
         self.active = True
         self.disp = [0,0]
 
-    def update(self,players):
+    def update(self, bullets):
         super().update()
         current_time = pygame.time.get_ticks()
+
+        self.angle_pos += self.angle_vel
+
+        if current_time > self.last_shot + self.shot_interval:
+            self.nonagon_shoot(bullets)
+            self.last_shot = current_time
 
         points_modifier(self.points,self.pos,9,self.size,self.angle_pos)
 
@@ -485,7 +495,12 @@ class Nonagon(ForceObject):
         self.pos[0] += self.disp[0]
         self.pos[1] += self.disp[1]
 
+
     def draw(self, window, offset):
         drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
 
         pygame.draw.polygon(window, (255,255,255), drawpoints)
+
+    def nonagon_shoot(self, bullets):
+        for i in range(9):
+            bullets.append(Bullet(self.pos, 13, self.angle_pos + 2*i*math.pi/9, False, self.size/3))

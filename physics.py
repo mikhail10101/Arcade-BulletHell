@@ -124,7 +124,7 @@ def point_in_polygon(point, polygon):
         p1 = p2
     return inside
 
-def intersect_circle(pointA, pointB , center, radius):
+def intersect_circle(pointA, pointB, center, radius):
     d = pygame.math.Vector2(pointB[0]-pointA[0], pointB[1]-pointA[1])
     f = pygame.math.Vector2(pointA[0]-center[0], pointA[1]-center[1])
 
@@ -133,6 +133,9 @@ def intersect_circle(pointA, pointB , center, radius):
     c = f.dot(f) - radius*radius
 
     discriminant = b*b - 4*a*c
+
+    if a == 0:
+        return False
 
     if discriminant < 0:
         return False
