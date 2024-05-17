@@ -340,7 +340,6 @@ class Pentagon(ForceObject):
         self.active = True
         self.disp = [0,0]
 
-
         self.mode = 0
         #0 normal
         #1 shooting
@@ -410,14 +409,11 @@ class Pentagon(ForceObject):
             if current_time > self.laser_duration + self.pause_duration + self.last_laser:
                 self.mode = 0
 
-        
-
         self.points[0] = (self.pos[0], self.pos[1])
         self.points[1] = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi/3), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi/3))
         self.points[2] = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi*2/3), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi*2/3))
         self.points[3] = (self.pos[0] + self.size * math.cos(self.angle_pos - math.pi*2/3), self.pos[1] + self.size * math.sin(self.angle_pos - math.pi*2/3))
         self.points[4] = (self.pos[0] + self.size * math.cos(self.angle_pos - math.pi/3), self.pos[1] + self.size * math.sin(self.angle_pos - math.pi/3))
-
 
 
     def draw(self, window, offset):
@@ -453,7 +449,6 @@ class Pentagon(ForceObject):
         
 
     
-
 
 
 class Nonagon(ForceObject):
@@ -504,3 +499,56 @@ class Nonagon(ForceObject):
     def nonagon_shoot(self, bullets):
         for i in range(9):
             bullets.append(Bullet(self.pos, 13, self.angle_pos + 2*i*math.pi/9, False, self.size/3))
+
+
+
+
+
+class Hexagon(ForceObject):
+    def __init__(self, pos, speed, size, follow, health=3):
+        super().__init__()
+
+        self.pos = list(pos)
+        self.speed = speed
+        self.size = size
+
+        self.health = health
+
+        self.angle_pos = 0
+        self.angle_vel = 0.02
+
+        self.points = [(0,0),(0,0),(0,0),(0,0),(0,0),(0,0)]
+
+        self.active = True
+        self.disp = [0,0]
+
+        self.follow = follow
+
+    def update(self, players):
+        super().update()
+
+        points_modifier(self.points, self.pos, 6, self.size, self.angle_pos)
+
+        reach = [0,0]
+        if self.follow == None or not self.follow.active:
+            reach = players[0].pos
+            for i in range(1,len(players)):
+                if dist(players[i].pos, self.pos) < dist(reach, self.pos):
+                    reach = players[i].pos
+        else:
+            reach = self.follow.pos
+
+        target_angle = math.atan2(reach[1] - self.pos[1], reach[0] - self.pos[0])
+        self.angle_pos = move_angle(self.angle_pos, target_angle, self.angle_vel)
+
+        self.disp[0] = self.speed * math.cos(self.angle_pos) + self.fx
+        self.disp[1] = self.speed * math.sin(self.angle_pos) + self.fy
+        
+        self.pos[0] += self.disp[0]
+        self.pos[1] += self.disp[1]
+
+    def draw(self, window, offset):
+        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
+        pygame.draw.polygon(window, (255,255,255), drawpoints)
+
+            

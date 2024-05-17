@@ -7,21 +7,36 @@ class Game:
         self.enemies = []
         self.map = Map()
 
+        a = Hexagon((300,300), 4, 30, None)
+        b = Hexagon((300,400), 4, 30, a)
+        c = Hexagon((300,500), 4, 30, b)
+        d = Hexagon((300,600), 4, 30, c)
+        e = Hexagon((300,700), 4, 30, d)
+        f = Hexagon((300,800), 4, 30, e)
+        g = Hexagon((300,900), 4, 30, f)
+
         self.player_container = [Player()]
         self.bullet_container = []
         self.shape_container = [
-            Pentagon((800,800),80),
-            Pentagon((2000,2000),160),
-            Triangle((400,400),2,20),
+            # Pentagon((800,800),80),
+            # Pentagon((2000,2000),160),
+            # Triangle((400,400),2,20),
             Triangle((450,400),2,20), 
             Triangle((400,450),2,20), 
             Triangle((425,425),2,20), 
             Triangle((500,500),2,20), 
             Triangle((475,400),2,20), 
             Triangle((400,475),2,20), 
-            Triangle((475,475),2,20),
-            Square((100,500),3,50),
-            Nonagon((800,800),30,3)
+            # Triangle((475,475),2,20),
+            # Square((100,500),3,50),
+            # Nonagon((800,1200),30,3),  
+            a,
+            b,
+            c,
+            d,
+            e,
+            f,
+            g
         ]
 
         self.window = pygame.display.set_mode((length, width))
@@ -49,8 +64,6 @@ class Game:
         pygame.display.update()
 
     def update(self, inputs):
-        
-
         for p in self.player_container:
             p.update(inputs, self.bullet_container, self.map, self.scroll)
 
@@ -86,6 +99,9 @@ class Game:
                 s1.update(self.player_container)
             for j in range(i+1, len(self.shape_container)):
                 s2 = self.shape_container[j]
+                if s1.__class__.__name__ == "Hexagon" and s2.__class__.__name__ == "Hexagon":
+                    continue
+                
 
                 mult = 1/7
                 forces = calc_collision(s1.size, s1.pos, s1.disp, s2.size, s2.pos, s2.disp)
