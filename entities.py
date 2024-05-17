@@ -452,13 +452,16 @@ class Pentagon(ForceObject):
 
 
 class Nonagon(ForceObject):
-    def __init__(self, pos, size, health=2):
+    def __init__(self, pos, speed, size, angle, health=2):
         super().__init__()
 
         self.pos = list(pos)
         self.size = size
 
         self.health = health
+
+        self.speed = speed
+        self.movement_angle = 0
 
         self.angle_pos = 0
         self.angle_vel = 0.03
@@ -484,8 +487,8 @@ class Nonagon(ForceObject):
 
         points_modifier(self.points,self.pos,9,self.size,self.angle_pos)
 
-        self.disp[0] = self.fx
-        self.disp[1] = self.fy
+        self.disp[0] = self.fx + self.speed*math.cos(self.movement_angle)
+        self.disp[1] = self.fy + self.speed*math.sin(self.movement_angle)
 
         self.pos[0] += self.disp[0]
         self.pos[1] += self.disp[1]
