@@ -461,7 +461,7 @@ class Nonagon(ForceObject):
         self.health = health
 
         self.speed = speed
-        self.movement_angle = 0
+        self.movement_angle = math.pi/4
 
         self.angle_pos = 0
         self.angle_vel = 0.03
@@ -475,7 +475,7 @@ class Nonagon(ForceObject):
         self.active = True
         self.disp = [0,0]
 
-    def update(self, bullets):
+    def update(self, bullets, map):
         super().update()
         current_time = pygame.time.get_ticks()
 
@@ -490,9 +490,7 @@ class Nonagon(ForceObject):
         self.disp[0] = self.fx + self.speed*math.cos(self.movement_angle)
         self.disp[1] = self.fy + self.speed*math.sin(self.movement_angle)
 
-        self.pos[0] += self.disp[0]
-        self.pos[1] += self.disp[1]
-
+        self.bounce((self.pos[0]+self.disp[0], self.pos[1]+self.disp[1]), map)
 
     def draw(self, window, offset):
         drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
@@ -502,6 +500,29 @@ class Nonagon(ForceObject):
     def nonagon_shoot(self, bullets):
         for i in range(9):
             bullets.append(Bullet(self.pos, 13, self.angle_pos + 2*i*math.pi/9, False, self.size/3))
+
+    def bounce(self, new_pos, map):
+        i = int(self.pos[0] // map.tile_size)
+        j = int(self.pos[1] // map.tile_size)
+        newI = int(new_pos[0] // map.tile_size)
+        newJ = int(new_pos[1] // map.tile_size)
+
+        if 0 <= newI < len(map.map_values) and 0 <= newJ < len(map.map_values[0]):
+            if (map.map_values[newI][newJ] == 1):
+                    print(i, newI, j, newJ)
+                    if i-newI == -1:
+                        self.movement_angle = math.pi - self.movement_angle
+                    elif i-newI == 1:
+                        self.movement_angle = math.pi - self.movement_angle
+                    if j-newJ == -1:
+                        self.movement_angle = 2*math.pi - self.movement_angle
+                    elif j-newJ == 1:
+                        self.movement_angle = 2*math.pi - self.movement_angle
+            else:
+                self.pos[0] += self.fx + self.speed*math.cos(self.movement_angle)
+                self.pos[1] += self.fy + self.speed*math.sin(self.movement_angle)
+        else:
+            pass
 
 
 

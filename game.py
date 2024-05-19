@@ -29,7 +29,7 @@ class Game:
             Triangle((400,475),2,20), 
             Triangle((475,475),2,20),
             Square((100,500),3,50),
-            Nonagon((800,1200),3,30,3),  
+            Nonagon((800,1200),5,30,3),  
             a,
             b,
             c,
@@ -94,13 +94,13 @@ class Game:
             elif s1.__class__.__name__ == "Pentagon":
                 s1.update(self.player_container, self.map)
             elif s1.__class__.__name__ == "Nonagon":
-                s1.update(self.bullet_container)
+                s1.update(self.bullet_container, self.map)
             else:
                 s1.update(self.player_container)
             for j in range(i+1, len(self.shape_container)):
                 s2 = self.shape_container[j]
-                if s1.__class__.__name__ == "Hexagon" and s2.__class__.__name__ == "Hexagon":
-                    continue
+                # if s1.__class__.__name__ == "Hexagon" and s2.__class__.__name__ == "Hexagon":
+                #     continue
                 
 
                 mult = 1/7
