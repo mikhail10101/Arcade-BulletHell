@@ -9,11 +9,11 @@ class Map:
         self.map_values = []
 
         #initialize map values
-        self.map_values.append([1] * 60)
-        temp = [1] + [0]*58 + [1]
-        for i in range(40):
+        self.map_values.append([1] * 30)
+        temp = [1] + [0]*28 + [1]
+        for i in range(30):
             self.map_values.append(temp[:])
-        self.map_values.append([1] * 60)
+        self.map_values.append([1] * 30)
 
     def draw(self, window, offset=(0,0)):
         for r in range(len(self.map_values)):

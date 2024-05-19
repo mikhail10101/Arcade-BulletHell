@@ -17,7 +17,7 @@ class Player:
 
         #shot in milliseconds
         self.last_shot = -1000
-        self.shot_interval = 333
+        self.shot_interval = 100
         
 
     def draw(self, window, offset=(0,0)):
@@ -57,7 +57,7 @@ class Player:
 
                 rads = math.atan2(dy,dx)
 
-                bullets.append(Bullet(self.pos, 10, rads, True, 7))
+                bullets.append(Bullet(self.pos, 20, rads, True, 7))
 
                 self.last_shot = current_time
 
@@ -118,7 +118,40 @@ class Bullet:
                 return True
             p1 = p2
         return point_in_polygon(self.pos, points)
+
+
+class Wave(Bullet):
+    def __init__(self, pos, speed, angle, target_shapes, radius=10):
+        super().__init__(pos, speed, angle, target_shapes, radius)
+        self.points = [(0,0),(0,0),(0,0),(0,0),(0,0),(0,0)]
     
+    def update(self):
+        super().update()
+
+        scale = 1/10
+        diff = (-math.cos(self.angle) * self.radius * scale,-math.sin(self.angle) * self.radius * scale)
+
+        self.points[0] = (self.pos[0] + math.cos(self.angle) * self.radius, self.pos[1] + math.sin(self.angle) * self.radius)
+        self.points[1] = (self.pos[0] + math.cos(self.angle + math.pi*2/7) * self.radius, self.pos[1] + math.sin(self.angle + math.pi*2/7) * self.radius)
+        self.points[5] = (self.pos[0] + math.cos(self.angle - math.pi*2/7) * self.radius, self.pos[1] + math.sin(self.angle - math.pi*2/7) * self.radius)
+        self.points[2] = (self.points[1][0]+diff[0],self.points[1][1]+diff[1])
+        self.points[3] = (self.points[0][0]+diff[0],self.points[0][1]+diff[1])
+        self.points[4] = (self.points[5][0]+diff[0],self.points[5][1]+diff[1])
+
+    def draw(self, window, offset=(0,0)):
+        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
+        pygame.draw.polygon(window, (255,255,255), drawpoints)
+
+    #collision with any circle
+    def collision(self, center, radius):
+        n = 6
+        p1 = 0
+        for i in range(1, n+1):
+            p2 = i%n
+            if intersect_circle(self.points[p1],self.points[p2],center,radius):
+                return True
+            p1 = p2
+        return point_in_polygon(center, self.points)
 
 
 
@@ -377,7 +410,7 @@ class Pentagon(ForceObject):
         
         if self.mode == 1:
             if len(self.laser_warning) == 0:
-                self.laser_warning.append((self.pos,map.raycast(self.pos,self.angle_pos,10000)))
+                self.laser_warning.append((self.points[0],map.raycast(self.pos,self.angle_pos,10000)))
         
             if current_time > + self.pause_duration + self.last_laser:
                 self.mode = 2
@@ -409,11 +442,14 @@ class Pentagon(ForceObject):
             if current_time > self.laser_duration + self.pause_duration + self.last_laser:
                 self.mode = 0
 
-        self.points[0] = (self.pos[0], self.pos[1])
-        self.points[1] = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi/3), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi/3))
-        self.points[2] = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi*2/3), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi*2/3))
-        self.points[3] = (self.pos[0] + self.size * math.cos(self.angle_pos - math.pi*2/3), self.pos[1] + self.size * math.sin(self.angle_pos - math.pi*2/3))
-        self.points[4] = (self.pos[0] + self.size * math.cos(self.angle_pos - math.pi/3), self.pos[1] + self.size * math.sin(self.angle_pos - math.pi/3))
+        # self.points[0] = (self.pos[0], self.pos[1])
+        # self.points[1] = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi/3), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi/3))
+        # self.points[2] = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi*2/3), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi*2/3))
+        # self.points[3] = (self.pos[0] + self.size * math.cos(self.angle_pos - math.pi*2/3), self.pos[1] + self.size * math.sin(self.angle_pos - math.pi*2/3))
+        # self.points[4] = (self.pos[0] + self.size * math.cos(self.angle_pos - math.pi/3), self.pos[1] + self.size * math.sin(self.angle_pos - math.pi/3))
+
+        points_modifier(self.points, self.pos, 5, self.size, self.angle_pos)
+
 
 
     def draw(self, window, offset):
@@ -509,7 +545,6 @@ class Nonagon(ForceObject):
 
         if 0 <= newI < len(map.map_values) and 0 <= newJ < len(map.map_values[0]):
             if (map.map_values[newI][newJ] == 1):
-                    print(i, newI, j, newJ)
                     if i-newI == -1:
                         self.movement_angle = math.pi - self.movement_angle
                     elif i-newI == 1:
@@ -523,8 +558,6 @@ class Nonagon(ForceObject):
                 self.pos[1] += self.fy + self.speed*math.sin(self.movement_angle)
         else:
             pass
-
-
 
 
 
@@ -567,7 +600,7 @@ class Hexagon(ForceObject):
 
         self.disp[0] = self.speed * math.cos(self.angle_pos) + self.fx
         self.disp[1] = self.speed * math.sin(self.angle_pos) + self.fy
-        
+
         self.pos[0] += self.disp[0]
         self.pos[1] += self.disp[1]
 
@@ -575,4 +608,78 @@ class Hexagon(ForceObject):
         drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
         pygame.draw.polygon(window, (255,255,255), drawpoints)
 
-            
+
+
+
+
+
+class Heptagon(ForceObject):
+    def __init__(self, pos, speed, size, health=7):
+        super().__init__()
+
+        self.pos = list(pos)
+        self.speed = speed
+        self.size = size
+
+        self.health = health
+
+        self.angle_pos = 0
+        self.angle_vel = 0.08
+
+        self.active = True
+        self.disp = [0,0]
+
+        self.points = [(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0)]
+
+        #shot in milliseconds
+        self.last_shot = -1000
+        self.shot_interval = 2000
+
+        #vel
+        self.curr_speed = 0
+        self.accel = 0.1
+        self.deccel = 0.05
+
+
+    def update(self, players, bullets):
+        super().update()
+
+        current_time = pygame.time.get_ticks()
+
+        closest = players[0]
+        for i in range(1,len(players)):
+            if dist(players[i].pos, self.pos) < dist(closest.pos, self.pos):
+                closest = players[i]
+
+        target_angle = math.atan2(closest.pos[1] - self.pos[1], closest.pos[0] - self.pos[0])
+        self.angle_pos = move_angle(self.angle_pos, target_angle, self.angle_vel)
+
+        points_modifier(self.points, self.pos, 7, self.size, self.angle_pos)
+
+
+        #control distance
+        d = dist(closest.pos, self.pos)
+        target_speed = 0
+        if d > 500:
+            target_speed = self.speed
+        else:
+            target_speed = -self.speed
+
+        self.curr_speed = phys_single_helper(self.curr_speed, target_speed, self.accel, self.deccel)
+        self.disp[0] = self.curr_speed * math.cos(self.angle_pos) + self.fx 
+        self.disp[1] = self.curr_speed * math.sin(self.angle_pos) + self.fy
+
+        self.pos[0] += self.disp[0]
+        self.pos[1] += self.disp[1]
+
+        if current_time > self.last_shot + self.shot_interval:
+            dx = closest.pos[0] - self.pos[0]
+            dy = closest.pos[1] - self.pos[1]
+            rads = math.atan2(dy,dx)
+            bullets.append(Wave((self.pos[0] - math.cos(self.angle_pos)*self.size,self.pos[1] - math.sin(self.angle_pos)*self.size), self.speed, rads, False, self.size*2.5))
+            self.last_shot = current_time
+
+    def draw(self,window,offset):
+        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
+        pygame.draw.polygon(window, (255,255,255), drawpoints)
+
