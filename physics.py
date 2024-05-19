@@ -124,7 +124,7 @@ def point_in_polygon(point, polygon):
         p1 = p2
     return inside
 
-def intersect_circle(pointA, pointB , center, radius):
+def intersect_circle(pointA, pointB, center, radius):
     d = pygame.math.Vector2(pointB[0]-pointA[0], pointB[1]-pointA[1])
     f = pygame.math.Vector2(pointA[0]-center[0], pointA[1]-center[1])
 
@@ -133,6 +133,9 @@ def intersect_circle(pointA, pointB , center, radius):
     c = f.dot(f) - radius*radius
 
     discriminant = b*b - 4*a*c
+
+    if a == 0:
+        return False
 
     if discriminant < 0:
         return False
@@ -211,8 +214,6 @@ def calc_collision(m1, p1, v1, m2, p2, v2):
         (x[1] * m1 / m2 * v1[0], y[1] * m1 / m2 * v1[0])
     )
 
-def reg_poly_generator(center, n, size, angle):
-    res = []
+def points_modifier(points_array, center, n, size, angle):
     for i in range(n):
-        res.append((center[0] + size * math.cos(angle + i*math.pi/n), center[1] + size * math.sin(angle + i*math.pi/9)))
-    return res
+        points_array[i] = (center[0] + size * math.cos(angle + 2*i*math.pi/n), center[1] + size * math.sin(angle + 2*i*math.pi/n))

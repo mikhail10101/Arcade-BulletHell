@@ -7,20 +7,37 @@ class Game:
         self.enemies = []
         self.map = Map()
 
+        a = Hexagon((-1000,300), 8, 30, None)
+        b = Hexagon((-1000,400), 8, 30, a)
+        c = Hexagon((-1000,500), 8, 30, b)
+        d = Hexagon((-1000,600), 8, 30, c)
+        e = Hexagon((-1000,700), 8, 30, d)
+        f = Hexagon((-1000,800), 8, 30, e)
+        g = Hexagon((-1000,900), 8, 30, f)
+
         self.player_container = [Player()]
         self.bullet_container = []
         self.shape_container = [
-            Pentagon((800,800),80),
-            Pentagon((2000,2000),160),
-            Triangle((400,400),2,20),
-            Triangle((450,400),2,20), 
-            Triangle((400,450),2,20), 
-            Triangle((425,425),2,20), 
-            Triangle((500,500),2,20), 
-            Triangle((475,400),2,20), 
-            Triangle((400,475),2,20), 
-            Triangle((475,475),2,20),
-            Square((100,500),3,50)
+            Pentagon((200,500),80),
+            Pentagon((1400,1400),160),
+            Triangle((400,400),3,20),
+            Triangle((450,400),3,20), 
+            Triangle((400,450),3,20), 
+            Triangle((425,425),3,20), 
+            Triangle((500,500),3,20), 
+            Triangle((475,400),3,20), 
+            Triangle((400,475),3,20), 
+            Triangle((475,475),3,20),
+            Square((100,500),3,50),
+            Nonagon((800,1200),5,30,3),  
+            a,
+            b,
+            c,
+            d,
+            e,
+            f,
+            g,
+            Heptagon((100,500),8,50)
         ]
 
         self.window = pygame.display.set_mode((length, width))
@@ -48,8 +65,6 @@ class Game:
         pygame.display.update()
 
     def update(self, inputs):
-        
-
         for p in self.player_container:
             p.update(inputs, self.bullet_container, self.map, self.scroll)
 
@@ -62,9 +77,18 @@ class Game:
                         if s.health == 0:
                             if s.__class__.__name__ == "Square":
                                 self.spawn_squarelets(s.pos,s.size/2,0,0)
+                            elif s.__class__.__name__ == "Nonagon":
+                                self.nonagon_death(s.pos, s.size, s.angle_pos)
                             s.active = False
                         b.active = False
                         break
+            #break on Wave
+            else:
+                if b.__class__.__name__ == "Wave":
+                    for newb in self.bullet_container:
+                        if newb.__class__.__name__ == "Bullet" and newb.target_shapes:
+                            if b.collision(newb.pos, newb.radius):
+                                newb.active = False
 
             if self.map.is_in_wall(b.pos):
                 b.active = False
@@ -73,14 +97,19 @@ class Game:
         self.shape_container[:] = [s for s in self.shape_container if s.active]
         for i in range(len(self.shape_container)):
             s1 = self.shape_container[i]
-            if s1.__class__.__name__ == "Squarelet":
+            if s1.__class__.__name__ == "Squarelet" or s1.__class__.__name__ == "Heptagon":
                 s1.update(self.player_container, self.bullet_container)
             elif s1.__class__.__name__ == "Pentagon":
                 s1.update(self.player_container, self.map)
+            elif s1.__class__.__name__ == "Nonagon":
+                s1.update(self.bullet_container, self.map)
             else:
                 s1.update(self.player_container)
             for j in range(i+1, len(self.shape_container)):
                 s2 = self.shape_container[j]
+                if s1.__class__.__name__ == "Hexagon" and s2.__class__.__name__ == "Hexagon":
+                    continue
+                
 
                 mult = 1/7
                 forces = calc_collision(s1.size, s1.pos, s1.disp, s2.size, s2.pos, s2.disp)
@@ -111,3 +140,9 @@ class Game:
         self.shape_container.append(s2)
         self.shape_container.append(s3)
         self.shape_container.append(s4)
+
+    def nonagon_death(self, pos, size, angle):
+        for i in range(9):
+            self.bullet_container.append(Bullet(pos, 13, angle + 2*i*math.pi/9, False, size/3))
+            self.bullet_container.append(Bullet(pos, 10, angle + 2*i*math.pi/9, False, size/3))
+            self.bullet_container.append(Bullet(pos, 8, angle + 2*i*math.pi/9, False, size/3))
