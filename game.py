@@ -68,11 +68,13 @@ class Game:
         for p in self.player_container:
             p.update(inputs, self.bullet_container, self.map, self.scroll)
 
+        #bullets 
         self.bullet_container[:] = [b for b in self.bullet_container if b.active]
         for b in self.bullet_container:
+            #bullets that target shapes
             if b.target_shapes:
                 for s in self.shape_container:
-                    if b.collision(s.points):
+                    if b.polygon_collision(s.points):
                         s.health -= 1
                         if s.health == 0:
                             if s.__class__.__name__ == "Square":
@@ -82,18 +84,30 @@ class Game:
                             s.active = False
                         b.active = False
                         break
-            #break on Wave
+            #bullets that target players
             else:
+                #waves shield shapes from bullets
                 if b.__class__.__name__ == "Wave":
                     for newb in self.bullet_container:
                         if newb.__class__.__name__ == "Bullet" and newb.target_shapes:
                             if b.collision(newb.pos, newb.radius):
                                 newb.active = False
-
+                for p in self.player_container:
+                    if b.collision(p.pos, p.size):
+                        if b.__class__.__name__ == "Bullet":
+                            b.active = False
+                            p.hp -= 1
+                        if b.__class__.__name__ == "Wave":
+                            p.add_force((
+                                    b.radius /20 * math.cos(b.angle),
+                                    b.radius /20 * math.sin(b.angle)
+                                ),25,0,0)
+                            p.hp -= 0.1
             if self.map.is_in_wall(b.pos):
                 b.active = False
             b.update()
 
+        #shapes
         self.shape_container[:] = [s for s in self.shape_container if s.active]
         for i in range(len(self.shape_container)):
             s1 = self.shape_container[i]
@@ -109,19 +123,21 @@ class Game:
                 s2 = self.shape_container[j]
                 if s1.__class__.__name__ == "Hexagon" and s2.__class__.__name__ == "Hexagon":
                     continue
-                
 
                 mult = 1/7
                 forces = calc_collision(s1.size, s1.pos, s1.disp, s2.size, s2.pos, s2.disp)
                 if dist(s1.pos, s2.pos) < s1.size + s2.size:
                     if s1.size > s2.size:
-                        s2.add_force((forces[1][0] * mult, forces[1][1] * mult),50,100,50)
+                        s2.add_force((forces[1][0] * mult, forces[1][1] * mult),50,0,150)
                     elif s2.size < s1.size:
-                        s1.add_force((forces[0][0] * mult, forces[0][1] * mult),50,100,50)
+                        s1.add_force((forces[0][0] * mult, forces[0][1] * mult),50,0,150)
                     else:
-                        s1.add_force((forces[0][0] * mult, forces[0][1] * mult),50,100,50)
-                        s2.add_force((forces[1][0] * mult, forces[1][1] * mult),50,100,50)
-                        
+                        s1.add_force((forces[0][0] * mult, forces[0][1] * mult),50,0,150)
+                        s2.add_force((forces[1][0] * mult, forces[1][1] * mult),50,0,150)
+            
+            for p in self.player_container:
+                if p.polygon_collision(s1.points):
+                    p.hp -= 0.1        
 
         #update later on
         self.scroll[0] += (self.player_container[0].pos[0] - self.window.get_width()/2 - self.scroll[0]) / 10

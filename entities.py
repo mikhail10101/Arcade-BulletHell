@@ -3,8 +3,9 @@ import math
 import random
 from physics import *
 
-class Player:
+class Player(ForceObject):
     def __init__(self):
+        super().__init__()
         #draw
         self.size = 30
 
@@ -18,12 +19,15 @@ class Player:
         #shot in milliseconds
         self.last_shot = -1000
         self.shot_interval = 100
+
+        self.hp = 100
         
 
     def draw(self, window, offset=(0,0)):
         pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.size)
 
     def update(self, inputs, bullets, map, offset=(0,0)):
+        super().update()
         current_time = pygame.time.get_ticks()
 
         #MOVEMENT
@@ -42,13 +46,13 @@ class Player:
         
         phys_helper(self.curr_vel, target_vel, self.accel, self.deccel)
 
-        self.move([self.pos[0] + self.curr_vel[0], self.pos[1] + self.curr_vel[1]], map)
+        self.move([self.pos[0] + self.curr_vel[0] + self.fx, self.pos[1] + self.curr_vel[1] + self.fy], map)
 
         #SHOOT
         if inputs["click"]:
             if current_time > self.last_shot + self.shot_interval:
                 mx, my = inputs["click_pos"]
-
+ 
                 mx += offset[0]
                 my += offset[1]
 
@@ -86,6 +90,16 @@ class Player:
         else:
             pass
 
+    def polygon_collision(self, points):
+        n = len(points)
+        p1 = 0
+        for i in range(1, n+1):
+            p2 = i%n
+            if intersect_circle(points[p1],points[p2],self.pos,self.size):
+                return True
+            p1 = p2
+        return point_in_polygon(self.pos, points)
+
 
 
 class Bullet:
@@ -109,7 +123,7 @@ class Bullet:
         pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.radius)
 
     #bullet collisions with an ordered set of points (any polygon)
-    def collision(self, points):
+    def polygon_collision(self, points):
         n = len(points)
         p1 = 0
         for i in range(1, n+1):
@@ -118,6 +132,9 @@ class Bullet:
                 return True
             p1 = p2
         return point_in_polygon(self.pos, points)
+
+    def collision(self, center, radius):
+        return dist(self.pos, center) <= radius + self.radius
 
 
 class Wave(Bullet):
@@ -439,6 +456,12 @@ class Pentagon(ForceObject):
 
             self.bounds[0], self.bounds[1] = middle_bounds(len(self.lasers), w_ratio)
 
+            #player gets hit from laser
+            for i in range(self.bounds[0], self.bounds[1]):
+                for p in players:
+                    if intersect_circle(self.lasers[i][0], self.lasers[i][1], p.pos, p.size):
+                        p.hp -= 0.01
+
             if current_time > self.laser_duration + self.pause_duration + self.last_laser:
                 self.mode = 0
 
@@ -525,6 +548,7 @@ class Nonagon(ForceObject):
 
         self.disp[0] = self.fx + self.speed*math.cos(self.movement_angle)
         self.disp[1] = self.fy + self.speed*math.sin(self.movement_angle)
+        
 
         self.bounce((self.pos[0]+self.disp[0], self.pos[1]+self.disp[1]), map)
 
@@ -557,7 +581,7 @@ class Nonagon(ForceObject):
                 self.pos[0] += self.fx + self.speed*math.cos(self.movement_angle)
                 self.pos[1] += self.fy + self.speed*math.sin(self.movement_angle)
         else:
-            pass
+            self.movement_angle = math.atan2(self.disp[1], self.disp[0])
 
 
 
