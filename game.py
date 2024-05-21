@@ -1,51 +1,22 @@
 import pygame
 from entities import *
 from map import Map
+from interface import *
+from rounds import Rounds
 
 class Game:
     def __init__(self, length, width):
         self.enemies = []
         self.map = Map()
 
-        a = Hexagon((-1000,300), 8, 30, None)
-        b = Hexagon((-1000,400), 8, 30, a)
-        c = Hexagon((-1000,500), 8, 30, b)
-        d = Hexagon((-1000,600), 8, 30, c)
-        e = Hexagon((-1000,700), 8, 30, d)
-        f = Hexagon((-1000,800), 8, 30, e)
-        g = Hexagon((-1000,900), 8, 30, f)
-
         self.player_container = [Player()]
         self.bullet_container = []
-        self.shape_container = [
-            Pentagon((2800,3000),80),
-            Pentagon((800,800),160),
-            Triangle((2400,2400),3,20),
-            Triangle((2450,2400),3,20), 
-            Triangle((2400,2450),3,20), 
-            Triangle((2425,2425),3,20), 
-            Triangle((2500,2500),3,20), 
-            Triangle((2475,2400),3,20), 
-            Triangle((2400,2475),3,20), 
-            Triangle((2475,2475),3,20),
-            Square((2100,200),3,50),
-            Nonagon((2400,2400),5,30,3),  
-            a,
-            b,
-            c,
-            d,
-            e,
-            f,
-            g,
-            Heptagon((100,500),8,50)
-        ]
+        self.rounds = Rounds()
 
         self.window = pygame.display.set_mode((length, width))
         pygame.display.set_caption("Arcade Game")
 
         self.scroll = [0,0]
-
-        
 
     
     def draw(self):
@@ -59,8 +30,11 @@ class Game:
         for b in self.bullet_container:
             b.draw(self.window, self.scroll)
 
-        for s in self.shape_container:
+        for s in self.rounds.shape_container:
             s.draw(self.window, self.scroll)
+
+        #temporary testing
+        self.window.blit(bar(self.player_container[0].hp, 100, 200, 50), (50,50)) 
 
         pygame.display.update()
 
@@ -73,7 +47,7 @@ class Game:
         for b in self.bullet_container:
             #bullets that target shapes
             if b.target_shapes:
-                for s in self.shape_container:
+                for s in self.rounds.shape_container:
                     if b.polygon_collision(s.points):
                         s.health -= 1
                         if s.health == 0:
@@ -109,9 +83,9 @@ class Game:
             b.update()
 
         #shapes
-        self.shape_container[:] = [s for s in self.shape_container if s.active]
-        for i in range(len(self.shape_container)):
-            s1 = self.shape_container[i]
+        self.rounds.shape_container[:] = [s for s in self.rounds.shape_container if s.active]
+        for i in range(len(self.rounds.shape_container)):
+            s1 = self.rounds.shape_container[i]
             if s1.__class__.__name__ == "Squarelet" or s1.__class__.__name__ == "Heptagon":
                 s1.update(self.player_container, self.bullet_container)
             elif s1.__class__.__name__ == "Pentagon":
@@ -120,8 +94,8 @@ class Game:
                 s1.update(self.bullet_container, self.map)
             else:
                 s1.update(self.player_container)
-            for j in range(i+1, len(self.shape_container)):
-                s2 = self.shape_container[j]
+            for j in range(i+1, len(self.rounds.shape_container)):
+                s2 = self.rounds.shape_container[j]
                 if s1.__class__.__name__ == "Hexagon" and s2.__class__.__name__ == "Hexagon":
                     continue
 
@@ -138,25 +112,22 @@ class Game:
             
             for p in self.player_container:
                 if p.polygon_collision(s1.points):
-                    p.hp -= 0.1        
+                    p.hp -= 1    
 
         #update later on
         self.scroll[0] += (self.player_container[0].pos[0] - self.window.get_width()/2 - self.scroll[0]) / 10
         self.scroll[1] += (self.player_container[0].pos[1] - self.window.get_height()/2 - self.scroll[1]) / 10
 
-    def spawn_squarelets(self, pos, size, angle, force):
+    def spawn_squarelets(self, pos, size):
         s1 = Squarelet(pos,2,size)
         s2 = Squarelet(pos,2,size)
         s3 = Squarelet(pos,2,size)
         s4 = Squarelet(pos,2,size)
 
-        a = 70
-        b = 0
-
-        self.shape_container.append(s1)
-        self.shape_container.append(s2)
-        self.shape_container.append(s3)
-        self.shape_container.append(s4)
+        self.rounds.shape_container.append(s1)
+        self.rounds.shape_container.append(s2)
+        self.rounds.shape_container.append(s3)
+        self.rounds.shape_container.append(s4)
 
     def nonagon_death(self, pos, size, angle):
         for i in range(9):

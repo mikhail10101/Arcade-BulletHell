@@ -520,7 +520,7 @@ class Nonagon(ForceObject):
         self.health = health
 
         self.speed = speed
-        self.movement_angle = math.pi/4
+        self.movement_angle = angle
 
         self.angle_pos = 0
         self.angle_vel = 0.03
