@@ -10,7 +10,7 @@ class Player(ForceObject):
         self.size = 30
 
         #movement
-        self.pos = [300,300]
+        self.pos = [1920,1920]
         self.speed = 4
         self.accel = 0.2
         self.deccel = 0.05

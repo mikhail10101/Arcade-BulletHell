@@ -18,18 +18,18 @@ class Game:
         self.player_container = [Player()]
         self.bullet_container = []
         self.shape_container = [
-            Pentagon((200,500),80),
-            Pentagon((1400,1400),160),
-            Triangle((400,400),3,20),
-            Triangle((450,400),3,20), 
-            Triangle((400,450),3,20), 
-            Triangle((425,425),3,20), 
-            Triangle((500,500),3,20), 
-            Triangle((475,400),3,20), 
-            Triangle((400,475),3,20), 
-            Triangle((475,475),3,20),
-            Square((100,500),3,50),
-            Nonagon((800,1200),5,30,3),  
+            Pentagon((2800,3000),80),
+            Pentagon((800,800),160),
+            Triangle((2400,2400),3,20),
+            Triangle((2450,2400),3,20), 
+            Triangle((2400,2450),3,20), 
+            Triangle((2425,2425),3,20), 
+            Triangle((2500,2500),3,20), 
+            Triangle((2475,2400),3,20), 
+            Triangle((2400,2475),3,20), 
+            Triangle((2475,2475),3,20),
+            Square((2100,200),3,50),
+            Nonagon((2400,2400),5,30,3),  
             a,
             b,
             c,
@@ -103,7 +103,8 @@ class Game:
                                     b.radius /20 * math.sin(b.angle)
                                 ),25,0,0)
                             p.hp -= 0.1
-            if self.map.is_in_wall(b.pos):
+
+            if self.map.is_oob(b.pos):
                 b.active = False
             b.update()
 
