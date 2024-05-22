@@ -9,7 +9,7 @@ class Map:
 
         #initalize map
         outer_size = 60
-        inner_size = 30
+        inner_size = 22
         start_index = (outer_size - inner_size) // 2
         end_index = start_index + inner_size
 
@@ -84,3 +84,5 @@ class Map:
             ]
     
         return None
+    
+    #def random_2(self):

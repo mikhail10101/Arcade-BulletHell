@@ -398,7 +398,7 @@ class Pentagon(ForceObject):
         #laser details
         self.pause_duration = 1000
         self.laser_interval = 6000
-        self.last_laser = 0
+        self.last_laser = pygame.time.get_ticks()
         self.laser_duration = 2000
         self.lasers = []
         self.bounds = [0,0]
@@ -406,6 +406,7 @@ class Pentagon(ForceObject):
         self.laser_warning = []
     
     def update(self,players,map):
+        print(self.mode)
         super().update()
         current_time = pygame.time.get_ticks()
 

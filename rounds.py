@@ -7,23 +7,11 @@ CENTER = (30*TILESIZE, 30*TILESIZE)
 class Rounds:
     def __init__(self):
         self.shape_container = [
-            # Square((2100,200),3,50),
-            # Nonagon((2400,2400),5,30,3),  
-            # Heptagon((100,500),8,50)
+
         ]
         self.round_number = 0
         self.mode = 0
-        self.round_end_time = 0
-
-        # self.spawn_hexagons((-20,0),10,30,10)
-        # self.spawn_hexagons((-20,80),10,30,10)
-        # self.spawn_hexagons((-80,80),10,30,10)
-
-        # self.spawn_triangles((35,40),3,20,15)
-        # self.spawn_triangles((15,40),3,20,15)
-        # self.spawn_triangles((40,25),3,20,15)
-        # self.spawn_pentagon((4,6),80)
-        # self.spawn_pentagon((50,48),120)
+        self.round_end_time = 0 
 
     def update(self):
         #preround
@@ -60,7 +48,7 @@ class Rounds:
         return h
 
     def spawn_hexagons(self, pos, speed, size, amount):
-        
+         
         self.rec((pos[0]*TILESIZE, pos[1]*TILESIZE), speed, size, amount, )
     
     def spawn_pentagon(self, tilepos, size):
@@ -73,3 +61,5 @@ class Rounds:
     
     def start_round(self):
         self.spawn_triangles((30,30),3,20,self.round_number)
+        self.spawn_pentagon((15,15),80)
+        self.spawn_pentagon((48,48),120)
