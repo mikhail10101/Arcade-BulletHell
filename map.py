@@ -7,7 +7,6 @@ class Map:
     def __init__(self, tile_size = TILESIZE):
         self.tile_size = tile_size
 
-
         #initalize map
         outer_size = 60
         inner_size = 30

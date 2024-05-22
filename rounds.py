@@ -1,28 +1,75 @@
 import pygame
 from entities import *
 
+TILESIZE = 64
+CENTER = (30*TILESIZE, 30*TILESIZE)
+
 class Rounds:
-    def __init__(self):        
+    def __init__(self):
         self.shape_container = [
-            Pentagon((2800,3000),80),
-            Pentagon((800,800),160),
-            Square((2100,200),3,50),
-            Nonagon((2400,2400),5,30,3),  
-            Heptagon((100,500),8,50)
+            # Square((2100,200),3,50),
+            # Nonagon((2400,2400),5,30,3),  
+            # Heptagon((100,500),8,50)
         ]
+        self.round_number = 0
+        self.mode = 0
+        self.round_end_time = 0
 
-        self.spawn_hexagons((-1000,-1000),8,30,7)
-        self.spawn_triangles((2400,2400),3,20,15)
+        # self.spawn_hexagons((-20,0),10,30,10)
+        # self.spawn_hexagons((-20,80),10,30,10)
+        # self.spawn_hexagons((-80,80),10,30,10)
 
-    def spawn_triangles(self, pos, speed, size, amount):
+        # self.spawn_triangles((35,40),3,20,15)
+        # self.spawn_triangles((15,40),3,20,15)
+        # self.spawn_triangles((40,25),3,20,15)
+        # self.spawn_pentagon((4,6),80)
+        # self.spawn_pentagon((50,48),120)
+
+    def update(self):
+        #preround
+        if self.mode == 0:
+            self.start_round()
+            self.mode = 1
+        #in round
+        elif self.mode == 1:
+            if self.is_round_done():
+                self.mode = 2
+                self.round_end_time = pygame.time.get_ticks()
+        #end round
+        elif self.mode == 2:
+            if pygame.time.get_ticks() > self.round_end_time + 5000:
+                self.mode = 0
+                self.round_number += 1
+
+
+    def spawn_triangles(self, tilepos, speed, size, amount):
         for i in range(amount):
-            self.shape_container.append(Triangle(pos, speed, size))
+            self.shape_container.append(Triangle((tilepos[0] * TILESIZE + random.random()*200, tilepos[1] * TILESIZE + random.random()*200), speed, size))
 
-    def spawn_hexagons(self, pos, speed, size, amount):
+    def rec(self, pos, speed, size, amount):
         if amount == 1:
-            h = Hexagon(pos, speed, size, None)
+            h = Hexagon((pos), speed, size, None)
             self.shape_container.append(h)
             return h
-        h = Hexagon(pos, speed, size, self.spawn_hexagons((pos[0], pos[1]-80), speed, size, amount-1))
+        
+        vect = pygame.math.Vector2(CENTER[0]-pos[0], CENTER[1]-pos[1])
+        vect.normalize_ip()
+        vect.scale_to_length(100)
+        h = Hexagon(pos, speed, size, self.rec((pos[0] + vect[0], pos[1]+vect[1]), speed, size, amount-1))
         self.shape_container.append(h)
         return h
+
+    def spawn_hexagons(self, pos, speed, size, amount):
+        
+        self.rec((pos[0]*TILESIZE, pos[1]*TILESIZE), speed, size, amount, )
+    
+    def spawn_pentagon(self, tilepos, size):
+        self.shape_container.append(Pentagon(
+            (tilepos[0] * TILESIZE, tilepos[1] * TILESIZE), size
+        ))
+
+    def is_round_done(self):
+        return len(self.shape_container) == 0
+    
+    def start_round(self):
+        self.spawn_triangles((30,30),3,20,self.round_number)

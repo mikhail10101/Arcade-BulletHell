@@ -120,7 +120,8 @@ class Bullet:
         self.pos[1] += self.speed * math.sin(self.angle)
 
     def draw(self, window, offset=(0,0)):
-        pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.radius)
+        if self.target_shapes:
+            pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.radius)
 
     #bullet collisions with an ordered set of points (any polygon)
     def polygon_collision(self, points):
@@ -632,6 +633,8 @@ class Hexagon(ForceObject):
         drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
         pygame.draw.polygon(window, (255,255,255), drawpoints)
 
+    def add_force(self, a, b, c, d):
+        pass
 
 
 
@@ -661,8 +664,8 @@ class Heptagon(ForceObject):
 
         #vel
         self.curr_speed = 0
-        self.accel = 0.1
-        self.deccel = 0.05
+        self.accel = 0.3
+        self.deccel = 0.3
 
 
     def update(self, players, bullets):
@@ -684,7 +687,7 @@ class Heptagon(ForceObject):
         #control distance
         d = dist(closest.pos, self.pos)
         target_speed = 0
-        if d > 500:
+        if d > 700:
             target_speed = self.speed
         else:
             target_speed = -self.speed
