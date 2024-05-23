@@ -33,6 +33,8 @@ class Game:
         for b in self.bullet_container:
             b.draw(self.window, self.scroll)
 
+        self.rounds.draw(self.window)
+
         #temporary testing
         self.window.blit(bar(self.player_container[0].hp, 100, 200, 50), (50,50)) 
 

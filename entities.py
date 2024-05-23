@@ -702,7 +702,7 @@ class Heptagon(ForceObject):
             dx = closest.pos[0] - self.pos[0]
             dy = closest.pos[1] - self.pos[1]
             rads = math.atan2(dy,dx)
-            bullets.append(Wave((self.pos[0] - math.cos(self.angle_pos)*self.size,self.pos[1] - math.sin(self.angle_pos)*self.size), self.speed, rads, False, self.size*2.5))
+            bullets.append(Wave((self.pos[0] - math.cos(self.angle_pos)*self.size,self.pos[1] - math.sin(self.angle_pos)*self.size), self.speed*2, rads, False, self.size*2.5))
             self.last_shot = current_time
 
     def draw(self,window,offset):

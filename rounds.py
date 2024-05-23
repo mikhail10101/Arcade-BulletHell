@@ -14,6 +14,9 @@ class Rounds:
         self.round_end_time = 0
         self.map = map
 
+        self.font = pygame.font.Font('freesansbold.ttf', 32)
+        self.text_finish = self.font.render("CLEARED", True, (255,255,255))
+
     def update(self):
         #preround
         if self.mode == 0:
@@ -29,6 +32,16 @@ class Rounds:
             if pygame.time.get_ticks() > self.round_end_time + 5000:
                 self.mode = 0
                 self.round_number += 1
+
+    def draw(self,window):
+        if self.mode == 2:
+            if pygame.time.get_ticks() > self.round_end_time + 2000:
+                #display round number
+                pass
+            elif pygame.time.get_ticks() > self.round_end_time:
+                #display round done
+                window.blit(self.text_finish, (CENTER[0]-self.text_finish.get_width(), CENTER[1]-self.text_finish.get_height()))
+
 
 
     
@@ -71,7 +84,7 @@ class Rounds:
 
     def spawn_heptagon(self, speed, size):
         tilepos = self.map.random_1()
-        self.shape_container.append(Square(
+        self.shape_container.append(Heptagon(
             (tilepos[0] * TILESIZE, tilepos[1] * TILESIZE), speed, size
         ))
     
@@ -126,6 +139,12 @@ class Rounds:
             self.spawn_hexagons(7,20,20)
 
         elif self.round_number == 7:
+            self.spawn_heptagon(3,30)
+            self.spawn_heptagon(3,30)
+            self.spawn_heptagon(3,30)
+            self.spawn_heptagon(3,30)
+
+        elif self.round_number == 8:
             self.spawn_nonagon(3,30)
             self.spawn_nonagon(5,40)
             self.spawn_nonagon(4,35)
