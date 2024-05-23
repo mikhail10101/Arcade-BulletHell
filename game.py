@@ -101,16 +101,13 @@ class Game:
             for j in range(i+1, len(self.rounds.shape_container)):
                 s2 = self.rounds.shape_container[j]
 
-                mult = 1/7
+                mult = 1/2
                 forces = calc_collision(s1.size, s1.pos, s1.disp, s2.size, s2.pos, s2.disp)
                 if dist(s1.pos, s2.pos) < s1.size + s2.size:
-                    if s1.size > s2.size:
-                        s2.add_force((forces[1][0] * mult, forces[1][1] * mult),50,50,50)
-                    elif s2.size < s1.size:
-                        s1.add_force((forces[0][0] * mult, forces[0][1] * mult),50,50,50)
-                    else:
-                        s1.add_force((forces[0][0] * mult, forces[0][1] * mult),50,50,50)
-                        s2.add_force((forces[1][0] * mult, forces[1][1] * mult),50,50,50)
+                    s1.vel = (0,0)
+                    s2.vel = (0,0)
+                    s1.add_force((forces[0][0] * mult, forces[0][1] * mult),50,0,0)
+                    s2.add_force((forces[1][0] * mult, forces[1][1] * mult),50,0,0)
             
             for p in self.player_container:
                 if p.polygon_collision(s1.points):

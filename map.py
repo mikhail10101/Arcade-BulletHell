@@ -3,8 +3,8 @@ import math
 import random
 
 TILESIZE = 64
-OUTERSIZE = 60
-INNERSIZE = 22
+OUTERSIZE = 50
+INNERSIZE = 20
 
 class Map:
     def __init__(self, tile_size = TILESIZE):

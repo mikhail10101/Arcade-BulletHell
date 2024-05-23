@@ -211,7 +211,7 @@ def calc_collision(m1, p1, v1, m2, p2, v2):
 
     return (
         (x[0] * m2 / m1 * v2[0], y[0] * m2 / m1 * v2[1]),
-        (x[1] * m1 / m2 * v1[0], y[1] * m1 / m2 * v1[0])
+        (x[1] * m1 / m2 * v1[0], y[1] * m1 / m2 * v1[1])
     )
 
 def points_modifier(points_array, center, n, size, angle):

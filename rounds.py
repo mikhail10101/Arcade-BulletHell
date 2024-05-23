@@ -2,14 +2,14 @@ import pygame
 from entities import *
 
 TILESIZE = 64
-CENTER = (30*TILESIZE, 30*TILESIZE)
+CENTER = (25*TILESIZE, 25*TILESIZE)
 
 class Rounds:
     def __init__(self, map):
         self.shape_container = [
 
         ]
-        self.round_number = 0
+        self.round_number = 7
         self.mode = 0
         self.round_end_time = 0
         self.map = map
@@ -79,7 +79,7 @@ class Rounds:
         tilepos = self.map.random_1()
         self.shape_container.append(Nonagon(
             (tilepos[0] * TILESIZE, tilepos[1] * TILESIZE), speed, size,
-            math.atan2(CENTER[0]-tilepos[0] * TILESIZE, CENTER[1]-tilepos[1] * TILESIZE)
+            math.atan2(CENTER[1] - tilepos[1] * TILESIZE, CENTER[0] - tilepos[0] * TILESIZE)
         ))
 
 
@@ -124,6 +124,12 @@ class Rounds:
             self.spawn_hexagons(7,30,10)
             self.spawn_hexagons(7,40,10)
             self.spawn_hexagons(7,20,20)
+
+        elif self.round_number == 7:
+            self.spawn_nonagon(3,30)
+            self.spawn_nonagon(5,40)
+            self.spawn_nonagon(4,35)
+            self.spawn_nonagon(7,30)
 
 
         # self.spawn_triangles(3,10,50)

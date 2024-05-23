@@ -10,8 +10,8 @@ class Player(ForceObject):
         self.size = 30
 
         #movement
-        self.pos = [1280,1280]
-        self.speed = 4
+        self.pos = [1600,1600]
+        self.speed = 6
         self.accel = 0.2
         self.deccel = 0.05
         self.curr_vel = [0,0]
@@ -527,7 +527,7 @@ class Nonagon(ForceObject):
 
         #shot in milliseconds
         self.last_shot = -1000
-        self.shot_interval = 333
+        self.shot_interval = 1000
 
         self.points = [(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0)]
 
