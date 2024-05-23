@@ -1,25 +1,26 @@
 import pygame
 import math
+import random
 
 TILESIZE = 64
+OUTERSIZE = 60
+INNERSIZE = 22
 
 class Map:
     def __init__(self, tile_size = TILESIZE):
         self.tile_size = tile_size
 
         #initalize map
-        outer_size = 60
-        inner_size = 22
-        start_index = (outer_size - inner_size) // 2
-        end_index = start_index + inner_size
+        start_index = (OUTERSIZE - INNERSIZE) // 2
+        end_index = start_index + INNERSIZE
 
-        self.map_values = [[2 if i == 0 or i == outer_size - 1 or j == 0 or j == outer_size - 1 else 0 if start_index <= i < end_index and start_index <= j < end_index else 1 for j in range(outer_size)] for i in range(outer_size)]
+        self.map_values = [[2 if i == 0 or i == OUTERSIZE - 1 or j == 0 or j == OUTERSIZE - 1 else 0 if start_index <= i < end_index and start_index <= j < end_index else 1 for j in range(OUTERSIZE)] for i in range(OUTERSIZE)]
 
     def draw(self, window, offset=(0,0)):
         for r in range(len(self.map_values)):
             for c in range(len(self.map_values[0])):
-                if self.map_values[r][c] == 1:
-                    pygame.draw.rect(window, (100,100,100), (r*TILESIZE - offset[0], c*TILESIZE - offset[1], TILESIZE, TILESIZE))
+                if self.map_values[r][c] == 0:
+                    pygame.draw.rect(window, (0,0,0), (r*TILESIZE - offset[0], c*TILESIZE - offset[1], TILESIZE, TILESIZE))
 
     def is_off_grid(self, pos):
         return not (0 <= pos[0] <= self.tile_size * len(self.map_values)
@@ -85,4 +86,15 @@ class Map:
     
         return None
     
-    #def random_2(self):
+    def random_1(self):
+        n = OUTERSIZE - INNERSIZE - 20
+        rand_x = random.randint(0,n-1) + 10
+        rand_y = random.randint(0,n-1) + 10
+
+        if OUTERSIZE//2 - INNERSIZE//2 < rand_x < OUTERSIZE//2 + INNERSIZE//2:
+            rand_x += INNERSIZE
+        if OUTERSIZE//2 - INNERSIZE//2 < rand_y < OUTERSIZE//2 + INNERSIZE//2:
+            rand_y += INNERSIZE
+
+        print(rand_x, rand_y)
+        return (rand_x, rand_y)

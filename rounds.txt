@@ -1,0 +1,25 @@
+ROUND 1
+- Triangles
+
+ROUND 2
+- Squares and Triangles
+
+ROUND 3
+- All Squares
+
+ROUND 4
+- Pentagons and Triangles
+
+ROUND 5
+- Nonagons
+
+ROUND 6
+- Hexagons
+
+ROUND 7
+- Nonagons and Squares
+
+ROUND 8
+- Nonagons and Squares and Triangles
+
+ROUND 9

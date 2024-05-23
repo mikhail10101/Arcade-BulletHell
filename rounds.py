@@ -5,13 +5,14 @@ TILESIZE = 64
 CENTER = (30*TILESIZE, 30*TILESIZE)
 
 class Rounds:
-    def __init__(self):
+    def __init__(self, map):
         self.shape_container = [
 
         ]
         self.round_number = 0
         self.mode = 0
-        self.round_end_time = 0 
+        self.round_end_time = 0
+        self.map = map
 
     def update(self):
         #preround
@@ -30,10 +31,7 @@ class Rounds:
                 self.round_number += 1
 
 
-    def spawn_triangles(self, tilepos, speed, size, amount):
-        for i in range(amount):
-            self.shape_container.append(Triangle((tilepos[0] * TILESIZE + random.random()*200, tilepos[1] * TILESIZE + random.random()*200), speed, size))
-
+    
     def rec(self, pos, speed, size, amount):
         if amount == 1:
             h = Hexagon((pos), speed, size, None)
@@ -42,24 +40,96 @@ class Rounds:
         
         vect = pygame.math.Vector2(CENTER[0]-pos[0], CENTER[1]-pos[1])
         vect.normalize_ip()
-        vect.scale_to_length(100)
-        h = Hexagon(pos, speed, size, self.rec((pos[0] + vect[0], pos[1]+vect[1]), speed, size, amount-1))
+        vect.scale_to_length(size*5)
+        h = Hexagon((pos[0] - amount*vect[0],pos[1] - amount*vect[1]), speed, size, self.rec(pos, speed, size, amount-1))
         self.shape_container.append(h)
         return h
 
-    def spawn_hexagons(self, pos, speed, size, amount):
-         
-        self.rec((pos[0]*TILESIZE, pos[1]*TILESIZE), speed, size, amount, )
-    
-    def spawn_pentagon(self, tilepos, size):
+
+
+
+    def spawn_triangles(self, speed, size, amount):
+        tilepos = self.map.random_1()
+        for i in range(amount):
+            self.shape_container.append(Triangle((tilepos[0] * TILESIZE + random.random()*200, tilepos[1] * TILESIZE + random.random()*200), speed, size))
+
+    def spawn_square(self, speed, size):
+        tilepos = self.map.random_1()
+        self.shape_container.append(Square(
+            (tilepos[0] * TILESIZE, tilepos[1] * TILESIZE), speed, size
+        ))
+
+    def spawn_pentagon(self, size):
+        tilepos = self.map.random_1()
         self.shape_container.append(Pentagon(
             (tilepos[0] * TILESIZE, tilepos[1] * TILESIZE), size
         ))
+    
+    def spawn_hexagons(self, speed, size, amount):
+        tilepos = self.map.random_1()
+        self.rec((tilepos[0]*TILESIZE, tilepos[1]*TILESIZE), speed, size, amount)
+
+    def spawn_heptagon(self, speed, size):
+        tilepos = self.map.random_1()
+        self.shape_container.append(Square(
+            (tilepos[0] * TILESIZE, tilepos[1] * TILESIZE), speed, size
+        ))
+    
+    def spawn_nonagon(self, speed, size):
+        tilepos = self.map.random_1()
+        self.shape_container.append(Nonagon(
+            (tilepos[0] * TILESIZE, tilepos[1] * TILESIZE), speed, size,
+            math.atan2(CENTER[0]-tilepos[0] * TILESIZE, CENTER[1]-tilepos[1] * TILESIZE)
+        ))
+
+
+
+
 
     def is_round_done(self):
         return len(self.shape_container) == 0
     
     def start_round(self):
-        self.spawn_triangles((30,30),3,20,self.round_number)
-        self.spawn_pentagon((15,15),80)
-        self.spawn_pentagon((48,48),120)
+
+        if self.round_number == 1:
+            self.spawn_triangles(3,10,20)
+            self.spawn_triangles(3,10,20)
+            self.spawn_triangles(3,10,20)
+
+        elif self.round_number == 2:
+            self.spawn_square(3,40)
+            self.spawn_square(3,50)
+            self.spawn_square(3,40)
+
+        elif self.round_number == 3:
+            self.spawn_triangles(3,10,20)
+            self.spawn_triangles(3,10,20)   
+            self.spawn_square(3,40)
+            self.spawn_square(3,50)         
+
+        elif self.round_number == 4:
+            self.spawn_pentagon(80)
+            self.spawn_pentagon(120)
+            self.spawn_pentagon(50)
+            self.spawn_pentagon(80)
+
+        elif self.round_number == 5:
+            self.spawn_pentagon(80)
+            self.spawn_pentagon(120)
+            self.spawn_triangles(3,10,20)
+            self.spawn_triangles(3,10,20)   
+            self.spawn_square(3,40)
+
+        elif self.round_number == 6:
+            self.spawn_hexagons(7,30,10)
+            self.spawn_hexagons(7,40,10)
+            self.spawn_hexagons(7,20,20)
+
+
+        # self.spawn_triangles(3,10,50)
+        # self.spawn_square(3,30)
+        # self.spawn_pentagon(80)
+        # self.spawn_pentagon(120)
+        # self.spawn_hexagons(3,30,10)
+        # self.spawn_heptagon(3,30)
+        # self.spawn_nonagon(3,30)

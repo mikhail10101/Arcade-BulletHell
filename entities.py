@@ -10,7 +10,7 @@ class Player(ForceObject):
         self.size = 30
 
         #movement
-        self.pos = [1920,1920]
+        self.pos = [1280,1280]
         self.speed = 4
         self.accel = 0.2
         self.deccel = 0.05
@@ -120,8 +120,7 @@ class Bullet:
         self.pos[1] += self.speed * math.sin(self.angle)
 
     def draw(self, window, offset=(0,0)):
-        if self.target_shapes:
-            pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.radius)
+        pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.radius)
 
     #bullet collisions with an ordered set of points (any polygon)
     def polygon_collision(self, points):
@@ -175,7 +174,7 @@ class Wave(Bullet):
 
 
 class Triangle(ForceObject):
-    def __init__(self, pos, speed, size, health=3):
+    def __init__(self, pos, speed, size, health=1):
         super().__init__()
 
         self.pos = list(pos)
@@ -406,7 +405,6 @@ class Pentagon(ForceObject):
         self.laser_warning = []
     
     def update(self,players,map):
-        print(self.mode)
         super().update()
         current_time = pygame.time.get_ticks()
 
@@ -570,12 +568,12 @@ class Nonagon(ForceObject):
         newJ = int(new_pos[1] // map.tile_size)
 
         if 0 <= newI < len(map.map_values) and 0 <= newJ < len(map.map_values[0]):
-            if (map.map_values[newI][newJ] == 1):
+            if (map.map_values[i][j] == 0 and map.map_values[newI][newJ] == 1):
                     if i-newI == -1:
                         self.movement_angle = math.pi - self.movement_angle
                     elif i-newI == 1:
                         self.movement_angle = math.pi - self.movement_angle
-                    if j-newJ == -1:
+                    elif j-newJ == -1:
                         self.movement_angle = 2*math.pi - self.movement_angle
                     elif j-newJ == 1:
                         self.movement_angle = 2*math.pi - self.movement_angle

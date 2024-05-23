@@ -11,7 +11,7 @@ class Game:
 
         self.player_container = [Player()]
         self.bullet_container = []
-        self.rounds = Rounds()
+        self.rounds = Rounds(self.map)
 
         self.window = pygame.display.set_mode((length, width))
         pygame.display.set_caption("Arcade Game")
@@ -20,18 +20,18 @@ class Game:
 
     
     def draw(self):
-        self.window.fill((0,0,0))
+        self.window.fill((100,100,100))
 
         self.map.draw(self.window, self.scroll)
 
         for p in self.player_container:
             p.draw(self.window, self.scroll)
 
-        for b in self.bullet_container:
-            b.draw(self.window, self.scroll)
-
         for s in self.rounds.shape_container:
             s.draw(self.window, self.scroll)
+
+        for b in self.bullet_container:
+            b.draw(self.window, self.scroll)
 
         #temporary testing
         self.window.blit(bar(self.player_container[0].hp, 100, 200, 50), (50,50)) 
@@ -101,16 +101,16 @@ class Game:
             for j in range(i+1, len(self.rounds.shape_container)):
                 s2 = self.rounds.shape_container[j]
 
-                mult = 1/8
+                mult = 1/7
                 forces = calc_collision(s1.size, s1.pos, s1.disp, s2.size, s2.pos, s2.disp)
                 if dist(s1.pos, s2.pos) < s1.size + s2.size:
                     if s1.size > s2.size:
-                        s2.add_force((forces[1][0] * mult, forces[1][1] * mult),0,100,0)
+                        s2.add_force((forces[1][0] * mult, forces[1][1] * mult),50,50,50)
                     elif s2.size < s1.size:
-                        s1.add_force((forces[0][0] * mult, forces[0][1] * mult),0,100,0)
+                        s1.add_force((forces[0][0] * mult, forces[0][1] * mult),50,50,50)
                     else:
-                        s1.add_force((forces[0][0] * mult, forces[0][1] * mult),0,100,0)
-                        s2.add_force((forces[1][0] * mult, forces[1][1] * mult),0,100,0)
+                        s1.add_force((forces[0][0] * mult, forces[0][1] * mult),50,50,50)
+                        s2.add_force((forces[1][0] * mult, forces[1][1] * mult),50,50,50)
             
             for p in self.player_container:
                 if p.polygon_collision(s1.points):
