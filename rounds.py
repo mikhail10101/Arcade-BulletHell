@@ -9,13 +9,10 @@ class Rounds:
         self.shape_container = [
 
         ]
-        self.round_number = 7
-        self.mode = 0
-        self.round_end_time = 0
+        self.round_number = 0
+        self.mode = 2
+        self.round_end_time = pygame.time.get_ticks() - 3000
         self.map = map
-
-        self.font = pygame.font.Font('freesansbold.ttf', 32)
-        self.text_finish = self.font.render("CLEARED", True, (255,255,255))
 
     def update(self):
         #preround
@@ -35,13 +32,16 @@ class Rounds:
 
     def draw(self,window):
         if self.mode == 2:
-            if pygame.time.get_ticks() > self.round_end_time + 2000:
-                #display round number
-                pass
+            if pygame.time.get_ticks() > self.round_end_time + 3000:
+                f = pygame.font.SysFont("Verdana", 250)
+                text_finish = f.render(str(self.round_number+1), True, (255,255,255))
+                window.blit(text_finish, (window.get_width()//2 - text_finish.get_width()//2, window.get_height()//2 - text_finish.get_height()//2))
+            elif pygame.time.get_ticks() > self.round_end_time + 500:
+                f = pygame.font.SysFont("Verdana", 100)
+                text_finish = f.render("CLEARED", True, (255,255,255))
+                window.blit(text_finish, (window.get_width()//2 - text_finish.get_width()//2, window.get_height()//2 - text_finish.get_height()//2))
             elif pygame.time.get_ticks() > self.round_end_time:
-                #display round done
-                window.blit(self.text_finish, (CENTER[0]-self.text_finish.get_width(), CENTER[1]-self.text_finish.get_height()))
-
+                pass
 
 
     
@@ -103,7 +103,6 @@ class Rounds:
         return len(self.shape_container) == 0
     
     def start_round(self):
-
         if self.round_number == 1:
             self.spawn_triangles(3,10,20)
             self.spawn_triangles(3,10,20)

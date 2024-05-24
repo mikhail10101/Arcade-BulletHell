@@ -96,5 +96,4 @@ class Map:
         if OUTERSIZE//2 - INNERSIZE//2 < rand_y < OUTERSIZE//2 + INNERSIZE//2:
             rand_y += INNERSIZE
 
-        print(rand_x, rand_y)
         return (rand_x, rand_y)
