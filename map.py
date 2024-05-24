@@ -87,13 +87,8 @@ class Map:
         return None
     
     def random_1(self):
-        n = OUTERSIZE - INNERSIZE - 20
-        rand_x = random.randint(0,n-1) + 10
-        rand_y = random.randint(0,n-1) + 10
-
-        if OUTERSIZE//2 - INNERSIZE//2 < rand_x < OUTERSIZE//2 + INNERSIZE//2:
-            rand_x += INNERSIZE
-        if OUTERSIZE//2 - INNERSIZE//2 < rand_y < OUTERSIZE//2 + INNERSIZE//2:
-            rand_y += INNERSIZE
-
-        return (rand_x, rand_y)
+        while True:
+            a = random.randint(0, OUTERSIZE-1)
+            b = random.randint(0, OUTERSIZE-1)
+            if self.map_values[a][b] == 1:
+                return (a,b)

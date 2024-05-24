@@ -9,7 +9,7 @@ class Rounds:
         self.shape_container = [
 
         ]
-        self.round_number = 0
+        self.round_number = 3
         self.mode = 2
         self.round_end_time = pygame.time.get_ticks() - 3000
         self.map = map
@@ -75,7 +75,8 @@ class Rounds:
     def spawn_pentagon(self, size):
         tilepos = self.map.random_1()
         self.shape_container.append(Pentagon(
-            (tilepos[0] * TILESIZE, tilepos[1] * TILESIZE), size
+            (tilepos[0] * TILESIZE, tilepos[1] * TILESIZE), size,
+            math.atan2(CENTER[1] - tilepos[1] * TILESIZE, CENTER[0] - tilepos[0] * TILESIZE)
         ))
     
     def spawn_hexagons(self, speed, size, amount):

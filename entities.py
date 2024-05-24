@@ -204,6 +204,12 @@ class Triangle(ForceObject):
 
         points_modifier(self.points, self.pos, 3, self.size, self.angle_pos)
 
+        if pygame.time.get_ticks()//1000 % 1 == 0:
+            rand_scale = self.size/50
+            a = random.random() * 2 - 1
+            b = random.random() * 2 - 1
+            self.add_force((rand_scale*a, rand_scale*b),250,500,250)
+
         self.disp[0] = self.speed * math.cos(self.angle_pos) + self.fx
         self.disp[1] = self.speed * math.sin(self.angle_pos) + self.fy
 
@@ -346,10 +352,16 @@ class Squarelet(ForceObject):
         #control distance
         d = dist(closest.pos, self.pos)
         target_speed = 0
-        if d > 350:
+        if d > 250:
             target_speed = self.speed
         else:
             target_speed = -self.speed
+
+        if pygame.time.get_ticks()//1000 % 1 == 0:
+            rand_scale = self.size/40
+            a = random.random() * 2 - 1
+            b = random.random() * 2 - 1
+            self.add_force((rand_scale*a, rand_scale*b),250,1250,500)
 
         self.curr_speed = phys_single_helper(self.curr_speed, target_speed, self.accel, self.deccel)
         self.disp[0] = self.curr_speed * math.cos(self.angle_pos) + self.fx 
@@ -374,7 +386,7 @@ class Squarelet(ForceObject):
 
 
 class Pentagon(ForceObject):
-    def __init__(self, pos, size, health=5):
+    def __init__(self, pos, size, angle, health=5):
         super().__init__()
 
         self.pos = list(pos)
@@ -382,7 +394,7 @@ class Pentagon(ForceObject):
 
         self.health = health
 
-        self.angle_pos = 0
+        self.angle_pos = angle
         self.angle_vel = 0.03
 
         self.points = [(0,0),(0,0),(0,0),(0,0),(0,0)]
@@ -391,13 +403,11 @@ class Pentagon(ForceObject):
         self.disp = [0,0]
 
         self.mode = 0
-        #0 normal
-        #1 shooting
 
         #laser details
         self.pause_duration = 1000
         self.laser_interval = 6000
-        self.last_laser = pygame.time.get_ticks()
+        self.last_laser = pygame.time.get_ticks() - 5500
         self.laser_duration = 2000
         self.lasers = []
         self.bounds = [0,0]
@@ -429,7 +439,7 @@ class Pentagon(ForceObject):
             if len(self.laser_warning) == 0:
                 self.laser_warning.append((self.points[0],map.raycast(self.pos,self.angle_pos,10000)))
         
-            if current_time > + self.pause_duration + self.last_laser:
+            if current_time > self.pause_duration + self.last_laser:
                 self.mode = 2
                 self.shoot_laser(map)
                 
@@ -510,78 +520,7 @@ class Pentagon(ForceObject):
     
 
 
-class Nonagon(ForceObject):
-    def __init__(self, pos, speed, size, angle, health=2):
-        super().__init__()
 
-        self.pos = list(pos)
-        self.size = size
-
-        self.health = health
-
-        self.speed = speed
-        self.movement_angle = angle
-
-        self.angle_pos = 0
-        self.angle_vel = 0.03
-
-        #shot in milliseconds
-        self.last_shot = -1000
-        self.shot_interval = 1000
-
-        self.points = [(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0)]
-
-        self.active = True
-        self.disp = [0,0]
-
-    def update(self, bullets, map):
-        super().update()
-        current_time = pygame.time.get_ticks()
-
-        self.angle_pos += self.angle_vel
-
-        if current_time > self.last_shot + self.shot_interval:
-            self.nonagon_shoot(bullets)
-            self.last_shot = current_time
-
-        points_modifier(self.points,self.pos,9,self.size,self.angle_pos)
-
-        self.disp[0] = self.fx + self.speed*math.cos(self.movement_angle)
-        self.disp[1] = self.fy + self.speed*math.sin(self.movement_angle)
-        
-
-        self.bounce((self.pos[0]+self.disp[0], self.pos[1]+self.disp[1]), map)
-
-    def draw(self, window, offset):
-        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
-
-        pygame.draw.polygon(window, (255,255,255), drawpoints)
-
-    def nonagon_shoot(self, bullets):
-        for i in range(9):
-            bullets.append(Bullet(self.pos, 13, self.angle_pos + 2*i*math.pi/9, False, self.size/3))
-
-    def bounce(self, new_pos, map):
-        i = int(self.pos[0] // map.tile_size)
-        j = int(self.pos[1] // map.tile_size)
-        newI = int(new_pos[0] // map.tile_size)
-        newJ = int(new_pos[1] // map.tile_size)
-
-        if 0 <= newI < len(map.map_values) and 0 <= newJ < len(map.map_values[0]):
-            if (map.map_values[i][j] == 0 and map.map_values[newI][newJ] == 1):
-                    if i-newI == -1:
-                        self.movement_angle = math.pi - self.movement_angle
-                    elif i-newI == 1:
-                        self.movement_angle = math.pi - self.movement_angle
-                    elif j-newJ == -1:
-                        self.movement_angle = 2*math.pi - self.movement_angle
-                    elif j-newJ == 1:
-                        self.movement_angle = 2*math.pi - self.movement_angle
-            else:
-                self.pos[0] += self.fx + self.speed*math.cos(self.movement_angle)
-                self.pos[1] += self.fy + self.speed*math.sin(self.movement_angle)
-        else:
-            self.movement_angle = math.atan2(self.disp[1], self.disp[0])
 
 
 
@@ -658,7 +597,9 @@ class Heptagon(ForceObject):
         self.points = [(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0)]
 
         #shot in milliseconds
-        self.last_shot = -1000
+        self.extra = random.random() * 1000
+
+        self.last_shot = self.extra
         self.shot_interval = 2000
 
         #vel
@@ -686,10 +627,16 @@ class Heptagon(ForceObject):
         #control distance
         d = dist(closest.pos, self.pos)
         target_speed = 0
-        if d > 700:
+        if d > 450:
             target_speed = self.speed
         else:
             target_speed = -self.speed
+
+        if pygame.time.get_ticks()//1000 % 2 == self.extra:
+            rand_scale = self.size/40
+            a = random.random() * 2 - 1
+            b = random.random() * 2 - 1
+            self.add_force((rand_scale*a, rand_scale*b),250,1250,500)
 
         self.curr_speed = phys_single_helper(self.curr_speed, target_speed, self.accel, self.deccel)
         self.disp[0] = self.curr_speed * math.cos(self.angle_pos) + self.fx 
@@ -703,9 +650,89 @@ class Heptagon(ForceObject):
             dy = closest.pos[1] - self.pos[1]
             rads = math.atan2(dy,dx)
             bullets.append(Wave((self.pos[0] - math.cos(self.angle_pos)*self.size,self.pos[1] - math.sin(self.angle_pos)*self.size), self.speed*2, rads, False, self.size*2.5))
+            self.forces = []
+            self.add_force((-math.cos(rads) * self.size/30, -math.sin(rads) * self.size/30), 250, 750, 1000)
+            
             self.last_shot = current_time
 
     def draw(self,window,offset):
         drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
         pygame.draw.polygon(window, (255,255,255), drawpoints)
 
+
+
+
+
+
+class Nonagon(ForceObject):
+    def __init__(self, pos, speed, size, angle, health=2):
+        super().__init__()
+
+        self.pos = list(pos)
+        self.size = size
+
+        self.health = health
+
+        self.speed = speed
+        self.movement_angle = angle
+
+        self.angle_pos = 0
+        self.angle_vel = 0.03
+
+        #shot in milliseconds
+        self.last_shot = -1000
+        self.shot_interval = 1000
+
+        self.points = [(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0)]
+
+        self.active = True
+        self.disp = [0,0]
+
+    def update(self, bullets, map):
+        super().update()
+        current_time = pygame.time.get_ticks()
+
+        self.angle_pos += self.angle_vel
+
+        if current_time > self.last_shot + self.shot_interval:
+            self.nonagon_shoot(bullets)
+            self.last_shot = current_time
+
+        points_modifier(self.points,self.pos,9,self.size,self.angle_pos)
+
+        self.disp[0] = self.fx + self.speed*math.cos(self.movement_angle)
+        self.disp[1] = self.fy + self.speed*math.sin(self.movement_angle)
+        
+
+        self.bounce((self.pos[0]+self.disp[0], self.pos[1]+self.disp[1]), map)
+
+    def draw(self, window, offset):
+        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
+
+        pygame.draw.polygon(window, (255,255,255), drawpoints)
+
+    def nonagon_shoot(self, bullets):
+        for i in range(9):
+            bullets.append(Bullet(self.pos, 13, self.angle_pos + 2*i*math.pi/9, False, self.size/3))
+
+    def bounce(self, new_pos, map):
+        i = int(self.pos[0] // map.tile_size)
+        j = int(self.pos[1] // map.tile_size)
+        newI = int(new_pos[0] // map.tile_size)
+        newJ = int(new_pos[1] // map.tile_size)
+
+        if 0 <= newI < len(map.map_values) and 0 <= newJ < len(map.map_values[0]):
+            if (map.map_values[i][j] == 0 and map.map_values[newI][newJ] == 1):
+                    if i-newI == -1:
+                        self.movement_angle = math.pi - self.movement_angle
+                    elif i-newI == 1:
+                        self.movement_angle = math.pi - self.movement_angle
+                    elif j-newJ == -1:
+                        self.movement_angle = 2*math.pi - self.movement_angle
+                    elif j-newJ == 1:
+                        self.movement_angle = 2*math.pi - self.movement_angle
+            else:
+                self.pos[0] += self.fx + self.speed*math.cos(self.movement_angle)
+                self.pos[1] += self.fy + self.speed*math.sin(self.movement_angle)
+        else:
+            self.movement_angle = math.atan2(self.disp[1], self.disp[0])
