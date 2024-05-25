@@ -656,13 +656,13 @@ class Heptagon(ForceObject):
         #control distance
         d = dist(closest.pos, self.pos)
         target_speed = 0
-        if d > 350:
+        if d > 500:
             target_speed = self.speed
         else:
             target_speed = -self.speed
 
         if pygame.time.get_ticks()//1000 % 2 == self.extra:
-            rand_scale = self.size/20
+            rand_scale = self.size
             a = random.random() * 2 - 1
             b = random.random() * 2 - 1
             self.add_force((rand_scale*a, rand_scale*b),250,1250,500)

@@ -31,18 +31,28 @@ class Rounds:
                 self.mode = 0
                 self.round_number += 1
 
-    def draw(self,window):
+    def draw(self,window, game_color):
         if self.mode == 2:
             if pygame.time.get_ticks() > self.round_end_time + 3000:
                 f = pygame.font.SysFont("TimesNewRoman", 700)
                 text_finish = f.render(str(self.round_number+1), True, (120,0,0))
                 window.blit(text_finish, (window.get_width()//2 - text_finish.get_width()//2, window.get_height()//2 - text_finish.get_height()//2))
+                game_color[0] = 255
+                game_color[1] = 255
+                game_color[2] = 255
             elif pygame.time.get_ticks() > self.round_end_time + 500:
                 f = pygame.font.SysFont("TimesNewRoman", 250)
                 text_finish = f.render("CLEARED", True, (120,0,0))
                 window.blit(text_finish, (window.get_width()//2 - text_finish.get_width()//2, window.get_height()//2 - text_finish.get_height()//2))
             elif pygame.time.get_ticks() > self.round_end_time:
                 pass
+
+        elif self.mode == 1:
+            a = (pygame.time.get_ticks()-self.round_end_time-5000)/4000
+            if a <= 1:
+                game_color[0] = pygame.math.lerp(255,100,a)
+                game_color[1] = pygame.math.lerp(255,100,a)
+                game_color[2] = pygame.math.lerp(255,100,a)
 
 
     
@@ -105,6 +115,7 @@ class Rounds:
         return len(self.shape_container) == 0
     
     def start_round(self):
+
         if self.round_number == 1:
             self.spawn_triangles(3,10,20)
             self.spawn_triangles(3,10,20)
