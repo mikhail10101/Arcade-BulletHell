@@ -13,6 +13,8 @@ class Game:
         self.bullet_container = []
         self.rounds = Rounds(self.map)
 
+        self.particles = []
+
         self.window = pygame.display.set_mode((length, width))
         pygame.display.set_caption("Arcade Game")
 
@@ -32,6 +34,10 @@ class Game:
         for s in self.rounds.shape_container:
             s.draw(self.window, self.scroll)
 
+        #particles
+        for particle in self.particles:
+            pygame.draw.circle(self.window, (255,255,255), (int(particle[0][0] - self.scroll[0]), int(particle[0][1] - self.scroll[1])), int(particle[2]))
+
         for b in self.bullet_container:
             b.draw(self.window, self.scroll)
 
@@ -41,6 +47,15 @@ class Game:
 
     def update(self, inputs):
         self.rounds.update()
+        #particles
+        for particle in self.particles:
+            particle[0][0] += particle[1][0]
+            particle[0][1] += particle[1][1]
+            particle[2] -= 0.1
+
+            if particle[2] <= 0:
+                self.particles.remove(particle)
+
 
         for p in self.player_container:
             p.update(inputs, self.bullet_container, self.map, self.scroll)
@@ -59,6 +74,7 @@ class Game:
                             elif s.__class__.__name__ == "Nonagon":
                                 self.nonagon_death(s.pos, s.size, s.angle_pos)
                             s.active = False
+                            self.shape_death(s.pos, s.size)
                         b.active = False
                         break
             #bullets that target players
@@ -134,3 +150,7 @@ class Game:
             self.bullet_container.append(Bullet(pos, 13, angle + 2*i*math.pi/9, False, size/3))
             self.bullet_container.append(Bullet(pos, 10, angle + 2*i*math.pi/9, False, size/3))
             self.bullet_container.append(Bullet(pos, 8, angle + 2*i*math.pi/9, False, size/3))
+
+    def shape_death(self, pos, size):
+        for i in range(int(size)):
+            self.particles.append(list([list(pos), ((random.randint(0,20) / 10-1)*size/20, (random.randint(0,20) / 10-1)*size/20), min(random.randint(int(size/3),int(size)),10)]))

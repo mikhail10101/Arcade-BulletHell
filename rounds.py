@@ -123,8 +123,8 @@ class Rounds:
 
         elif self.round_number == 2:
             self.spawn_square(3,40)
-            self.spawn_square(3,50)
-            self.spawn_square(3,40)
+            self.spawn_square(3,100)
+            self.spawn_square(3,80)
 
         elif self.round_number == 3:
             self.spawn_triangles(3,10,20)
