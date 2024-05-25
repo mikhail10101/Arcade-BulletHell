@@ -16,15 +16,40 @@ class Player(ForceObject):
         self.deccel = 0.05
         self.curr_vel = [0,0]
 
+        #angle to mouse
+        self.mouse_angle = 0
+
         #shot in milliseconds
         self.last_shot = -1000
         self.shot_interval = 100
 
         self.hp = 100
-        
+
+        self.pointer_scale = 1.8
+
 
     def draw(self, window, offset=(0,0)):
         pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.size)
+
+        scale = 1/4
+        diff = (-math.cos(self.mouse_angle) * self.size * scale,-math.sin(self.mouse_angle) * self.size * scale)
+
+        side_scale = 1.5
+        side_angle = math.pi/20
+
+        arrow_points = [(0,0),(0,0),(0,0),(0,0),(0,0),(0,0)]
+        arrow_points[0] = (self.pos[0] + math.cos(self.mouse_angle) * self.size * self.pointer_scale, self.pos[1] + math.sin(self.mouse_angle) * self.size * self.pointer_scale)
+        arrow_points[1] = (self.pos[0] + math.cos(self.mouse_angle + math.pi*side_angle) * self.size * side_scale,self.pos[1] + math.sin(self.mouse_angle + math.pi*side_angle) * self.size * side_scale)
+        arrow_points[5] = (self.pos[0] + math.cos(self.mouse_angle - math.pi*side_angle) * self.size * side_scale, self.pos[1] + math.sin(self.mouse_angle - math.pi*side_angle) * self.size * side_scale)
+        arrow_points[2] = (arrow_points[1][0]+diff[0],arrow_points[1][1]+diff[1])
+        arrow_points[3] = (arrow_points[0][0]+diff[0],arrow_points[0][1]+diff[1])
+        arrow_points[4] = (arrow_points[5][0]+diff[0],arrow_points[5][1]+diff[1])
+
+        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in arrow_points]
+        pygame.draw.polygon(window, (255,255,255), drawpoints)
+
+        
+
 
     def update(self, inputs, bullets, map, offset=(0,0)):
         super().update()
@@ -48,21 +73,23 @@ class Player(ForceObject):
 
         self.move([self.pos[0] + self.curr_vel[0] + self.fx, self.pos[1] + self.curr_vel[1] + self.fy], map)
 
+        mx, my = inputs["click_pos"]
+ 
+        mx += offset[0]
+        my += offset[1]
+
+        dx = mx - self.pos[0]
+        dy = my - self.pos[1]
+
+        self.mouse_angle = math.atan2(dy,dx)
+
         #SHOOT
         if inputs["click"]:
             if current_time > self.last_shot + self.shot_interval:
-                mx, my = inputs["click_pos"]
- 
-                mx += offset[0]
-                my += offset[1]
-
-                dx = mx - self.pos[0]
-                dy = my - self.pos[1]
-
-                rads = math.atan2(dy,dx)
-
-                bullets.append(Bullet(self.pos, 20, rads, True, 7))
-
+                bullets.append(Bullet(
+                    (self.pos[0] + math.cos(self.mouse_angle) * self.pointer_scale * self.size, self.pos[1] + math.sin(self.mouse_angle) * self.pointer_scale * self.size), 
+                    20, self.mouse_angle, True, 7
+                ))
                 self.last_shot = current_time
 
     def move(self, new_pos, map):
@@ -120,7 +147,8 @@ class Bullet:
         self.pos[1] += self.speed * math.sin(self.angle)
 
     def draw(self, window, offset=(0,0)):
-        pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.radius)
+        if self.active:
+            pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.radius)
 
     #bullet collisions with an ordered set of points (any polygon)
     def polygon_collision(self, points):
@@ -156,8 +184,9 @@ class Wave(Bullet):
         self.points[4] = (self.points[5][0]+diff[0],self.points[5][1]+diff[1])
 
     def draw(self, window, offset=(0,0)):
-        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
-        pygame.draw.polygon(window, (255,255,255), drawpoints)
+        if self.active:
+            drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
+            pygame.draw.polygon(window, (255,255,255), drawpoints)
 
     #collision with any circle
     def collision(self, center, radius):
@@ -627,13 +656,13 @@ class Heptagon(ForceObject):
         #control distance
         d = dist(closest.pos, self.pos)
         target_speed = 0
-        if d > 450:
+        if d > 350:
             target_speed = self.speed
         else:
             target_speed = -self.speed
 
         if pygame.time.get_ticks()//1000 % 2 == self.extra:
-            rand_scale = self.size/40
+            rand_scale = self.size/20
             a = random.random() * 2 - 1
             b = random.random() * 2 - 1
             self.add_force((rand_scale*a, rand_scale*b),250,1250,500)

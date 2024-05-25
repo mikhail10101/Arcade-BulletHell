@@ -18,9 +18,11 @@ class Game:
 
         self.scroll = [0,0]
 
+        self.game_color = [100,100,100]
+
     
     def draw(self):
-        self.window.fill((100,100,100))
+        self.window.fill(self.game_color)
 
         self.map.draw(self.window, self.scroll)
 
