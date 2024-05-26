@@ -64,7 +64,7 @@ def main():
             menu.draw()
             if menu.update(inputs):
                 main_menu = False
-                game.rounds.round_end_time = pygame.time.get_ticks() - 3000
+                game.rounds.round_end_time = pygame.time.get_ticks() - 10000
 
         else:
             game.draw()

@@ -8,53 +8,44 @@ class Rounds:
     def __init__(self, map):
         self.shape_container = []
         self.round_number = 0
-        self.mode = 2
-        self.round_end_time = pygame.time.get_ticks() - 3000
+        self.mode = 1
+        self.round_end_time = pygame.time.get_ticks()
+        self.round_interval = 12000
         self.map = map
 
         self.bg_normalize_time = 2000
 
     def update(self):
-
         #preround
         if self.mode == 0:
             self.start_round()
+            self.round_end_time = pygame.time.get_ticks()
             self.mode = 1
-        #in round
         elif self.mode == 1:
-            if self.is_round_done():
-                self.mode = 2
-                self.round_end_time = pygame.time.get_ticks()
-        #end round
-        elif self.mode == 2:
-            if pygame.time.get_ticks() > self.round_end_time + 5000:
+            if pygame.time.get_ticks() > self.round_end_time + self.round_interval:
                 self.mode = 0
                 self.round_number += 1
+    
 
-    def draw(self,window, game_color):
-        if self.mode == 2:
-            if pygame.time.get_ticks() > self.round_end_time + 3000:
-                f = pygame.font.SysFont("Consolas Bold", 600)
-                text_finish = f.render(str(self.round_number+1), True, (255,255,255))
-                window.blit(text_finish, (window.get_width()//2 - text_finish.get_width()//2, window.get_height()//2 - text_finish.get_height()//2))
-                a = (pygame.time.get_ticks() - self.round_end_time - 3000)/2000
-                if a <= 1:
-                    game_color[0] = pygame.math.lerp(150,255,a)
-                    game_color[1] = pygame.math.lerp(150,255,a)
-                    game_color[2] = pygame.math.lerp(150,255,a)
-            elif pygame.time.get_ticks() > self.round_end_time + 500:
-                f = pygame.font.SysFont("Consolas Bold", 250)
-                text_finish = f.render("CLEARED", True, (255,255,255))
-                window.blit(text_finish, (window.get_width()//2 - text_finish.get_width()//2, window.get_height()//2 - text_finish.get_height()//2))
-            elif pygame.time.get_ticks() > self.round_end_time:
-                pass
+    def draw(self,window, game_color, offset):
+        n = pygame.time.get_ticks() - self.round_end_time
+        if n < 1500:
+            f = pygame.font.SysFont("Consolas Bold", 600)
+            text_finish = f.render(str(self.round_number), True, (255,255,255))
+            window.blit(text_finish, (CENTER[0] - text_finish.get_width()//2 - offset[0], CENTER[1] - text_finish.get_height()//2 - offset[1]))
 
-        elif self.mode == 1:
-            a = (pygame.time.get_ticks()-self.round_end_time-5000)/4000
-            if a <= 1:
-                game_color[0] = pygame.math.lerp(255,150,a)
-                game_color[1] = pygame.math.lerp(255,150,a)
-                game_color[2] = pygame.math.lerp(255,150,a)
+        half = self.round_interval//2
+
+        if n <= half:
+            val = pygame.math.lerp(260,100,min(n/half, 1))
+            game_color[0] = min(val, 255)
+            game_color[1] = min(val, 255)
+            game_color[2] = min(val, 255)
+        else:
+            val = pygame.math.lerp(100,260,min((n-half)/half,1))
+            game_color[0] = min(val, 255)
+            game_color[1] = min(val, 255)
+            game_color[2] = min(val, 255)
 
 
     

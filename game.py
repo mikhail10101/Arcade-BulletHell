@@ -27,6 +27,7 @@ class Game:
         self.window.fill(self.game_color)
 
         self.map.draw(self.window, self.scroll)
+        self.rounds.draw(self.window, self.game_color, self.scroll)
 
         for p in self.player_container:
             p.draw(self.window, self.scroll)
@@ -42,11 +43,11 @@ class Game:
             b.draw(self.window, self.scroll)
 
         self.window.blit(bar(self.player_container[0].hp, 100, 200, 50), (50,50)) 
-        self.rounds.draw(self.window, self.game_color)
         pygame.display.update()
 
     def update(self, inputs):
         self.rounds.update()
+
         #particles
         for particle in self.particles:
             particle[0][0] += particle[1][0]
