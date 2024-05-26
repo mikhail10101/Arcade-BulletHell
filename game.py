@@ -18,7 +18,7 @@ class Game:
         self.window = pygame.display.set_mode((length, width))
         pygame.display.set_caption("Arcade Game")
 
-        self.scroll = [0,0]
+        self.scroll = [length//2,width//2]
 
         self.game_color = [100,100,100]
 

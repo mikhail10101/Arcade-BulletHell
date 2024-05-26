@@ -104,5 +104,4 @@ class Map:
                 (abs(a - OUTERSIZE//2) <= 2 + INNERSIZE//2) and (abs(b - OUTERSIZE//2) <= 2 + INNERSIZE//2)
             ):
                 if self.map_values[a][b] == 1:
-                    print(a,b)
                     return (a,b)

@@ -29,7 +29,7 @@ class Player(ForceObject):
 
 
     def draw(self, window, offset=(0,0)):
-        pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.size)
+        pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.size, 10)
 
         scale = 1/4
         diff = (-math.cos(self.mouse_angle) * self.size * scale,-math.sin(self.mouse_angle) * self.size * scale)
