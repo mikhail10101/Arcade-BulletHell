@@ -7,7 +7,7 @@ CENTER = (25*TILESIZE, 25*TILESIZE)
 class Rounds:
     def __init__(self, map):
         self.shape_container = []
-        self.round_number = 0
+        self.round_number = 3
         self.mode = 2
         self.round_end_time = pygame.time.get_ticks() - 3000
         self.map = map
@@ -123,8 +123,8 @@ class Rounds:
 
         elif self.round_number == 2:
             self.spawn_square(3,40)
-            self.spawn_square(3,100)
-            self.spawn_square(3,80)
+            self.spawn_square(3,50)
+            self.spawn_square(3,30)
 
         elif self.round_number == 3:
             self.spawn_triangles(3,10,20)
@@ -133,10 +133,12 @@ class Rounds:
             self.spawn_square(3,50)         
 
         elif self.round_number == 4:
-            self.spawn_pentagon(80)
-            self.spawn_pentagon(120)
-            self.spawn_pentagon(50)
-            self.spawn_pentagon(80)
+            self.spawn_pentagon(60)
+            self.spawn_pentagon(60)
+            self.spawn_pentagon(60)
+            self.spawn_pentagon(60)
+            self.spawn_pentagon(60)
+            
 
         elif self.round_number == 5:
             self.spawn_pentagon(80)

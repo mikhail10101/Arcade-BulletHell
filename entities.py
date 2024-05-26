@@ -148,7 +148,10 @@ class Bullet:
 
     def draw(self, window, offset=(0,0)):
         if self.active:
-            pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.radius)
+            if self.target_shapes:
+                pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.radius)
+            else:
+                pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.radius, 3)
 
     #bullet collisions with an ordered set of points (any polygon)
     def polygon_collision(self, points):
@@ -186,7 +189,7 @@ class Wave(Bullet):
     def draw(self, window, offset=(0,0)):
         if self.active:
             drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
-            pygame.draw.polygon(window, (255,255,255), drawpoints)
+            pygame.draw.polygon(window, (255,255,255), drawpoints,3)
 
     #collision with any circle
     def collision(self, center, radius):
@@ -202,7 +205,7 @@ class Wave(Bullet):
 
 
 
-class Triangle(ForceObject):
+class Triangle(ForceObject, Shape):
     def __init__(self, pos, speed, size, health=1):
         super().__init__()
 
@@ -219,6 +222,8 @@ class Triangle(ForceObject):
 
         self.active = True
         self.disp = [0,0]
+
+        self.last_hit = -1000
 
     def update(self, players):
         super().update()
@@ -245,14 +250,10 @@ class Triangle(ForceObject):
         self.pos[0] += self.disp[0]
         self.pos[1] += self.disp[1]
 
-    def draw(self, window, offset):
-        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
-
-        pygame.draw.polygon(window, (255,255,255), drawpoints)
 
 
 
-class Square(ForceObject):
+class Square(ForceObject, Shape):
     def __init__(self, pos, speed, size, health=4):
         super().__init__()
         self.pos = list(pos)
@@ -277,6 +278,9 @@ class Square(ForceObject):
         self.charge_strength = 10
 
         self.mode = 0
+
+        #Shape class
+        self.last_hit = -1000
 
     def update(self, players):
         super().update()
@@ -328,14 +332,8 @@ class Square(ForceObject):
         self.pos[0] += self.disp[0]
         self.pos[1] += self.disp[1]
 
-    def draw(self,window,offset):
-        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
 
-        pygame.draw.polygon(window, (255,255,255), drawpoints)
-
-
-
-class Squarelet(ForceObject):
+class Squarelet(ForceObject, Shape):
     def __init__(self, pos, speed, size, health=1):
         super().__init__()
 
@@ -361,6 +359,9 @@ class Squarelet(ForceObject):
         self.curr_speed = 0
         self.accel = 0.1
         self.deccel = 0.05
+
+        #Shape class
+        self.last_hit = -1000
 
 
     def update(self, players, bullets):
@@ -406,15 +407,10 @@ class Squarelet(ForceObject):
             bullets.append(Bullet(self.pos, 13, rads, False, 5))
             self.last_shot = current_time
 
-    def draw(self,window,offset):
-        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
-
-        pygame.draw.polygon(window, (255,255,255), drawpoints)
 
 
 
-
-class Pentagon(ForceObject):
+class Pentagon(ForceObject, Shape):
     def __init__(self, pos, size, angle, health=5):
         super().__init__()
 
@@ -442,6 +438,9 @@ class Pentagon(ForceObject):
         self.bounds = [0,0]
 
         self.laser_warning = []
+
+        #Shape class
+        self.last_hit = -1000
     
     def update(self,players,map):
         super().update()
@@ -504,20 +503,12 @@ class Pentagon(ForceObject):
             if current_time > self.laser_duration + self.pause_duration + self.last_laser:
                 self.mode = 0
 
-        # self.points[0] = (self.pos[0], self.pos[1])
-        # self.points[1] = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi/3), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi/3))
-        # self.points[2] = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi*2/3), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi*2/3))
-        # self.points[3] = (self.pos[0] + self.size * math.cos(self.angle_pos - math.pi*2/3), self.pos[1] + self.size * math.sin(self.angle_pos - math.pi*2/3))
-        # self.points[4] = (self.pos[0] + self.size * math.cos(self.angle_pos - math.pi/3), self.pos[1] + self.size * math.sin(self.angle_pos - math.pi/3))
-
         points_modifier(self.points, self.pos, 5, self.size, self.angle_pos)
 
 
 
     def draw(self, window, offset):
-        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
-
-        pygame.draw.polygon(window, (255,255,255), drawpoints)
+        super().draw(window, offset)
 
         for i in range(self.bounds[0],self.bounds[1]):
             laser = self.lasers[i]
@@ -531,6 +522,8 @@ class Pentagon(ForceObject):
                 (warn[0][0] - offset[0], warn[0][1] - offset[1]), 
                 (warn[1][0] - offset[0], warn[1][1] - offset[1]), 
             2)
+        
+        
 
     
     def shoot_laser(self, map):
@@ -553,7 +546,7 @@ class Pentagon(ForceObject):
 
 
 
-class Hexagon(ForceObject):
+class Hexagon(ForceObject, Shape):
     def __init__(self, pos, speed, size, follow, health=3):
         super().__init__()
 
@@ -572,6 +565,9 @@ class Hexagon(ForceObject):
         self.disp = [0,0]
 
         self.follow = follow
+
+        #Shape class
+        self.last_hit = -1000
 
     def update(self, players):
         super().update()
@@ -596,18 +592,11 @@ class Hexagon(ForceObject):
         self.pos[0] += self.disp[0]
         self.pos[1] += self.disp[1]
 
-    def draw(self, window, offset):
-        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
-        pygame.draw.polygon(window, (255,255,255), drawpoints)
-
-    def add_force(self, a, b, c, d):
-        pass
 
 
 
 
-
-class Heptagon(ForceObject):
+class Heptagon(ForceObject, Shape):
     def __init__(self, pos, speed, size, health=7):
         super().__init__()
 
@@ -635,6 +624,9 @@ class Heptagon(ForceObject):
         self.curr_speed = 0
         self.accel = 0.3
         self.deccel = 0.3
+
+        #Shape class
+        self.last_hit = -1000
 
 
     def update(self, players, bullets):
@@ -684,16 +676,12 @@ class Heptagon(ForceObject):
             
             self.last_shot = current_time
 
-    def draw(self,window,offset):
-        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
-        pygame.draw.polygon(window, (255,255,255), drawpoints)
 
 
 
 
 
-
-class Nonagon(ForceObject):
+class Nonagon(ForceObject, Shape):
     def __init__(self, pos, speed, size, angle, health=2):
         super().__init__()
 
@@ -717,6 +705,9 @@ class Nonagon(ForceObject):
         self.active = True
         self.disp = [0,0]
 
+        #Shape class
+        self.last_hit = -1000
+
     def update(self, bullets, map):
         super().update()
         current_time = pygame.time.get_ticks()
@@ -734,11 +725,6 @@ class Nonagon(ForceObject):
         
 
         self.bounce((self.pos[0]+self.disp[0], self.pos[1]+self.disp[1]), map)
-
-    def draw(self, window, offset):
-        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
-
-        pygame.draw.polygon(window, (255,255,255), drawpoints)
 
     def nonagon_shoot(self, bullets):
         for i in range(9):

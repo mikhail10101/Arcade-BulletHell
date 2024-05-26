@@ -68,6 +68,7 @@ class Game:
                 for s in self.rounds.shape_container:
                     if b.polygon_collision(s.points):
                         s.health -= 1
+                        s.last_hit = pygame.time.get_ticks()
                         if s.health == 0:
                             if s.__class__.__name__ == "Square":
                                 self.spawn_squarelets(s.pos,s.size/2)
@@ -140,6 +141,12 @@ class Game:
         s3 = Squarelet(pos,2,size)
         s4 = Squarelet(pos,2,size)
 
+        scale = 10
+        s1.add_force((0,scale),50,200,50)
+        s2.add_force((scale,0),50,200,50)
+        s3.add_force((0,-scale),50,200,50)
+        s4.add_force((-scale,0),50,200,50)
+
         self.rounds.shape_container.append(s1)
         self.rounds.shape_container.append(s2)
         self.rounds.shape_container.append(s3)
@@ -152,5 +159,5 @@ class Game:
             self.bullet_container.append(Bullet(pos, 8, angle + 2*i*math.pi/9, False, size/3))
 
     def shape_death(self, pos, size):
-        for i in range(int(size)):
-            self.particles.append(list([list(pos), ((random.randint(0,20) / 10-1)*size/20, (random.randint(0,20) / 10-1)*size/20), min(random.randint(int(size/3),int(size)),10)]))
+        for i in range(40):
+            self.particles.append(list([list(pos), ((random.randint(0,20) / 10-1)*3, (random.randint(0,20) / 10-1)*3), min(random.randint(int(size/5),int(size)),8)]))
