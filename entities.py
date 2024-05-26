@@ -7,7 +7,7 @@ class Player(ForceObject):
     def __init__(self):
         super().__init__()
         #draw
-        self.size = 30
+        self.size = 25
 
         #movement
         self.pos = [1600,1600]
@@ -16,15 +16,40 @@ class Player(ForceObject):
         self.deccel = 0.05
         self.curr_vel = [0,0]
 
+        #angle to mouse
+        self.mouse_angle = 0
+
         #shot in milliseconds
         self.last_shot = -1000
         self.shot_interval = 100
 
         self.hp = 100
-        
+
+        self.pointer_scale = 1.8
+
 
     def draw(self, window, offset=(0,0)):
         pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.size)
+
+        scale = 1/4
+        diff = (-math.cos(self.mouse_angle) * self.size * scale,-math.sin(self.mouse_angle) * self.size * scale)
+
+        side_scale = 1.5
+        side_angle = math.pi/20
+
+        arrow_points = [(0,0),(0,0),(0,0),(0,0),(0,0),(0,0)]
+        arrow_points[0] = (self.pos[0] + math.cos(self.mouse_angle) * self.size * self.pointer_scale, self.pos[1] + math.sin(self.mouse_angle) * self.size * self.pointer_scale)
+        arrow_points[1] = (self.pos[0] + math.cos(self.mouse_angle + math.pi*side_angle) * self.size * side_scale,self.pos[1] + math.sin(self.mouse_angle + math.pi*side_angle) * self.size * side_scale)
+        arrow_points[5] = (self.pos[0] + math.cos(self.mouse_angle - math.pi*side_angle) * self.size * side_scale, self.pos[1] + math.sin(self.mouse_angle - math.pi*side_angle) * self.size * side_scale)
+        arrow_points[2] = (arrow_points[1][0]+diff[0],arrow_points[1][1]+diff[1])
+        arrow_points[3] = (arrow_points[0][0]+diff[0],arrow_points[0][1]+diff[1])
+        arrow_points[4] = (arrow_points[5][0]+diff[0],arrow_points[5][1]+diff[1])
+
+        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in arrow_points]
+        pygame.draw.polygon(window, (255,255,255), drawpoints)
+
+        
+
 
     def update(self, inputs, bullets, map, offset=(0,0)):
         super().update()
@@ -48,21 +73,23 @@ class Player(ForceObject):
 
         self.move([self.pos[0] + self.curr_vel[0] + self.fx, self.pos[1] + self.curr_vel[1] + self.fy], map)
 
+        mx, my = inputs["click_pos"]
+ 
+        mx += offset[0]
+        my += offset[1]
+
+        dx = mx - self.pos[0]
+        dy = my - self.pos[1]
+
+        self.mouse_angle = math.atan2(dy,dx)
+
         #SHOOT
         if inputs["click"]:
             if current_time > self.last_shot + self.shot_interval:
-                mx, my = inputs["click_pos"]
- 
-                mx += offset[0]
-                my += offset[1]
-
-                dx = mx - self.pos[0]
-                dy = my - self.pos[1]
-
-                rads = math.atan2(dy,dx)
-
-                bullets.append(Bullet(self.pos, 20, rads, True, 7))
-
+                bullets.append(Bullet(
+                    (self.pos[0] + math.cos(self.mouse_angle) * self.pointer_scale * self.size, self.pos[1] + math.sin(self.mouse_angle) * self.pointer_scale * self.size), 
+                    20, self.mouse_angle, True, 7
+                ))
                 self.last_shot = current_time
 
     def move(self, new_pos, map):
@@ -120,7 +147,11 @@ class Bullet:
         self.pos[1] += self.speed * math.sin(self.angle)
 
     def draw(self, window, offset=(0,0)):
-        pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.radius)
+        if self.active:
+            if self.target_shapes:
+                pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.radius)
+            else:
+                pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.radius, 3)
 
     #bullet collisions with an ordered set of points (any polygon)
     def polygon_collision(self, points):
@@ -156,8 +187,9 @@ class Wave(Bullet):
         self.points[4] = (self.points[5][0]+diff[0],self.points[5][1]+diff[1])
 
     def draw(self, window, offset=(0,0)):
-        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
-        pygame.draw.polygon(window, (255,255,255), drawpoints)
+        if self.active:
+            drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
+            pygame.draw.polygon(window, (255,255,255), drawpoints,3)
 
     #collision with any circle
     def collision(self, center, radius):
@@ -173,7 +205,7 @@ class Wave(Bullet):
 
 
 
-class Triangle(ForceObject):
+class Triangle(ForceObject, Shape):
     def __init__(self, pos, speed, size, health=1):
         super().__init__()
 
@@ -191,6 +223,8 @@ class Triangle(ForceObject):
         self.active = True
         self.disp = [0,0]
 
+        self.last_hit = -1000
+
     def update(self, players):
         super().update()
 
@@ -204,20 +238,22 @@ class Triangle(ForceObject):
 
         points_modifier(self.points, self.pos, 3, self.size, self.angle_pos)
 
+        if pygame.time.get_ticks()//1000 % 1 == 0:
+            rand_scale = self.size/50
+            a = random.random() * 2 - 1
+            b = random.random() * 2 - 1
+            self.add_force((rand_scale*a, rand_scale*b),250,500,250)
+
         self.disp[0] = self.speed * math.cos(self.angle_pos) + self.fx
         self.disp[1] = self.speed * math.sin(self.angle_pos) + self.fy
 
         self.pos[0] += self.disp[0]
         self.pos[1] += self.disp[1]
 
-    def draw(self, window, offset):
-        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
-
-        pygame.draw.polygon(window, (255,255,255), drawpoints)
 
 
 
-class Square(ForceObject):
+class Square(ForceObject, Shape):
     def __init__(self, pos, speed, size, health=4):
         super().__init__()
         self.pos = list(pos)
@@ -242,6 +278,9 @@ class Square(ForceObject):
         self.charge_strength = 10
 
         self.mode = 0
+
+        #Shape class
+        self.last_hit = -1000
 
     def update(self, players):
         super().update()
@@ -293,14 +332,8 @@ class Square(ForceObject):
         self.pos[0] += self.disp[0]
         self.pos[1] += self.disp[1]
 
-    def draw(self,window,offset):
-        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
 
-        pygame.draw.polygon(window, (255,255,255), drawpoints)
-
-
-
-class Squarelet(ForceObject):
+class Squarelet(ForceObject, Shape):
     def __init__(self, pos, speed, size, health=1):
         super().__init__()
 
@@ -327,6 +360,9 @@ class Squarelet(ForceObject):
         self.accel = 0.1
         self.deccel = 0.05
 
+        #Shape class
+        self.last_hit = -1000
+
 
     def update(self, players, bullets):
         super().update()
@@ -346,10 +382,16 @@ class Squarelet(ForceObject):
         #control distance
         d = dist(closest.pos, self.pos)
         target_speed = 0
-        if d > 350:
+        if d > 250:
             target_speed = self.speed
         else:
             target_speed = -self.speed
+
+        if pygame.time.get_ticks()//1000 % 1 == 0:
+            rand_scale = self.size/40
+            a = random.random() * 2 - 1
+            b = random.random() * 2 - 1
+            self.add_force((rand_scale*a, rand_scale*b),250,1250,500)
 
         self.curr_speed = phys_single_helper(self.curr_speed, target_speed, self.accel, self.deccel)
         self.disp[0] = self.curr_speed * math.cos(self.angle_pos) + self.fx 
@@ -365,16 +407,11 @@ class Squarelet(ForceObject):
             bullets.append(Bullet(self.pos, 13, rads, False, 5))
             self.last_shot = current_time
 
-    def draw(self,window,offset):
-        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
-
-        pygame.draw.polygon(window, (255,255,255), drawpoints)
 
 
 
-
-class Pentagon(ForceObject):
-    def __init__(self, pos, size, health=5):
+class Pentagon(ForceObject, Shape):
+    def __init__(self, pos, size, angle, health=5):
         super().__init__()
 
         self.pos = list(pos)
@@ -382,7 +419,7 @@ class Pentagon(ForceObject):
 
         self.health = health
 
-        self.angle_pos = 0
+        self.angle_pos = angle
         self.angle_vel = 0.03
 
         self.points = [(0,0),(0,0),(0,0),(0,0),(0,0)]
@@ -391,18 +428,19 @@ class Pentagon(ForceObject):
         self.disp = [0,0]
 
         self.mode = 0
-        #0 normal
-        #1 shooting
 
         #laser details
         self.pause_duration = 1000
         self.laser_interval = 6000
-        self.last_laser = pygame.time.get_ticks()
+        self.last_laser = pygame.time.get_ticks() - 5500
         self.laser_duration = 2000
         self.lasers = []
         self.bounds = [0,0]
 
         self.laser_warning = []
+
+        #Shape class
+        self.last_hit = -1000
     
     def update(self,players,map):
         super().update()
@@ -429,7 +467,7 @@ class Pentagon(ForceObject):
             if len(self.laser_warning) == 0:
                 self.laser_warning.append((self.points[0],map.raycast(self.pos,self.angle_pos,10000)))
         
-            if current_time > + self.pause_duration + self.last_laser:
+            if current_time > self.pause_duration + self.last_laser:
                 self.mode = 2
                 self.shoot_laser(map)
                 
@@ -465,20 +503,12 @@ class Pentagon(ForceObject):
             if current_time > self.laser_duration + self.pause_duration + self.last_laser:
                 self.mode = 0
 
-        # self.points[0] = (self.pos[0], self.pos[1])
-        # self.points[1] = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi/3), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi/3))
-        # self.points[2] = (self.pos[0] + self.size * math.cos(self.angle_pos + math.pi*2/3), self.pos[1] + self.size * math.sin(self.angle_pos + math.pi*2/3))
-        # self.points[3] = (self.pos[0] + self.size * math.cos(self.angle_pos - math.pi*2/3), self.pos[1] + self.size * math.sin(self.angle_pos - math.pi*2/3))
-        # self.points[4] = (self.pos[0] + self.size * math.cos(self.angle_pos - math.pi/3), self.pos[1] + self.size * math.sin(self.angle_pos - math.pi/3))
-
         points_modifier(self.points, self.pos, 5, self.size, self.angle_pos)
 
 
 
     def draw(self, window, offset):
-        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
-
-        pygame.draw.polygon(window, (255,255,255), drawpoints)
+        super().draw(window, offset)
 
         for i in range(self.bounds[0],self.bounds[1]):
             laser = self.lasers[i]
@@ -492,6 +522,8 @@ class Pentagon(ForceObject):
                 (warn[0][0] - offset[0], warn[0][1] - offset[1]), 
                 (warn[1][0] - offset[0], warn[1][1] - offset[1]), 
             2)
+        
+        
 
     
     def shoot_laser(self, map):
@@ -510,7 +542,146 @@ class Pentagon(ForceObject):
     
 
 
-class Nonagon(ForceObject):
+
+
+
+
+class Hexagon(ForceObject, Shape):
+    def __init__(self, pos, speed, size, follow, health=3):
+        super().__init__()
+
+        self.pos = list(pos)
+        self.speed = speed
+        self.size = size
+
+        self.health = health
+
+        self.angle_pos = 0
+        self.angle_vel = 0.02
+
+        self.points = [(0,0),(0,0),(0,0),(0,0),(0,0),(0,0)]
+
+        self.active = True
+        self.disp = [0,0]
+
+        self.follow = follow
+
+        #Shape class
+        self.last_hit = -1000
+
+    def update(self, players):
+        super().update()
+
+        points_modifier(self.points, self.pos, 6, self.size, self.angle_pos)
+
+        reach = [0,0]
+        if self.follow == None or not self.follow.active:
+            reach = players[0].pos
+            for i in range(1,len(players)):
+                if dist(players[i].pos, self.pos) < dist(reach, self.pos):
+                    reach = players[i].pos
+        else:
+            reach = self.follow.pos
+
+        target_angle = math.atan2(reach[1] - self.pos[1], reach[0] - self.pos[0])
+        self.angle_pos = move_angle(self.angle_pos, target_angle, self.angle_vel)
+
+        self.disp[0] = self.speed * math.cos(self.angle_pos) + self.fx
+        self.disp[1] = self.speed * math.sin(self.angle_pos) + self.fy
+
+        self.pos[0] += self.disp[0]
+        self.pos[1] += self.disp[1]
+
+
+
+
+
+class Heptagon(ForceObject, Shape):
+    def __init__(self, pos, speed, size, health=7):
+        super().__init__()
+
+        self.pos = list(pos)
+        self.speed = speed
+        self.size = size
+
+        self.health = health
+
+        self.angle_pos = 0
+        self.angle_vel = 0.08
+
+        self.active = True
+        self.disp = [0,0]
+
+        self.points = [(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0)]
+
+        #shot in milliseconds
+        self.extra = random.random() * 1000
+
+        self.last_shot = self.extra
+        self.shot_interval = 2000
+
+        #vel
+        self.curr_speed = 0
+        self.accel = 0.3
+        self.deccel = 0.3
+
+        #Shape class
+        self.last_hit = -1000
+
+
+    def update(self, players, bullets):
+        super().update()
+
+        current_time = pygame.time.get_ticks()
+
+        closest = players[0]
+        for i in range(1,len(players)):
+            if dist(players[i].pos, self.pos) < dist(closest.pos, self.pos):
+                closest = players[i]
+
+        target_angle = math.atan2(closest.pos[1] - self.pos[1], closest.pos[0] - self.pos[0])
+        self.angle_pos = move_angle(self.angle_pos, target_angle, self.angle_vel)
+
+        points_modifier(self.points, self.pos, 7, self.size, self.angle_pos)
+
+
+        #control distance
+        d = dist(closest.pos, self.pos)
+        target_speed = 0
+        if d > 500:
+            target_speed = self.speed
+        else:
+            target_speed = -self.speed
+
+        if pygame.time.get_ticks()//1000 % 2 == self.extra:
+            rand_scale = self.size
+            a = random.random() * 2 - 1
+            b = random.random() * 2 - 1
+            self.add_force((rand_scale*a, rand_scale*b),250,1250,500)
+
+        self.curr_speed = phys_single_helper(self.curr_speed, target_speed, self.accel, self.deccel)
+        self.disp[0] = self.curr_speed * math.cos(self.angle_pos) + self.fx 
+        self.disp[1] = self.curr_speed * math.sin(self.angle_pos) + self.fy
+
+        self.pos[0] += self.disp[0]
+        self.pos[1] += self.disp[1]
+
+        if current_time > self.last_shot + self.shot_interval:
+            dx = closest.pos[0] - self.pos[0]
+            dy = closest.pos[1] - self.pos[1]
+            rads = math.atan2(dy,dx)
+            bullets.append(Wave((self.pos[0] - math.cos(self.angle_pos)*self.size,self.pos[1] - math.sin(self.angle_pos)*self.size), self.speed*2, rads, False, self.size*2.5))
+            self.forces = []
+            self.add_force((-math.cos(rads) * self.size/30, -math.sin(rads) * self.size/30), 250, 750, 1000)
+            
+            self.last_shot = current_time
+
+
+
+
+
+
+class Nonagon(ForceObject, Shape):
     def __init__(self, pos, speed, size, angle, health=2):
         super().__init__()
 
@@ -534,6 +705,9 @@ class Nonagon(ForceObject):
         self.active = True
         self.disp = [0,0]
 
+        #Shape class
+        self.last_hit = -1000
+
     def update(self, bullets, map):
         super().update()
         current_time = pygame.time.get_ticks()
@@ -551,11 +725,6 @@ class Nonagon(ForceObject):
         
 
         self.bounce((self.pos[0]+self.disp[0], self.pos[1]+self.disp[1]), map)
-
-    def draw(self, window, offset):
-        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
-
-        pygame.draw.polygon(window, (255,255,255), drawpoints)
 
     def nonagon_shoot(self, bullets):
         for i in range(9):
@@ -582,130 +751,3 @@ class Nonagon(ForceObject):
                 self.pos[1] += self.fy + self.speed*math.sin(self.movement_angle)
         else:
             self.movement_angle = math.atan2(self.disp[1], self.disp[0])
-
-
-
-class Hexagon(ForceObject):
-    def __init__(self, pos, speed, size, follow, health=3):
-        super().__init__()
-
-        self.pos = list(pos)
-        self.speed = speed
-        self.size = size
-
-        self.health = health
-
-        self.angle_pos = 0
-        self.angle_vel = 0.02
-
-        self.points = [(0,0),(0,0),(0,0),(0,0),(0,0),(0,0)]
-
-        self.active = True
-        self.disp = [0,0]
-
-        self.follow = follow
-
-    def update(self, players):
-        super().update()
-
-        points_modifier(self.points, self.pos, 6, self.size, self.angle_pos)
-
-        reach = [0,0]
-        if self.follow == None or not self.follow.active:
-            reach = players[0].pos
-            for i in range(1,len(players)):
-                if dist(players[i].pos, self.pos) < dist(reach, self.pos):
-                    reach = players[i].pos
-        else:
-            reach = self.follow.pos
-
-        target_angle = math.atan2(reach[1] - self.pos[1], reach[0] - self.pos[0])
-        self.angle_pos = move_angle(self.angle_pos, target_angle, self.angle_vel)
-
-        self.disp[0] = self.speed * math.cos(self.angle_pos) + self.fx
-        self.disp[1] = self.speed * math.sin(self.angle_pos) + self.fy
-
-        self.pos[0] += self.disp[0]
-        self.pos[1] += self.disp[1]
-
-    def draw(self, window, offset):
-        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
-        pygame.draw.polygon(window, (255,255,255), drawpoints)
-
-    def add_force(self, a, b, c, d):
-        pass
-
-
-
-
-
-class Heptagon(ForceObject):
-    def __init__(self, pos, speed, size, health=7):
-        super().__init__()
-
-        self.pos = list(pos)
-        self.speed = speed
-        self.size = size
-
-        self.health = health
-
-        self.angle_pos = 0
-        self.angle_vel = 0.08
-
-        self.active = True
-        self.disp = [0,0]
-
-        self.points = [(0,0),(0,0),(0,0),(0,0),(0,0),(0,0),(0,0)]
-
-        #shot in milliseconds
-        self.last_shot = -1000
-        self.shot_interval = 2000
-
-        #vel
-        self.curr_speed = 0
-        self.accel = 0.3
-        self.deccel = 0.3
-
-
-    def update(self, players, bullets):
-        super().update()
-
-        current_time = pygame.time.get_ticks()
-
-        closest = players[0]
-        for i in range(1,len(players)):
-            if dist(players[i].pos, self.pos) < dist(closest.pos, self.pos):
-                closest = players[i]
-
-        target_angle = math.atan2(closest.pos[1] - self.pos[1], closest.pos[0] - self.pos[0])
-        self.angle_pos = move_angle(self.angle_pos, target_angle, self.angle_vel)
-
-        points_modifier(self.points, self.pos, 7, self.size, self.angle_pos)
-
-
-        #control distance
-        d = dist(closest.pos, self.pos)
-        target_speed = 0
-        if d > 700:
-            target_speed = self.speed
-        else:
-            target_speed = -self.speed
-
-        self.curr_speed = phys_single_helper(self.curr_speed, target_speed, self.accel, self.deccel)
-        self.disp[0] = self.curr_speed * math.cos(self.angle_pos) + self.fx 
-        self.disp[1] = self.curr_speed * math.sin(self.angle_pos) + self.fy
-
-        self.pos[0] += self.disp[0]
-        self.pos[1] += self.disp[1]
-
-        if current_time > self.last_shot + self.shot_interval:
-            dx = closest.pos[0] - self.pos[0]
-            dy = closest.pos[1] - self.pos[1]
-            rads = math.atan2(dy,dx)
-            bullets.append(Wave((self.pos[0] - math.cos(self.angle_pos)*self.size,self.pos[1] - math.sin(self.angle_pos)*self.size), self.speed, rads, False, self.size*2.5))
-            self.last_shot = current_time
-
-    def draw(self,window,offset):
-        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
-        pygame.draw.polygon(window, (255,255,255), drawpoints)
-

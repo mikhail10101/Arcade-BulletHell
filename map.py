@@ -4,7 +4,7 @@ import random
 
 TILESIZE = 64
 OUTERSIZE = 50
-INNERSIZE = 20
+INNERSIZE = 18
 
 class Map:
     def __init__(self, tile_size = TILESIZE):
@@ -20,7 +20,8 @@ class Map:
         for r in range(len(self.map_values)):
             for c in range(len(self.map_values[0])):
                 if self.map_values[r][c] == 0:
-                    pygame.draw.rect(window, (0,0,0), (r*TILESIZE - offset[0], c*TILESIZE - offset[1], TILESIZE, TILESIZE))
+                    x = 0
+                    pygame.draw.rect(window, (x,x,x), (r*TILESIZE - offset[0], c*TILESIZE - offset[1], TILESIZE, TILESIZE))
 
     def is_off_grid(self, pos):
         return not (0 <= pos[0] <= self.tile_size * len(self.map_values)
@@ -87,14 +88,21 @@ class Map:
         return None
     
     def random_1(self):
-        n = OUTERSIZE - INNERSIZE - 20
-        rand_x = random.randint(0,n-1) + 10
-        rand_y = random.randint(0,n-1) + 10
+        while True:
+            a = random.randint(0, OUTERSIZE-1)
+            b = random.randint(0, OUTERSIZE-1)
 
-        if OUTERSIZE//2 - INNERSIZE//2 < rand_x < OUTERSIZE//2 + INNERSIZE//2:
-            rand_x += INNERSIZE
-        if OUTERSIZE//2 - INNERSIZE//2 < rand_y < OUTERSIZE//2 + INNERSIZE//2:
-            rand_y += INNERSIZE
-
-        print(rand_x, rand_y)
-        return (rand_x, rand_y)
+            if abs(a - OUTERSIZE//2) >= INNERSIZE//2 + 2 and abs(b - OUTERSIZE//2) >= INNERSIZE//2 + 2:
+                if self.map_values[a][b] == 1:
+                    return (a,b)
+                
+    def random_1_pentagon(self):
+        while True:
+            a = random.randint(0, OUTERSIZE-1)
+            b = random.randint(0, OUTERSIZE-1)
+            if (abs(a - OUTERSIZE//2) <= 5 + INNERSIZE//2) and (abs(b - OUTERSIZE//2) <= 5 + INNERSIZE//2) and not (
+                (abs(a - OUTERSIZE//2) <= 2 + INNERSIZE//2) and (abs(b - OUTERSIZE//2) <= 2 + INNERSIZE//2)
+            ):
+                if self.map_values[a][b] == 1:
+                    print(a,b)
+                    return (a,b)

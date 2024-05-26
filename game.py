@@ -13,14 +13,18 @@ class Game:
         self.bullet_container = []
         self.rounds = Rounds(self.map)
 
+        self.particles = []
+
         self.window = pygame.display.set_mode((length, width))
         pygame.display.set_caption("Arcade Game")
 
         self.scroll = [0,0]
 
+        self.game_color = [100,100,100]
+
     
     def draw(self):
-        self.window.fill((100,100,100))
+        self.window.fill(self.game_color)
 
         self.map.draw(self.window, self.scroll)
 
@@ -30,16 +34,28 @@ class Game:
         for s in self.rounds.shape_container:
             s.draw(self.window, self.scroll)
 
+        #particles
+        for particle in self.particles:
+            pygame.draw.circle(self.window, (255,255,255), (int(particle[0][0] - self.scroll[0]), int(particle[0][1] - self.scroll[1])), int(particle[2]))
+
         for b in self.bullet_container:
             b.draw(self.window, self.scroll)
 
-        #temporary testing
         self.window.blit(bar(self.player_container[0].hp, 100, 200, 50), (50,50)) 
-
+        self.rounds.draw(self.window, self.game_color)
         pygame.display.update()
 
     def update(self, inputs):
         self.rounds.update()
+        #particles
+        for particle in self.particles:
+            particle[0][0] += particle[1][0]
+            particle[0][1] += particle[1][1]
+            particle[2] -= 0.1
+
+            if particle[2] <= 0:
+                self.particles.remove(particle)
+
 
         for p in self.player_container:
             p.update(inputs, self.bullet_container, self.map, self.scroll)
@@ -52,12 +68,14 @@ class Game:
                 for s in self.rounds.shape_container:
                     if b.polygon_collision(s.points):
                         s.health -= 1
+                        s.last_hit = pygame.time.get_ticks()
                         if s.health == 0:
                             if s.__class__.__name__ == "Square":
                                 self.spawn_squarelets(s.pos,s.size/2)
                             elif s.__class__.__name__ == "Nonagon":
                                 self.nonagon_death(s.pos, s.size, s.angle_pos)
                             s.active = False
+                            self.shape_death(s.pos, s.size)
                         b.active = False
                         break
             #bullets that target players
@@ -98,16 +116,16 @@ class Game:
                 s1.update(self.player_container)
 
             
-            for j in range(i+1, len(self.rounds.shape_container)):
-                s2 = self.rounds.shape_container[j]
+            # for j in range(i+1, len(self.rounds.shape_container)):
+            #     s2 = self.rounds.shape_container[j]
 
-                mult = 1/2
-                forces = calc_collision(s1.size, s1.pos, s1.disp, s2.size, s2.pos, s2.disp)
-                if dist(s1.pos, s2.pos) < s1.size + s2.size:
-                    s1.vel = (0,0)
-                    s2.vel = (0,0)
-                    s1.add_force((forces[0][0] * mult, forces[0][1] * mult),50,0,0)
-                    s2.add_force((forces[1][0] * mult, forces[1][1] * mult),50,0,0)
+            #     mult = 1/2
+            #     forces = calc_collision(s1.size, s1.pos, s1.disp, s2.size, s2.pos, s2.disp)
+            #     if dist(s1.pos, s2.pos) < s1.size + s2.size:
+            #         s1.vel = (0,0)
+            #         s2.vel = (0,0)
+            #         s1.add_force((forces[0][0] * mult, forces[0][1] * mult),50,0,0)
+            #         s2.add_force((forces[1][0] * mult, forces[1][1] * mult),50,0,0)
             
             for p in self.player_container:
                 if p.polygon_collision(s1.points):
@@ -123,6 +141,12 @@ class Game:
         s3 = Squarelet(pos,2,size)
         s4 = Squarelet(pos,2,size)
 
+        scale = 10
+        s1.add_force((0,scale),50,200,50)
+        s2.add_force((scale,0),50,200,50)
+        s3.add_force((0,-scale),50,200,50)
+        s4.add_force((-scale,0),50,200,50)
+
         self.rounds.shape_container.append(s1)
         self.rounds.shape_container.append(s2)
         self.rounds.shape_container.append(s3)
@@ -133,3 +157,7 @@ class Game:
             self.bullet_container.append(Bullet(pos, 13, angle + 2*i*math.pi/9, False, size/3))
             self.bullet_container.append(Bullet(pos, 10, angle + 2*i*math.pi/9, False, size/3))
             self.bullet_container.append(Bullet(pos, 8, angle + 2*i*math.pi/9, False, size/3))
+
+    def shape_death(self, pos, size):
+        for i in range(40):
+            self.particles.append(list([list(pos), ((random.randint(0,20) / 10-1)*3, (random.randint(0,20) / 10-1)*3), min(random.randint(int(size/5),int(size)),8)]))
