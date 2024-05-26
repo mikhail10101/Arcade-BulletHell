@@ -4,6 +4,9 @@ from entities import *
 TILESIZE = 64
 CENTER = (25*TILESIZE, 25*TILESIZE)
 
+LOWERCOLORBOUND = 100
+UPPERCOLORBOUND = 160
+
 class Rounds:
     def __init__(self, map):
         self.shape_container = []
@@ -30,19 +33,19 @@ class Rounds:
     def draw(self,window, game_color, offset):
         n = pygame.time.get_ticks() - self.round_end_time
         if n < 1500:
-            f = pygame.font.SysFont("Consolas Bold", 600)
+            f = pygame.font.SysFont("MS Gothic", 600)
             text_finish = f.render(str(self.round_number), True, (255,255,255))
             window.blit(text_finish, (CENTER[0] - text_finish.get_width()//2 - offset[0], CENTER[1] - text_finish.get_height()//2 - offset[1]))
 
         half = self.round_interval//2
 
         if n <= half:
-            val = pygame.math.lerp(200,100,min(n/half, 1))
+            val = pygame.math.lerp(UPPERCOLORBOUND,LOWERCOLORBOUND,min(n/half, 1))
             game_color[0] = val
             game_color[1] = val
             game_color[2] = val
         else:
-            val = pygame.math.lerp(100,200,min((n-half)/half,1))
+            val = pygame.math.lerp(LOWERCOLORBOUND,UPPERCOLORBOUND,min((n-half)/half,1))
             game_color[0] = val
             game_color[1] = val
             game_color[2] = val

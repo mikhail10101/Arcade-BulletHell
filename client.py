@@ -61,13 +61,16 @@ def main():
         inputs["click_pos"] = pygame.mouse.get_pos()
 
         if main_menu:
-            menu.draw()
+            menu.draw(inputs["click_pos"])
             if menu.update(inputs):
                 main_menu = False
                 game.rounds.round_end_time = pygame.time.get_ticks() - 10000
 
         else:
             game.draw()
-            game.update(inputs)
+            if game.update(inputs):
+                pass
+                # main_menu = True
+                # game.reset()
 
 main()

@@ -23,9 +23,13 @@ class Player(ForceObject):
         self.last_shot = -1000
         self.shot_interval = 100
 
-        self.hp = 100
+        self.hp = 50
 
         self.pointer_scale = 1.8
+
+        #healing mechanics
+        self.last_received_damage = 0
+        self.last_moved = 0
 
 
     def draw(self, window, offset=(0,0)):
@@ -55,6 +59,10 @@ class Player(ForceObject):
         super().update()
         current_time = pygame.time.get_ticks()
 
+        #HEALTH
+        if self.last_moved + 50 < current_time and self.last_received_damage + 50 < current_time:
+            self.hp = min(self.hp + 0.3, 100)
+
         #MOVEMENT
         target_vel = [0,0]
 
@@ -70,6 +78,9 @@ class Player(ForceObject):
                 target_vel[1] = self.speed
         
         phys_helper(self.curr_vel, target_vel, self.accel, self.deccel)
+
+        if self.curr_vel[0] != 0 or self.curr_vel[1] != 0:
+            self.last_moved = current_time
 
         self.move([self.pos[0] + self.curr_vel[0] + self.fx, self.pos[1] + self.curr_vel[1] + self.fy], map)
 

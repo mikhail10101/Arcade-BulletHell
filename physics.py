@@ -1,7 +1,6 @@
 import math
 import pygame
 
-
 class ForceObject:
     def __init__(self):
         self.forces = []
@@ -58,10 +57,10 @@ class Shape(ForceObject):
         super().__init__()
         self.points = []
         self.last_hit = -1000
-        self.monocolor = 200
+        self.monocolor = 160
     
     def draw(self, window, offset):
-        self.monocolor = min(255, self.monocolor + (255-self.monocolor)*0.005)
+        self.monocolor = min(255, self.monocolor + (255-self.monocolor)*0.03)
 
         drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
 

@@ -6,6 +6,8 @@ TILESIZE = 64
 OUTERSIZE = 50
 INNERSIZE = 18
 
+INNERCOLOR = 20
+
 class Map:
     def __init__(self, tile_size = TILESIZE):
         self.tile_size = tile_size
@@ -20,7 +22,7 @@ class Map:
         for r in range(len(self.map_values)):
             for c in range(len(self.map_values[0])):
                 if self.map_values[r][c] == 0:
-                    x = 20
+                    x = INNERCOLOR
                     pygame.draw.rect(window, (x,x,x), (r*TILESIZE - offset[0], c*TILESIZE - offset[1], TILESIZE, TILESIZE))
 
     def is_off_grid(self, pos):
