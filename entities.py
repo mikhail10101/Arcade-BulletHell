@@ -7,7 +7,7 @@ class Player(ForceObject):
     def __init__(self):
         super().__init__()
         #draw
-        self.size = 30
+        self.size = 25
 
         #movement
         self.pos = [1600,1600]

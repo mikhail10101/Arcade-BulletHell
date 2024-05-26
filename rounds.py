@@ -7,7 +7,7 @@ CENTER = (25*TILESIZE, 25*TILESIZE)
 class Rounds:
     def __init__(self, map):
         self.shape_container = []
-        self.round_number = 3
+        self.round_number = 0
         self.mode = 2
         self.round_end_time = pygame.time.get_ticks() - 3000
         self.map = map
@@ -34,15 +34,17 @@ class Rounds:
     def draw(self,window, game_color):
         if self.mode == 2:
             if pygame.time.get_ticks() > self.round_end_time + 3000:
-                f = pygame.font.SysFont("TimesNewRoman", 700)
-                text_finish = f.render(str(self.round_number+1), True, (120,0,0))
+                f = pygame.font.SysFont("Consolas Bold", 600)
+                text_finish = f.render(str(self.round_number+1), True, (255,255,255))
                 window.blit(text_finish, (window.get_width()//2 - text_finish.get_width()//2, window.get_height()//2 - text_finish.get_height()//2))
-                game_color[0] = 255
-                game_color[1] = 255
-                game_color[2] = 255
+                a = (pygame.time.get_ticks() - self.round_end_time - 3000)/2000
+                if a <= 1:
+                    game_color[0] = pygame.math.lerp(150,255,a)
+                    game_color[1] = pygame.math.lerp(150,255,a)
+                    game_color[2] = pygame.math.lerp(150,255,a)
             elif pygame.time.get_ticks() > self.round_end_time + 500:
-                f = pygame.font.SysFont("TimesNewRoman", 250)
-                text_finish = f.render("CLEARED", True, (120,0,0))
+                f = pygame.font.SysFont("Consolas Bold", 250)
+                text_finish = f.render("CLEARED", True, (255,255,255))
                 window.blit(text_finish, (window.get_width()//2 - text_finish.get_width()//2, window.get_height()//2 - text_finish.get_height()//2))
             elif pygame.time.get_ticks() > self.round_end_time:
                 pass
@@ -50,9 +52,9 @@ class Rounds:
         elif self.mode == 1:
             a = (pygame.time.get_ticks()-self.round_end_time-5000)/4000
             if a <= 1:
-                game_color[0] = pygame.math.lerp(255,100,a)
-                game_color[1] = pygame.math.lerp(255,100,a)
-                game_color[2] = pygame.math.lerp(255,100,a)
+                game_color[0] = pygame.math.lerp(255,150,a)
+                game_color[1] = pygame.math.lerp(255,150,a)
+                game_color[2] = pygame.math.lerp(255,150,a)
 
 
     
@@ -75,35 +77,35 @@ class Rounds:
     def spawn_triangles(self, speed, size, amount):
         tilepos = self.map.random_1()
         for i in range(amount):
-            self.shape_container.append(Triangle((tilepos[0] * TILESIZE + random.random()*200, tilepos[1] * TILESIZE + random.random()*200), speed, size))
+            self.shape_container.append(Triangle((tilepos[0] * TILESIZE + random.random()*200 - 100, tilepos[1] * TILESIZE + random.random()*200 - 100), speed, size))
 
     def spawn_square(self, speed, size):
         tilepos = self.map.random_1()
         self.shape_container.append(Square(
-            (tilepos[0] * TILESIZE, tilepos[1] * TILESIZE), speed, size
+            (tilepos[0] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE, tilepos[1] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE), speed, size
         ))
 
     def spawn_pentagon(self, size):
-        tilepos = self.map.random_1()
+        tilepos = self.map.random_1_pentagon()
         self.shape_container.append(Pentagon(
-            (tilepos[0] * TILESIZE, tilepos[1] * TILESIZE), size,
+            (tilepos[0] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE, tilepos[1] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE), size,
             math.atan2(CENTER[1] - tilepos[1] * TILESIZE, CENTER[0] - tilepos[0] * TILESIZE)
         ))
     
     def spawn_hexagons(self, speed, size, amount):
         tilepos = self.map.random_1()
-        self.rec((tilepos[0]*TILESIZE, tilepos[1]*TILESIZE), speed, size, amount)
+        self.rec((tilepos[0]*TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE, tilepos[1]*TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE), speed, size, amount)
 
     def spawn_heptagon(self, speed, size):
         tilepos = self.map.random_1()
         self.shape_container.append(Heptagon(
-            (tilepos[0] * TILESIZE, tilepos[1] * TILESIZE), speed, size
+            (tilepos[0] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE, tilepos[1] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE), speed, size
         ))
     
     def spawn_nonagon(self, speed, size):
         tilepos = self.map.random_1()
         self.shape_container.append(Nonagon(
-            (tilepos[0] * TILESIZE, tilepos[1] * TILESIZE), speed, size,
+            (tilepos[0] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE, tilepos[1] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE), speed, size,
             math.atan2(CENTER[1] - tilepos[1] * TILESIZE, CENTER[0] - tilepos[0] * TILESIZE)
         ))
 
