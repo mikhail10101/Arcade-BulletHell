@@ -38,6 +38,7 @@ class Game:
         #particles
         for particle in self.particles:
             pygame.draw.circle(self.window, (255,255,255), (int(particle[0][0] - self.scroll[0]), int(particle[0][1] - self.scroll[1])), int(particle[2]))
+            #self.window.blit(circle_surf(particle[2]*2, (20,20,20)), (int(particle[0][0] - self.scroll[0] - particle[2]*2), int(particle[0][1] - self.scroll[1]  - particle[2]*2)), special_flags=pygame.BLEND_RGB_ADD)
 
         for b in self.bullet_container:
             b.draw(self.window, self.scroll)
@@ -162,3 +163,10 @@ class Game:
     def shape_death(self, pos, size):
         for i in range(40):
             self.particles.append(list([list(pos), ((random.randint(0,20) / 10-1)*3, (random.randint(0,20) / 10-1)*3), min(random.randint(int(size/5),int(size)),8)]))
+
+
+def circle_surf(radius, color):
+    surf = pygame.Surface((radius*2, radius*2))
+    pygame.draw.circle(surf, color, (radius, radius), radius)
+    surf.set_colorkey((0,0,0))
+    return surf

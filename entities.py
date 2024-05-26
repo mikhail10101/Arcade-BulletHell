@@ -205,7 +205,7 @@ class Wave(Bullet):
 
 
 
-class Triangle(ForceObject, Shape):
+class Triangle(Shape):
     def __init__(self, pos, speed, size, health=1):
         super().__init__()
 
@@ -224,6 +224,7 @@ class Triangle(ForceObject, Shape):
         self.disp = [0,0]
 
         self.last_hit = -1000
+        self.monocolor = 200
 
     def update(self, players):
         super().update()
@@ -253,7 +254,7 @@ class Triangle(ForceObject, Shape):
 
 
 
-class Square(ForceObject, Shape):
+class Square(Shape):
     def __init__(self, pos, speed, size, health=4):
         super().__init__()
         self.pos = list(pos)
@@ -333,7 +334,7 @@ class Square(ForceObject, Shape):
         self.pos[1] += self.disp[1]
 
 
-class Squarelet(ForceObject, Shape):
+class Squarelet(Shape):
     def __init__(self, pos, speed, size, health=1):
         super().__init__()
 
@@ -410,7 +411,7 @@ class Squarelet(ForceObject, Shape):
 
 
 
-class Pentagon(ForceObject, Shape):
+class Pentagon(Shape):
     def __init__(self, pos, size, angle, health=5):
         super().__init__()
 
@@ -546,7 +547,7 @@ class Pentagon(ForceObject, Shape):
 
 
 
-class Hexagon(ForceObject, Shape):
+class Hexagon(Shape):
     def __init__(self, pos, speed, size, follow, health=3):
         super().__init__()
 
@@ -596,7 +597,7 @@ class Hexagon(ForceObject, Shape):
 
 
 
-class Heptagon(ForceObject, Shape):
+class Heptagon(Shape):
     def __init__(self, pos, speed, size, health=7):
         super().__init__()
 
@@ -681,7 +682,7 @@ class Heptagon(ForceObject, Shape):
 
 
 
-class Nonagon(ForceObject, Shape):
+class Nonagon(Shape):
     def __init__(self, pos, speed, size, angle, health=2):
         super().__init__()
 
