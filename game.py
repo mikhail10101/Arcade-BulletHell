@@ -24,13 +24,11 @@ class Game:
         self.id = id
         self.ready = False
 
-
         self.map = Map()
 
         self.player_container = [Player()]
         self.bullet_container = []
         self.rounds = Rounds(self.map)
-
         self.particles = []
         self.emps = []
 
@@ -40,6 +38,8 @@ class Game:
         self.charge_bar = 0 #max is a thousand
         self.charge_bar_max = 500
         self.screen_shake = 0
+
+        self.score = 0
 
         self.game_color = [100,100,100]
 
@@ -84,7 +84,14 @@ class Game:
             for b in self.bullet_container:
                 b.draw(self.window, scroll)
 
+            #player health
             self.window.blit(bar(self.player_container[n].hp, 100, 300, 50), (50,50))
+
+            #display score
+            f = pygame.font.SysFont("Times New Roman", 80)
+            score_text = f.render(str(self.score), True, (255,255,255))
+            self.window.blit(score_text, (LENGTH - score_text.get_width() - 50,20))
+
         pygame.display.update()
 
     def update_inputs(self, inputs, n):
@@ -113,7 +120,7 @@ class Game:
         #emp
         for emp in self.emps:
             emp[1] += 12
-            if emp[1] > 1500:
+            if emp[1] > 2000:
                 self.emps.remove(emp)
             self.charge_bar = 0
 
@@ -133,6 +140,7 @@ class Game:
                         s.last_hit = pygame.time.get_ticks()
                         if s.health == 0:
                             self.charge_bar += score[s.__class__.__name__]
+                            self.score += score[s.__class__.__name__]
                             if s.__class__.__name__ == "Square":
                                 self.spawn_squarelets(s.pos,s.size/2)
                             elif s.__class__.__name__ == "Nonagon":
@@ -186,7 +194,9 @@ class Game:
             for emp in self.emps:
                 if abs(dist(emp[0], s1.pos) - emp[1]) < 10:
                     s1.active = False
+                    self.score += score[s1.__class__.__name__]
                     self.shape_death(s1.pos, s1.size)
+
 
         #charge_bar
         if self.charge_bar > self.charge_bar_max:
@@ -203,6 +213,7 @@ class Game:
         self.rounds = Rounds(self.map)
         self.particles = []
         self.game_color = [100,100,100]
+        self.score = 0
 
     def spawn_squarelets(self, pos, size):
         s1 = Squarelet(pos,2,size)

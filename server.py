@@ -3,6 +3,10 @@ from _thread import *
 import pickle
 from game import Game
 
+import pygame
+
+clock = pygame.time.Clock()
+
 server = "192.168.68.127" #change
 port = 5555
 
@@ -13,7 +17,7 @@ try:
 except socket.error as e:
     str(e)
 
-s.listen(2)
+s.listen()
 print("Waiting for connection, Server Started")
 
 games = {}
@@ -25,10 +29,10 @@ def threaded_client(conn, p, gameId):
 
     while True:
         try:
-            data = conn.recv(4096**3).decode()
+            data = conn.recv(4096).decode()
+            
             if gameId in games:
                 game = games[gameId]
-
                 if not data:
                     break
                 else:
@@ -46,7 +50,10 @@ def threaded_client(conn, p, gameId):
                         }
                         game.update_inputs(inputs, int(arr[0]))
                     
-                    conn.sendall(pickle.dumps(game))
+                    conn.sendall(pickle.dumps({
+                        "player_container": game.player_container,
+                        "bullet_container": game.bullet_container
+                    }))
             else:
                 break
 

@@ -2,15 +2,15 @@ import sys
 import pygame
 from game import Game
 from menu import Menu
+from scoreboard import Scoreboard
 from network import Network
 pygame.font.init()
-
-
 
 def main():
     run = True
     game = Game()
     menu = Menu()
+    scoreboard = Scoreboard()
     clock = pygame.time.Clock()
     
     #Inputs to be passed to the game
@@ -79,9 +79,11 @@ def main():
             game.update_inputs(inputs, 0)
             game.update()
             if game.is_game_over():
-                mode = 0
+                scoreboard.score = game.score
+                mode = 3
                 game.reset()
 
+        #MULTIPLAYER NOT WORKING
         elif mode == 2:
             if n == None:
                 n = Network()
@@ -111,4 +113,8 @@ def main():
                     str(inputs["click_pos"][1])
                 )
 
+        elif mode == 3:
+            scoreboard.draw(inputs["click_pos"])
+            if scoreboard.update(inputs) == "MainMenu":
+                mode = 0
 main()
