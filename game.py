@@ -17,7 +17,10 @@ class Game:
         self.window = pygame.display.set_mode((length, width))
         pygame.display.set_caption("Arcade Game")
 
-        self.scroll = [length//2,width//2]
+        self.scroll = [
+            self.window.get_width()/2,
+            self.window.get_height()/2
+        ]
 
         self.game_color = [100,100,100]
 
@@ -172,8 +175,8 @@ class Game:
             self.bullet_container.append(Bullet(pos, 8, angle + 2*i*math.pi/9, False, size/3))
 
     def shape_death(self, pos, size):
-        for i in range(40):
-            self.particles.append(list([list(pos), ((random.randint(0,20) / 10-1)*3 * (1.5 - 5//size), (random.randint(0,20) / 10-1)*3 * (1.5 - 5//size)), min(random.randint(int(size/5),int(size/2)),8)]))
+        for i in range(50):
+            self.particles.append(list([list(pos), ((random.randint(0,20) / 10-1)*3 * (1.5 - 5//size), (random.randint(0,20) / 10-1)*3 * (1.5 - 5//size)), min(random.randint(2,int(size)),6)]))
 
 
 def circle_surf(radius, color):

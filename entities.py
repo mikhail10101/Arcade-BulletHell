@@ -23,7 +23,7 @@ class Player(ForceObject):
         self.last_shot = -1000
         self.shot_interval = 100
 
-        self.hp = 50
+        self.hp = 100
 
         self.pointer_scale = 1.8
 
@@ -55,7 +55,7 @@ class Player(ForceObject):
         
 
 
-    def update(self, inputs, bullets, map, offset=(0,0)):
+    def update(self, inputs, bullets, map, offset=(0,0), no_shapes = False):
         super().update()
         current_time = pygame.time.get_ticks()
 
