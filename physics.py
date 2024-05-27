@@ -65,34 +65,32 @@ class Shape(ForceObject):
     def draw(self, window, offset):
         self.monocolor = min(255, self.monocolor + (255-self.monocolor)*0.03)
 
-        # drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
+        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
 
-        surf = pygame.Surface((self.size*8, self.size*8), pygame.SRCALPHA)
-        draw_points = points_creator((self.size*4, self.size*4),len(self.points),self.size*4,self.angle_pos)
+        #ANTI ALIASING
+        # surf = pygame.Surface((self.size*4, self.size*4), pygame.SRCALPHA)
+        # draw_points = points_creator((self.size*2, self.size*2),len(self.points),self.size*2,self.angle_pos)
+        # if pygame.time.get_ticks() < self.last_hit + 75:
+        #     pygame.draw.polygon(surf, (255,0,0), draw_points, 6)
+        #     for p in draw_points:
+        #         pygame.draw.circle(surf, (255,0,0), p, 2.5)
+        # else:
+        #     pygame.draw.polygon(surf, (self.monocolor,self.monocolor,self.monocolor), draw_points, 6)
+        #     for p in draw_points:
+        #         pygame.draw.circle(surf, (self.monocolor,self.monocolor,self.monocolor), p, 2.5)
+        # scaled_surf = pygame.transform.smoothscale_by(surf, 0.5)
+        # scaled_surf.set_colorkey((0,0,0))
+
+        # window.blit(scaled_surf, (int(self.pos[0] - offset[0] - self.size), int(self.pos[1] - offset[1] - self.size)), special_flags = pygame.BLEND_PREMULTIPLIED)
 
         if pygame.time.get_ticks() < self.last_hit + 75:
-            pygame.draw.polygon(surf, (255,0,0), draw_points, 12)
-            for p in draw_points:
-                pygame.draw.circle(surf, (255,0,0), p, 5)
+            pygame.draw.polygon(window, (self.monocolor,0,0), drawpoints, 3)
+            for p in drawpoints:
+                pygame.draw.circle(window, (self.monocolor,0,0), p, 0.8)
         else:
-            pygame.draw.polygon(surf, (self.monocolor,self.monocolor,self.monocolor), draw_points, 12)
-            for p in draw_points:
-                pygame.draw.circle(surf, (self.monocolor,self.monocolor,self.monocolor), p, 5)
-            
-
-        scaled_surf = pygame.transform.smoothscale_by(surf, 0.25)
-        scaled_surf.set_colorkey((0,0,0))
-
-        window.blit(scaled_surf, (int(self.pos[0] - offset[0] - self.size), int(self.pos[1] - offset[1] - self.size)), special_flags = pygame.BLEND_PREMULTIPLIED)
-
-        # if pygame.time.get_ticks() < self.last_hit + 75:
-        #     pygame.draw.polygon(window, (self.monocolor,0,0), drawpoints, 3)
-        #     for p in drawpoints:
-        #         pygame.draw.circle(window, (self.monocolor,0,0), p, 0.8)
-        # else:
-        #     pygame.draw.polygon(window, (self.monocolor,self.monocolor,self.monocolor), drawpoints, 3)
-        #     for p in drawpoints:
-        #         pygame.draw.circle(window, (self.monocolor,self.monocolor,self.monocolor), p, 0.8)
+            pygame.draw.polygon(window, (self.monocolor,self.monocolor,self.monocolor), drawpoints, 3)
+            for p in drawpoints:
+                pygame.draw.circle(window, (self.monocolor,self.monocolor,self.monocolor), p, 0.8)
 
 
 def phys_helper(curr_vel, target_vel, accel, deccel):

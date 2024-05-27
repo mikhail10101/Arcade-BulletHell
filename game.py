@@ -88,13 +88,14 @@ class Game:
         self.screen_shake = max(self.screen_shake - 0.5, 0)
 
         #particles
+        self.particles[:] = [p for p in self.particles if p[3]]
         for particle in self.particles:
             particle[0][0] += particle[1][0]
             particle[0][1] += particle[1][1]
             particle[2] -= 0.1
 
             if particle[2] <= 0:
-                self.particles.remove(particle)
+                particle[3] = False
 
         #emp
         for emp in self.emps:
@@ -145,7 +146,7 @@ class Game:
                                     b.radius /20 * math.cos(b.angle),
                                     b.radius /20 * math.sin(b.angle)
                                 ),25,0,0)
-                        p.hp -= 1.5
+                        p.hp -= 2.5
 
             if self.map.is_oob(b.pos):
                 b.active = False
@@ -163,18 +164,6 @@ class Game:
                 s1.update(self.bullet_container, self.map)
             else:
                 s1.update(self.player_container)
-
-            
-            # for j in range(i+1, len(self.rounds.shape_container)):
-            #     s2 = self.rounds.shape_container[j]
-
-            #     mult = 1/2
-            #     forces = calc_collision(s1.size, s1.pos, s1.disp, s2.size, s2.pos, s2.disp)
-            #     if dist(s1.pos, s2.pos) < s1.size + s2.size:
-            #         s1.vel = (0,0)
-            #         s2.vel = (0,0)
-            #         s1.add_force((forces[0][0] * mult, forces[0][1] * mult),50,0,0)
-            #         s2.add_force((forces[1][0] * mult, forces[1][1] * mult),50,0,0)
             
             for p in self.player_container:
                 if p.polygon_collision(s1.points):
@@ -226,8 +215,8 @@ class Game:
             self.bullet_container.append(Bullet(pos, 8, angle + 2*i*math.pi/9, False, size/3))
 
     def shape_death(self, pos, size):
-        for i in range(50):
-            self.particles.append(list([list(pos), ((random.randint(0,20) / 10-1)*3 * (1.5 - 5//size), (random.randint(0,20) / 10-1)*3 * (1.5 - 5//size)), min(random.randint(2,int(size)),6)]))
+        for i in range(40):
+            self.particles.append(list([list(pos), ((random.randint(0,20) / 10-1)*3 * (1.5 - 5//size), (random.randint(0,20) / 10-1)*3 * (1.5 - 5//size)), min(random.randint(2,int(size)),6), True]))
 
     def player_emp(self):
         for p in self.player_container:

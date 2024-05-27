@@ -7,7 +7,7 @@ class Player(ForceObject):
     def __init__(self):
         super().__init__()
         #draw
-        self.size = 25
+        self.size = 20
 
         #movement
         self.pos = [1600,1600]
@@ -57,7 +57,7 @@ class Player(ForceObject):
 
         #surface
         surf = pygame.Surface((self.size*16, self.size*16), pygame.SRCALPHA)
-        pygame.draw.circle(surf, (255,255,255), (self.size*8, self.size*8), self.size*alias_factor, 40)
+        pygame.draw.circle(surf, (255,255,255), (self.size*8, self.size*8), self.size*alias_factor, 32)
         pygame.draw.polygon(surf, (255,255,255), arrow_points)
 
         scaled_surf = pygame.transform.smoothscale_by(surf, 0.25)
@@ -554,8 +554,6 @@ class Pentagon(Shape):
                 (warn[0][0] - offset[0], warn[0][1] - offset[1]), 
                 (warn[1][0] - offset[0], warn[1][1] - offset[1]), 
             2)
-        
-        
 
     
     def shoot_laser(self, map):
@@ -570,14 +568,6 @@ class Pentagon(Shape):
             self.lasers.append((p1,p2))
 
         
-
-    
-
-
-
-
-
-
 class Hexagon(Shape):
     def __init__(self, pos, speed, size, follow, health=3):
         super().__init__()

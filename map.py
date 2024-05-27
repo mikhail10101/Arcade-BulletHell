@@ -103,7 +103,7 @@ class Map:
             a = random.randint(0, OUTERSIZE-1)
             b = random.randint(0, OUTERSIZE-1)
             if (abs(a - OUTERSIZE//2) <= 5 + INNERSIZE//2) and (abs(b - OUTERSIZE//2) <= 5 + INNERSIZE//2) and not (
-                (abs(a - OUTERSIZE//2) <= 2 + INNERSIZE//2) and (abs(b - OUTERSIZE//2) <= 2 + INNERSIZE//2)
+                (abs(a - OUTERSIZE//2) <= 3 + INNERSIZE//2) and (abs(b - OUTERSIZE//2) <= 3 + INNERSIZE//2)
             ):
                 if self.map_values[a][b] == 1:
                     return (a,b)

@@ -111,69 +111,111 @@ class Rounds:
         return len(self.shape_container) == 0
     
     def start_round(self):
+        match self.round_number:
+            case 1:
+                self.spawn_triangles(3,10,20)
+                self.spawn_triangles(3,10,20)
+                self.spawn_triangles(3,10,20)
 
-        if self.round_number == 1:
-            self.spawn_triangles(3,10,20)
-            self.spawn_triangles(3,10,20)
-            self.spawn_triangles(3,10,20)
+            case 2:
+                self.spawn_square(3,40)
+                self.spawn_square(3,50)
+                self.spawn_square(3,30)
+                self.spawn_square(3,30)
+                self.spawn_square(3,70)
+                self.spawn_square(3,30)
+                self.spawn_square(3,30)
+                self.spawn_square(3,70)
 
-        elif self.round_number == 2:
-            self.spawn_square(3,40)
-            self.spawn_square(3,50)
-            self.spawn_square(3,30)
-            self.spawn_square(3,30)
-            self.spawn_square(3,70)
+            case 3:
+                self.spawn_triangles(3,10,20)
+                self.spawn_triangles(3,10,20)   
+                self.spawn_square(3,40)
+                self.spawn_square(3,50)
+                self.spawn_square(3,30)         
 
-        elif self.round_number == 3:
-            self.spawn_triangles(3,10,20)
-            self.spawn_triangles(3,10,20)   
-            self.spawn_square(3,40)
-            self.spawn_square(3,50)
-            self.spawn_square(3,30)         
+            case 4:
+                # self.spawn_pentagon(60)
+                # self.spawn_pentagon(100)
+                self.spawn_square(3,30)
+                self.spawn_square(3,30)
+                self.spawn_square(3,70)
+                self.spawn_triangles(3,10,30)
+                self.spawn_triangles(3,10,30)
+                
 
-        elif self.round_number == 4:
-            self.spawn_pentagon(60)
-            self.spawn_pentagon(100)
-            self.spawn_square(3,30)
-            self.spawn_square(3,30)
-            self.spawn_square(3,70)
-            self.spawn_triangles(3,10,30)
-            self.spawn_triangles(3,10,30)
+            case 5:
+                # self.spawn_pentagon(80)
+                # self.spawn_pentagon(120)
+                # self.spawn_pentagon(120)
+                self.spawn_triangles(3,10,20)
+                self.spawn_triangles(3,10,20)   
+                self.spawn_square(3,40)
+                self.spawn_square(3,70)
+                self.spawn_triangles(3,10,30)   
+                self.spawn_square(3,50)
+
+            case 6:
+                self.spawn_hexagons(7,30,10)
+                self.spawn_hexagons(7,40,10)
+                self.spawn_hexagons(7,20,20)
+                self.spawn_square(3,40)
+                self.spawn_square(3,70)
+
+            case 7:
+                self.spawn_heptagon(3,30)
+                self.spawn_heptagon(3,30)
+                self.spawn_triangles(3,10,40)
+                self.spawn_triangles(3,10,50)
+
+            case 8:
+                self.spawn_nonagon(3,30)
+                self.spawn_nonagon(5,40)
+                self.spawn_square(3,50)
+                self.spawn_square(3,30)
+                self.spawn_square(3,30)
+                # self.spawn_pentagon(120)
+                # self.spawn_pentagon(120)
             
+            case 9:
+                self.spawn_nonagon(3,30)
+                self.spawn_nonagon(5,40)
+                self.spawn_square(3,50)
+                self.spawn_square(3,30)
+                self.spawn_square(3,30)
+                # self.spawn_pentagon(120)
+                # self.spawn_pentagon(120)
+                self.spawn_triangles(3,10,50)
+                self.spawn_triangles(3,10,30)   
+                self.spawn_square(3,40)
+                self.spawn_square(3,70)
+            
+            case 10:
+                self.spawn_nonagon(5,40)
+                self.spawn_square(3,50)
+                self.spawn_square(3,30)
+                self.spawn_square(3,30)
+                # self.spawn_pentagon(120)
+                self.spawn_hexagons(7,40,10)
+                self.spawn_hexagons(7,20,20)
+                self.spawn_square(3,40)
 
-        elif self.round_number == 5:
-            self.spawn_pentagon(80)
-            self.spawn_pentagon(120)
-            self.spawn_pentagon(120)
-            self.spawn_triangles(3,10,20)
-            self.spawn_triangles(3,10,20)   
-            self.spawn_square(3,40)
-            self.spawn_square(3,70)
+            case _:
+                for i in range(int((self.round_number - 8)*0.8)):
+                    self.spawn_triangles(3,10,20)
+                    self.spawn_square(3,30)
+                    # self.spawn_pentagon(120)
+                    self.spawn_hexagons(7,15,15)
+                    self.spawn_nonagon(3,30)
+                    self.spawn_heptagon(3,30)
+                    self.spawn_nonagon(5,40)
 
-        elif self.round_number == 6:
-            self.spawn_hexagons(7,30,10)
-            self.spawn_hexagons(7,40,10)
-            self.spawn_hexagons(7,20,20)
-
-        elif self.round_number == 7:
-            self.spawn_heptagon(3,30)
-            self.spawn_heptagon(3,30)
-            self.spawn_triangles(3,10,40)
-            self.spawn_triangles(3,10,50)
-
-        elif self.round_number == 8:
-            self.spawn_nonagon(3,30)
-            self.spawn_nonagon(5,40)
-            self.spawn_square(3,50)
-            self.spawn_square(3,30)
-            self.spawn_square(3,30)
 
 
 
         # self.spawn_triangles(3,10,50)
         # self.spawn_square(3,30)
         # self.spawn_pentagon(80)
-        # self.spawn_pentagon(120)
         # self.spawn_hexagons(3,30,10)
         # self.spawn_heptagon(3,30)
         # self.spawn_nonagon(3,30)
