@@ -65,7 +65,7 @@ def main():
 
         if main_menu:
             menu.draw(inputs["click_pos"])
-            if menu.update(inputs):
+            if menu.update(inputs) == "Singleplayer":
                 main_menu = False
                 game.rounds.round_end_time = pygame.time.get_ticks() - 11000
 
