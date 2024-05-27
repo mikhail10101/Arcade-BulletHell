@@ -1,6 +1,7 @@
 import sys
 import pygame
 from game import Game
+from menu import Menu
 pygame.font.init()
 
 LENGTH = 1440
@@ -9,6 +10,7 @@ WIDTH = 810
 def main():
     run = True
     game = Game(LENGTH, WIDTH)
+    menu = Menu(LENGTH, WIDTH)
     clock = pygame.time.Clock()
     
     #Inputs to be passed to the game
@@ -21,9 +23,10 @@ def main():
         "click_pos": [0,0]
     }
 
+    main_menu = True
+
     while run:
-        clock.tick(60)        
-        game.draw()
+        clock.tick(60)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -57,6 +60,17 @@ def main():
 
         inputs["click_pos"] = pygame.mouse.get_pos()
 
-        game.update(inputs)
+        if main_menu:
+            menu.draw(inputs["click_pos"])
+            if menu.update(inputs):
+                main_menu = False
+                game.rounds.round_end_time = pygame.time.get_ticks() - 11000
+
+        else:
+            game.draw(0)
+            if game.update(inputs):
+                pass
+                # main_menu = True
+                # game.reset()
 
 main()

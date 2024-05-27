@@ -1,7 +1,6 @@
 import math
 import pygame
 
-
 class ForceObject:
     def __init__(self):
         self.forces = []
@@ -53,22 +52,26 @@ class ForceObject:
         self.forces.append([target_vel, duration, accel_time, deccel_time, pygame.time.get_ticks(), True])        
 
 
-class Shape:
+class Shape(ForceObject):
     def __init__(self):
+        super().__init__()
         self.points = []
         self.last_hit = -1000
+        self.monocolor = 160
     
     def draw(self, window, offset):
+        self.monocolor = min(255, self.monocolor + (255-self.monocolor)*0.03)
+
         drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
 
         if pygame.time.get_ticks() < self.last_hit + 75:
-            pygame.draw.polygon(window, (255,0,0), drawpoints, 3)
+            pygame.draw.polygon(window, (self.monocolor,0,0), drawpoints, 3)
             for p in drawpoints:
-                pygame.draw.circle(window, (255,0,0), p, 1)
+                pygame.draw.circle(window, (self.monocolor,0,0), p, 1)
         else:
-            pygame.draw.polygon(window, (255,255,255), drawpoints, 3)
+            pygame.draw.polygon(window, (self.monocolor,self.monocolor,self.monocolor), drawpoints, 3)
             for p in drawpoints:
-                pygame.draw.circle(window, (255,255,255), p, 1)
+                pygame.draw.circle(window, (self.monocolor,self.monocolor,self.monocolor), p, 1)
 
 
 def phys_helper(curr_vel, target_vel, accel, deccel):

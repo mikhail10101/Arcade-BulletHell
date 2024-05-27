@@ -27,9 +27,17 @@ class Player(ForceObject):
 
         self.pointer_scale = 1.8
 
+        #healing mechanics
+        self.last_received_damage = 0
+        self.last_moved = 0
 
-    def draw(self, window, offset=(0,0)):
-        pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.size)
+        #scroll
+        self.scroll = [0,0]
+
+
+    def draw(self, window):
+        offset = self.scroll
+        pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.size, 10)
 
         scale = 1/4
         diff = (-math.cos(self.mouse_angle) * self.size * scale,-math.sin(self.mouse_angle) * self.size * scale)
@@ -51,9 +59,13 @@ class Player(ForceObject):
         
 
 
-    def update(self, inputs, bullets, map, offset=(0,0)):
+    def update(self, inputs, bullets, map):
         super().update()
         current_time = pygame.time.get_ticks()
+
+        #HEALTH
+        if self.last_moved + 50 < current_time and self.last_received_damage + 50 < current_time:
+            self.hp = min(self.hp + 0.3, 100)
 
         #MOVEMENT
         target_vel = [0,0]
@@ -71,12 +83,15 @@ class Player(ForceObject):
         
         phys_helper(self.curr_vel, target_vel, self.accel, self.deccel)
 
+        if self.curr_vel[0] != 0 or self.curr_vel[1] != 0:
+            self.last_moved = current_time
+
         self.move([self.pos[0] + self.curr_vel[0] + self.fx, self.pos[1] + self.curr_vel[1] + self.fy], map)
 
         mx, my = inputs["click_pos"]
  
-        mx += offset[0]
-        my += offset[1]
+        mx += self.scroll[0]
+        my += self.scroll[1]
 
         dx = mx - self.pos[0]
         dy = my - self.pos[1]
@@ -205,7 +220,7 @@ class Wave(Bullet):
 
 
 
-class Triangle(ForceObject, Shape):
+class Triangle(Shape):
     def __init__(self, pos, speed, size, health=1):
         super().__init__()
 
@@ -224,6 +239,7 @@ class Triangle(ForceObject, Shape):
         self.disp = [0,0]
 
         self.last_hit = -1000
+        self.monocolor = 200
 
     def update(self, players):
         super().update()
@@ -253,7 +269,7 @@ class Triangle(ForceObject, Shape):
 
 
 
-class Square(ForceObject, Shape):
+class Square(Shape):
     def __init__(self, pos, speed, size, health=4):
         super().__init__()
         self.pos = list(pos)
@@ -333,7 +349,7 @@ class Square(ForceObject, Shape):
         self.pos[1] += self.disp[1]
 
 
-class Squarelet(ForceObject, Shape):
+class Squarelet(Shape):
     def __init__(self, pos, speed, size, health=1):
         super().__init__()
 
@@ -410,7 +426,7 @@ class Squarelet(ForceObject, Shape):
 
 
 
-class Pentagon(ForceObject, Shape):
+class Pentagon(Shape):
     def __init__(self, pos, size, angle, health=5):
         super().__init__()
 
@@ -546,7 +562,7 @@ class Pentagon(ForceObject, Shape):
 
 
 
-class Hexagon(ForceObject, Shape):
+class Hexagon(Shape):
     def __init__(self, pos, speed, size, follow, health=3):
         super().__init__()
 
@@ -596,7 +612,7 @@ class Hexagon(ForceObject, Shape):
 
 
 
-class Heptagon(ForceObject, Shape):
+class Heptagon(Shape):
     def __init__(self, pos, speed, size, health=7):
         super().__init__()
 
@@ -681,7 +697,7 @@ class Heptagon(ForceObject, Shape):
 
 
 
-class Nonagon(ForceObject, Shape):
+class Nonagon(Shape):
     def __init__(self, pos, speed, size, angle, health=2):
         super().__init__()
 

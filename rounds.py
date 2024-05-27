@@ -4,57 +4,51 @@ from entities import *
 TILESIZE = 64
 CENTER = (25*TILESIZE, 25*TILESIZE)
 
+LOWERCOLORBOUND = 100
+UPPERCOLORBOUND = 160
+
 class Rounds:
     def __init__(self, map):
         self.shape_container = []
         self.round_number = 0
-        self.mode = 2
-        self.round_end_time = pygame.time.get_ticks() - 3000
+        self.mode = 1
+        self.round_end_time = pygame.time.get_ticks()
+        self.round_interval = 12000
         self.map = map
 
         self.bg_normalize_time = 2000
 
     def update(self):
-
         #preround
         if self.mode == 0:
             self.start_round()
+            self.round_end_time = pygame.time.get_ticks()
             self.mode = 1
-        #in round
         elif self.mode == 1:
-            if self.is_round_done():
-                self.mode = 2
-                self.round_end_time = pygame.time.get_ticks()
-        #end round
-        elif self.mode == 2:
-            if pygame.time.get_ticks() > self.round_end_time + 5000:
+            if pygame.time.get_ticks() > self.round_end_time + self.round_interval:
                 self.mode = 0
                 self.round_number += 1
+    
 
-    def draw(self,window, game_color):
-        if self.mode == 2:
-            if pygame.time.get_ticks() > self.round_end_time + 3000:
-                f = pygame.font.SysFont("Consolas Bold", 600)
-                text_finish = f.render(str(self.round_number+1), True, (255,255,255))
-                window.blit(text_finish, (window.get_width()//2 - text_finish.get_width()//2, window.get_height()//2 - text_finish.get_height()//2))
-                a = (pygame.time.get_ticks() - self.round_end_time - 3000)/2000
-                if a <= 1:
-                    game_color[0] = pygame.math.lerp(150,255,a)
-                    game_color[1] = pygame.math.lerp(150,255,a)
-                    game_color[2] = pygame.math.lerp(150,255,a)
-            elif pygame.time.get_ticks() > self.round_end_time + 500:
-                f = pygame.font.SysFont("Consolas Bold", 250)
-                text_finish = f.render("CLEARED", True, (255,255,255))
-                window.blit(text_finish, (window.get_width()//2 - text_finish.get_width()//2, window.get_height()//2 - text_finish.get_height()//2))
-            elif pygame.time.get_ticks() > self.round_end_time:
-                pass
+    def draw(self,window, game_color, offset):
+        n = pygame.time.get_ticks() - self.round_end_time
+        if n < 1500:
+            f = pygame.font.SysFont("MS Gothic", 600)
+            text_finish = f.render(str(self.round_number), True, (255,255,255))
+            window.blit(text_finish, (CENTER[0] - text_finish.get_width()//2 - offset[0], CENTER[1] - text_finish.get_height()//2 - offset[1]))
 
-        elif self.mode == 1:
-            a = (pygame.time.get_ticks()-self.round_end_time-5000)/4000
-            if a <= 1:
-                game_color[0] = pygame.math.lerp(255,150,a)
-                game_color[1] = pygame.math.lerp(255,150,a)
-                game_color[2] = pygame.math.lerp(255,150,a)
+        half = self.round_interval//2
+
+        if n <= half:
+            val = pygame.math.lerp(UPPERCOLORBOUND,LOWERCOLORBOUND,min(n/half, 1))
+            game_color[0] = val
+            game_color[1] = val
+            game_color[2] = val
+        else:
+            val = pygame.math.lerp(LOWERCOLORBOUND,UPPERCOLORBOUND,min((n-half)/half,1))
+            game_color[0] = val
+            game_color[1] = val
+            game_color[2] = val
 
 
     
@@ -127,27 +121,34 @@ class Rounds:
             self.spawn_square(3,40)
             self.spawn_square(3,50)
             self.spawn_square(3,30)
+            self.spawn_square(3,30)
+            self.spawn_square(3,70)
 
         elif self.round_number == 3:
             self.spawn_triangles(3,10,20)
             self.spawn_triangles(3,10,20)   
             self.spawn_square(3,40)
-            self.spawn_square(3,50)         
+            self.spawn_square(3,50)
+            self.spawn_square(3,30)         
 
         elif self.round_number == 4:
             self.spawn_pentagon(60)
-            self.spawn_pentagon(60)
-            self.spawn_pentagon(60)
-            self.spawn_pentagon(60)
-            self.spawn_pentagon(60)
+            self.spawn_pentagon(100)
+            self.spawn_square(3,30)
+            self.spawn_square(3,30)
+            self.spawn_square(3,70)
+            self.spawn_triangles(3,10,30)
+            self.spawn_triangles(3,10,30)
             
 
         elif self.round_number == 5:
             self.spawn_pentagon(80)
             self.spawn_pentagon(120)
+            self.spawn_pentagon(120)
             self.spawn_triangles(3,10,20)
             self.spawn_triangles(3,10,20)   
             self.spawn_square(3,40)
+            self.spawn_square(3,70)
 
         elif self.round_number == 6:
             self.spawn_hexagons(7,30,10)
@@ -157,14 +158,16 @@ class Rounds:
         elif self.round_number == 7:
             self.spawn_heptagon(3,30)
             self.spawn_heptagon(3,30)
-            self.spawn_heptagon(3,30)
-            self.spawn_heptagon(3,30)
+            self.spawn_triangles(3,10,40)
+            self.spawn_triangles(3,10,50)
 
         elif self.round_number == 8:
             self.spawn_nonagon(3,30)
             self.spawn_nonagon(5,40)
-            self.spawn_nonagon(4,35)
-            self.spawn_nonagon(7,30)
+            self.spawn_square(3,50)
+            self.spawn_square(3,30)
+            self.spawn_square(3,30)
+
 
 
         # self.spawn_triangles(3,10,50)
