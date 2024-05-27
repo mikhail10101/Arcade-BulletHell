@@ -25,6 +25,9 @@ def main():
 
     main_menu = True
 
+    #cursor
+    pygame.mouse.set_cursor(pygame.cursors.diamond)
+
     while run:
         clock.tick(60)
 
@@ -68,7 +71,8 @@ def main():
 
         else:
             game.draw(0)
-            if game.update(inputs):
+            game.update_inputs(inputs, 0)
+            if game.update():
                 pass
                 # main_menu = True
                 # game.reset()

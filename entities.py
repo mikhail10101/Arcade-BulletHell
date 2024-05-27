@@ -530,7 +530,7 @@ class Pentagon(Shape):
             for i in range(self.bounds[0], self.bounds[1]):
                 for p in players:
                     if intersect_circle(self.lasers[i][0], self.lasers[i][1], p.pos, p.size):
-                        p.hp -= 0.01
+                        p.hp -= 0.1
 
             if current_time > self.laser_duration + self.pause_duration + self.last_laser:
                 self.mode = 0

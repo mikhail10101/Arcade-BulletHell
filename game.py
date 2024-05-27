@@ -30,7 +30,7 @@ class Game:
         pygame.display.set_caption("Arcade Game")
         
         self.charge_bar = 0 #max is a thousand
-        self.charge_bar_max = 1000
+        self.charge_bar_max = 500
         self.screen_shake = 0
 
         self.game_color = [100,100,100]
@@ -72,11 +72,17 @@ class Game:
         for b in self.bullet_container:
             b.draw(self.window, scroll)
 
-        self.window.blit(bar(self.player_container[n].hp, 100, 200, 50), (50,50))
+        self.window.blit(bar(self.player_container[n].hp, 100, 300, 50), (50,50))
         pygame.display.update()
 
-    def update(self, inputs):
+    def update_inputs(self, inputs, n):
+        self.player_container[n].update(inputs, self.bullet_container, self.map)
+
+    def update(self):
         self.rounds.update()
+
+        if self.rounds.round_number == 0:
+            self.charge_bar = 0
 
         #screen shake
         self.screen_shake = max(self.screen_shake - 0.5, 0)
@@ -90,17 +96,16 @@ class Game:
             if particle[2] <= 0:
                 self.particles.remove(particle)
 
+        #emp
         for emp in self.emps:
-            emp[1] += 15
-            if emp[1] > 1000:
+            emp[1] += 12
+            if emp[1] > 1500:
                 self.emps.remove(emp)
             self.charge_bar = 0
-
 
         for p in self.player_container:
             p.scroll[0] += (self.player_container[0].pos[0] - self.window.get_width()/2 - p.scroll[0]) / 10
             p.scroll[1] += (self.player_container[0].pos[1] - self.window.get_height()/2 - p.scroll[1]) / 10
-            p.update(inputs, self.bullet_container, self.map)
 
 
         #bullets 
@@ -135,13 +140,12 @@ class Game:
                         p.last_received_damage = pygame.time.get_ticks()
                         if b.__class__.__name__ == "Bullet":
                             b.active = False
-                            p.hp -= 1
                         if b.__class__.__name__ == "Wave":
                             p.add_force((
                                     b.radius /20 * math.cos(b.angle),
                                     b.radius /20 * math.sin(b.angle)
                                 ),25,0,0)
-                            p.hp -= 0.1
+                        p.hp -= 1.5
 
             if self.map.is_oob(b.pos):
                 b.active = False
@@ -175,7 +179,7 @@ class Game:
             for p in self.player_container:
                 if p.polygon_collision(s1.points):
                     p.last_received_damage = pygame.time.get_ticks()
-                    p.hp -= 1
+                    p.hp -= 0.5
 
             for emp in self.emps:
                 if abs(dist(emp[0], s1.pos) - emp[1]) < 10:
