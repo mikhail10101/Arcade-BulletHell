@@ -135,8 +135,8 @@ class Rounds:
                 self.spawn_square(3,30)         
 
             case 4:
-                # self.spawn_pentagon(60)
-                # self.spawn_pentagon(100)
+                self.spawn_pentagon(60)
+                self.spawn_pentagon(100)
                 self.spawn_square(3,30)
                 self.spawn_square(3,30)
                 self.spawn_square(3,70)
@@ -145,9 +145,9 @@ class Rounds:
                 
 
             case 5:
-                # self.spawn_pentagon(80)
-                # self.spawn_pentagon(120)
-                # self.spawn_pentagon(120)
+                self.spawn_pentagon(80)
+                self.spawn_pentagon(120)
+                self.spawn_pentagon(120)
                 self.spawn_triangles(3,10,20)
                 self.spawn_triangles(3,10,20)   
                 self.spawn_square(3,40)
@@ -174,8 +174,8 @@ class Rounds:
                 self.spawn_square(3,50)
                 self.spawn_square(3,30)
                 self.spawn_square(3,30)
-                # self.spawn_pentagon(120)
-                # self.spawn_pentagon(120)
+                self.spawn_pentagon(120)
+                self.spawn_pentagon(120)
             
             case 9:
                 self.spawn_nonagon(3,30)
@@ -183,8 +183,8 @@ class Rounds:
                 self.spawn_square(3,50)
                 self.spawn_square(3,30)
                 self.spawn_square(3,30)
-                # self.spawn_pentagon(120)
-                # self.spawn_pentagon(120)
+                self.spawn_pentagon(120)
+                self.spawn_pentagon(120)
                 self.spawn_triangles(3,10,50)
                 self.spawn_triangles(3,10,30)   
                 self.spawn_square(3,40)

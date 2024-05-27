@@ -66,55 +66,59 @@ def main():
 
         inputs["click_pos"] = pygame.mouse.get_pos()
 
-        if mode == 0:
-            menu.draw(inputs["click_pos"])
-            if menu.update(inputs) == "Singleplayer":
-                mode = 1
-                game.rounds.round_end_time = pygame.time.get_ticks() - 11000
-            if menu.update(inputs) == "Multiplayer":
-                mode = 2
+        match mode:
+            case 0:
+                menu.draw(inputs["click_pos"])
+                if menu.update(inputs) == "Singleplayer":
+                    mode = 1
+                    game.rounds.round_end_time = pygame.time.get_ticks() - 10000
+                if menu.update(inputs) == "Multiplayer":
+                    mode = 2
 
-        elif mode == 1:
-            game.draw(0)
-            game.update_inputs(inputs, 0)
-            game.update()
-            if game.is_game_over():
-                scoreboard.score = game.score
-                mode = 3
-                game.reset()
+            case 1:
+                game.draw(0)
+                game.update_inputs(inputs, 0)
+                game.update()
+                if game.is_game_over():
+                    scoreboard.score = game.score
+                    mode = 3
+                    game.reset()
 
-        #MULTIPLAYER NOT WORKING
-        elif mode == 2:
-            if n == None:
-                n = Network()
-                player = int(n.getP())
+            #MULTIPLAYER NOT WORKING
+            case 2:
+                if n == None:
+                    n = Network()
+                    player = int(n.getP())
 
-            # try:
-                game = n.send("get")
-            # except:
-            #     mode = 0
-            #     print("Couldn't get game")
-            #     continue
+                # try:
+                    game = n.send("get")
+                # except:
+                #     mode = 0
+                #     print("Couldn't get game")
+                #     continue
 
-            game.draw(player)
+                game.draw(player)
 
-            if game.is_game_over():
-                mode = 0
-            
-            if game.connected():
-                n.send(
-                    str(player) + ":" +
-                    str(inputs["up"]) + ":" +
-                    str(inputs["down"]) + ":" +
-                    str(inputs["left"]) + ":" +
-                    str(inputs["right"]) + ":" +
-                    str(inputs["right"]) + ":" +
-                    str(inputs["click_pos"][0]) + ":" +
-                    str(inputs["click_pos"][1])
-                )
+                if game.is_game_over():
+                    mode = 0
+                
+                if game.connected():
+                    n.send(
+                        str(player) + ":" +
+                        str(inputs["up"]) + ":" +
+                        str(inputs["down"]) + ":" +
+                        str(inputs["left"]) + ":" +
+                        str(inputs["right"]) + ":" +
+                        str(inputs["right"]) + ":" +
+                        str(inputs["click_pos"][0]) + ":" +
+                        str(inputs["click_pos"][1])
+                    )
 
-        elif mode == 3:
-            scoreboard.draw(inputs["click_pos"])
-            if scoreboard.update(inputs) == "MainMenu":
-                mode = 0
+            case 3:
+                scoreboard.draw(inputs["click_pos"])
+                if scoreboard.update(inputs) == "MainMenu":
+                    mode = 0
+
+            case _:
+                pass
 main()

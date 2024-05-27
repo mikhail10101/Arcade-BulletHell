@@ -35,8 +35,8 @@ class Game:
         self.window = pygame.display.set_mode((LENGTH, WIDTH))
         pygame.display.set_caption("Arcade Game")
         
-        self.charge_bar = 0 #max is a thousand
-        self.charge_bar_max = 500
+        self.charge_bar = 0
+        self.charge_bar_max = 1000
         self.screen_shake = 0
 
         self.score = 0
@@ -49,48 +49,47 @@ class Game:
 
     def draw(self, n):
         self.window.fill(self.game_color)
-        if not self.player_container[n].dead:
-            scroll = self.player_container[n].scroll
+        scroll = self.player_container[n].scroll
 
-            if self.screen_shake > 0:
-                scroll[0] += random.randint(0,16) - 8
-                scroll[1] += random.randint(0,16) - 8
+        if self.screen_shake > 0:
+            scroll[0] += random.randint(0,16) - 8
+            scroll[1] += random.randint(0,16) - 8
 
-            self.map.draw(self.window, scroll)
+        self.map.draw(self.window, scroll)
 
-            self.rounds.draw(self.window, self.game_color, scroll)
+        self.rounds.draw(self.window, self.game_color, scroll)
 
-            #charge bar
-            bar_length = 1152
-            self.window.blit(bar(self.charge_bar, self.charge_bar_max, bar_length, 70, 0), (64*50//2 - bar_length//2 - scroll[0], 64*50//2 + bar_length//2 + 30 - scroll[1]))
+        #charge bar
+        bar_length = 1152
+        self.window.blit(bar(self.charge_bar, self.charge_bar_max, bar_length, 70, 0), (64*50//2 - bar_length//2 - scroll[0], 64*50//2 + bar_length//2 + 30 - scroll[1]))
 
-            for p in self.player_container:
-                if not p.dead:
-                    p.draw(self.window)
+        for p in self.player_container:
+            if not p.dead:
+                p.draw(self.window)
 
-            for s in self.rounds.shape_container:
-                s.draw(self.window, scroll)
+        for s in self.rounds.shape_container:
+            s.draw(self.window, scroll)
 
-            #particles
-            for particle in self.particles:
-                pygame.draw.circle(self.window, (255,255,255), (int(particle[0][0] - scroll[0]), int(particle[0][1] - scroll[1])), int(particle[2]))
-                self.window.blit(circle_surf(particle[2]*2, (20,20,20)), (int(particle[0][0] - scroll[0] - particle[2]*2), int(particle[0][1] - scroll[1]  - particle[2]*2)), special_flags=pygame.BLEND_RGB_ADD)
+        #particles
+        for particle in self.particles:
+            pygame.draw.circle(self.window, (255,255,255), (int(particle[0][0] - scroll[0]), int(particle[0][1] - scroll[1])), int(particle[2]))
+            self.window.blit(circle_surf(particle[2]*2, (20,20,20)), (int(particle[0][0] - scroll[0] - particle[2]*2), int(particle[0][1] - scroll[1]  - particle[2]*2)), special_flags=pygame.BLEND_RGB_ADD)
 
-            #emps
-            for emp in self.emps:
-                if emp[1] > 0:
-                    pygame.draw.circle(self.window, (255,255,255), (int(emp[0][0] - scroll[0]), int(emp[0][1] - scroll[1])), int(emp[1]), 10)
+        #emps
+        for emp in self.emps:
+            if emp[1] > 0:
+                pygame.draw.circle(self.window, (255,255,255), (int(emp[0][0] - scroll[0]), int(emp[0][1] - scroll[1])), int(emp[1]), 10)
 
-            for b in self.bullet_container:
-                b.draw(self.window, scroll)
+        for b in self.bullet_container:
+            b.draw(self.window, scroll)
 
-            #player health
-            self.window.blit(bar(self.player_container[n].hp, 100, 300, 50), (50,50))
+        #player health
+        self.window.blit(bar(self.player_container[n].hp, 100, 300, 50), (50,50))
 
-            #display score
-            f = pygame.font.SysFont("Times New Roman", 80)
-            score_text = f.render(str(self.score), True, (255,255,255))
-            self.window.blit(score_text, (LENGTH - score_text.get_width() - 50,20))
+        #display score
+        f = pygame.font.SysFont("Times New Roman", 80)
+        score_text = f.render(str(self.score), True, (255,255,255))
+        self.window.blit(score_text, (LENGTH - score_text.get_width() - 50,20))
 
         pygame.display.update()
 
@@ -189,7 +188,7 @@ class Game:
             for p in self.player_container:
                 if p.polygon_collision(s1.points):
                     p.last_received_damage = pygame.time.get_ticks()
-                    p.hp -= 0.5
+                    p.hp -= 1
 
             for emp in self.emps:
                 if abs(dist(emp[0], s1.pos) - emp[1]) < 10:
