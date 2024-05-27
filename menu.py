@@ -18,7 +18,7 @@ class Menu:
             Button((770,470), 250, 66, "Multiplayer", 255, (255,0,0))
         ]
 
-        self.last = False
+        self.last = True
 
     def update(self, inputs):
         for b in self.buttons:
