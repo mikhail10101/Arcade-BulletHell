@@ -1,10 +1,11 @@
 import pygame
 
-def bar(a, b, length, height):
+def bar(a, b, length, height, black=0):
     a = abs(a)
     surf = pygame.Surface((length,height))
+    surf.fill((black,black,black))
     pygame.draw.rect(surf, (255,255,255), [0,0,length*a/b,height])
-    pygame.draw.rect(surf, (0,0,0), [0,0,length,height], 5)
+    pygame.draw.rect(surf, (black,black,black), [0,0,length,height], 5)
 
     return surf
 

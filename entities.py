@@ -37,24 +37,40 @@ class Player(ForceObject):
 
     def draw(self, window):
         offset = self.scroll
-        pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.size, 10)
 
+        alias_factor = 4
+
+        #pointer calculations
         scale = 1/4
-        diff = (-math.cos(self.mouse_angle) * self.size * scale,-math.sin(self.mouse_angle) * self.size * scale)
+        diff = (-math.cos(self.mouse_angle) * self.size*alias_factor * scale,-math.sin(self.mouse_angle) * self.size*alias_factor * scale)
 
         side_scale = 1.5
         side_angle = math.pi/20
 
         arrow_points = [(0,0),(0,0),(0,0),(0,0),(0,0),(0,0)]
-        arrow_points[0] = (self.pos[0] + math.cos(self.mouse_angle) * self.size * self.pointer_scale, self.pos[1] + math.sin(self.mouse_angle) * self.size * self.pointer_scale)
-        arrow_points[1] = (self.pos[0] + math.cos(self.mouse_angle + math.pi*side_angle) * self.size * side_scale,self.pos[1] + math.sin(self.mouse_angle + math.pi*side_angle) * self.size * side_scale)
-        arrow_points[5] = (self.pos[0] + math.cos(self.mouse_angle - math.pi*side_angle) * self.size * side_scale, self.pos[1] + math.sin(self.mouse_angle - math.pi*side_angle) * self.size * side_scale)
+        arrow_points[0] = (self.size*8 + math.cos(self.mouse_angle) * self.size*alias_factor * self.pointer_scale, self.size*8 + math.sin(self.mouse_angle) * self.size*alias_factor * self.pointer_scale)
+        arrow_points[1] = (self.size*8 + math.cos(self.mouse_angle + math.pi*side_angle) * self.size*alias_factor * side_scale, self.size*8 + math.sin(self.mouse_angle + math.pi*side_angle) * self.size*alias_factor * side_scale)
+        arrow_points[5] = (self.size*8 + math.cos(self.mouse_angle - math.pi*side_angle) * self.size*alias_factor * side_scale, self.size*8 + math.sin(self.mouse_angle - math.pi*side_angle) * self.size*alias_factor * side_scale)
         arrow_points[2] = (arrow_points[1][0]+diff[0],arrow_points[1][1]+diff[1])
         arrow_points[3] = (arrow_points[0][0]+diff[0],arrow_points[0][1]+diff[1])
         arrow_points[4] = (arrow_points[5][0]+diff[0],arrow_points[5][1]+diff[1])
 
-        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in arrow_points]
-        pygame.draw.polygon(window, (255,255,255), drawpoints)
+        #surface
+        surf = pygame.Surface((self.size*16, self.size*16), pygame.SRCALPHA)
+        pygame.draw.circle(surf, (255,255,255), (self.size*8, self.size*8), self.size*alias_factor, 40)
+        pygame.draw.polygon(surf, (255,255,255), arrow_points)
+
+        scaled_surf = pygame.transform.smoothscale_by(surf, 0.25)
+        scaled_surf.set_colorkey((0,0,0))
+
+        window.blit(scaled_surf, (int(self.pos[0] - offset[0] - self.size*8/4), int(self.pos[1] - offset[1] - self.size*8/4)), special_flags = pygame.BLEND_PREMULTIPLIED)
+
+        #pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.size, 10)
+
+        
+
+        # drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in arrow_points]
+        # pygame.draw.polygon(window, (255,255,255), drawpoints)
 
         
 
@@ -64,8 +80,8 @@ class Player(ForceObject):
         current_time = pygame.time.get_ticks()
 
         #HEALTH
-        if self.last_moved + 50 < current_time and self.last_received_damage + 50 < current_time:
-            self.hp = min(self.hp + 0.3, 100)
+        if self.last_received_damage + 2000 < current_time:
+            self.hp = min(self.hp + 0.1, 100)
 
         #MOVEMENT
         target_vel = [0,0]

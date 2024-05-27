@@ -55,6 +55,9 @@ class ForceObject:
 class Shape(ForceObject):
     def __init__(self):
         super().__init__()
+        self.size = 1
+        self.pos = [0,0]
+        self.angle_pos = 0
         self.points = []
         self.last_hit = -1000
         self.monocolor = 160
@@ -62,16 +65,34 @@ class Shape(ForceObject):
     def draw(self, window, offset):
         self.monocolor = min(255, self.monocolor + (255-self.monocolor)*0.03)
 
-        drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
+        # drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
+
+        surf = pygame.Surface((self.size*8, self.size*8), pygame.SRCALPHA)
+        draw_points = points_creator((self.size*4, self.size*4),len(self.points),self.size*4,self.angle_pos)
 
         if pygame.time.get_ticks() < self.last_hit + 75:
-            pygame.draw.polygon(window, (self.monocolor,0,0), drawpoints, 3)
-            for p in drawpoints:
-                pygame.draw.circle(window, (self.monocolor,0,0), p, 1)
+            pygame.draw.polygon(surf, (255,0,0), draw_points, 12)
+            for p in draw_points:
+                pygame.draw.circle(surf, (255,0,0), p, 5)
         else:
-            pygame.draw.polygon(window, (self.monocolor,self.monocolor,self.monocolor), drawpoints, 3)
-            for p in drawpoints:
-                pygame.draw.circle(window, (self.monocolor,self.monocolor,self.monocolor), p, 1)
+            pygame.draw.polygon(surf, (self.monocolor,self.monocolor,self.monocolor), draw_points, 12)
+            for p in draw_points:
+                pygame.draw.circle(surf, (self.monocolor,self.monocolor,self.monocolor), p, 5)
+            
+
+        scaled_surf = pygame.transform.smoothscale_by(surf, 0.25)
+        scaled_surf.set_colorkey((0,0,0))
+
+        window.blit(scaled_surf, (int(self.pos[0] - offset[0] - self.size), int(self.pos[1] - offset[1] - self.size)), special_flags = pygame.BLEND_PREMULTIPLIED)
+
+        # if pygame.time.get_ticks() < self.last_hit + 75:
+        #     pygame.draw.polygon(window, (self.monocolor,0,0), drawpoints, 3)
+        #     for p in drawpoints:
+        #         pygame.draw.circle(window, (self.monocolor,0,0), p, 0.8)
+        # else:
+        #     pygame.draw.polygon(window, (self.monocolor,self.monocolor,self.monocolor), drawpoints, 3)
+        #     for p in drawpoints:
+        #         pygame.draw.circle(window, (self.monocolor,self.monocolor,self.monocolor), p, 0.8)
 
 
 def phys_helper(curr_vel, target_vel, accel, deccel):
@@ -205,36 +226,43 @@ def move_angle(angle, target_angle, angle_vel):
     else:
         return angle + angle_vel
 
-def calc_collision(m1, p1, v1, m2, p2, v2):
-    if p2 > p1:
-        return calc_collision(m2, p2, v2, m1, p1, v1)[::-1]
+# def calc_collision(m1, p1, v1, m2, p2, v2):
+#     if p2 > p1:
+#         return calc_collision(m2, p2, v2, m1, p1, v1)[::-1]
 
-    x = None
-    y = None
-    #assume p1 is less than p2
-    if v1[0] < 0 and v2[0] > 0:
-        x = [0, 0]
-    elif v1[0] < 0 and v2[0] < 0:
-        x = [1, -1]
-    elif v1[0] > 0 and v2[0] > 0:
-        x = [-1, 1]
-    else:
-        x = [-1, -1]
+#     x = None
+#     y = None
+#     #assume p1 is less than p2
+#     if v1[0] < 0 and v2[0] > 0:
+#         x = [0, 0]
+#     elif v1[0] < 0 and v2[0] < 0:
+#         x = [1, -1]
+#     elif v1[0] > 0 and v2[0] > 0:
+#         x = [-1, 1]
+#     else:
+#         x = [-1, -1]
 
-    if v1[1] < 0 and v2[1] > 0:
-        y = [0, 0]
-    elif v1[1] < 0 and v2[1] < 0:
-        y = [1, -1]
-    elif v1[1] > 0 and v2[1] > 0:
-        y = [-1, 1]
-    else:
-        y = [-1, -1]
+#     if v1[1] < 0 and v2[1] > 0:
+#         y = [0, 0]
+#     elif v1[1] < 0 and v2[1] < 0:
+#         y = [1, -1]
+#     elif v1[1] > 0 and v2[1] > 0:
+#         y = [-1, 1]
+#     else:
+#         y = [-1, -1]
 
-    return (
-        (x[0] * m2 / m1 * v2[0], y[0] * m2 / m1 * v2[1]),
-        (x[1] * m1 / m2 * v1[0], y[1] * m1 / m2 * v1[1])
-    )
+#     return (
+#         (x[0] * m2 / m1 * v2[0], y[0] * m2 / m1 * v2[1]),
+#         (x[1] * m1 / m2 * v1[0], y[1] * m1 / m2 * v1[1])
+#     )
 
 def points_modifier(points_array, center, n, size, angle):
     for i in range(n):
         points_array[i] = (center[0] + size * math.cos(angle + 2*i*math.pi/n), center[1] + size * math.sin(angle + 2*i*math.pi/n))
+
+def points_creator(center, n, size, angle):
+    res = []
+    for i in range(n):
+        res.append([center[0] + size * math.cos(angle + 2*i*math.pi/n), center[1] + size * math.sin(angle + 2*i*math.pi/n)])
+    return res
+
