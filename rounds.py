@@ -121,27 +121,34 @@ class Rounds:
             self.spawn_square(3,40)
             self.spawn_square(3,50)
             self.spawn_square(3,30)
+            self.spawn_square(3,30)
+            self.spawn_square(3,70)
 
         elif self.round_number == 3:
             self.spawn_triangles(3,10,20)
             self.spawn_triangles(3,10,20)   
             self.spawn_square(3,40)
-            self.spawn_square(3,50)         
+            self.spawn_square(3,50)
+            self.spawn_square(3,30)         
 
         elif self.round_number == 4:
             self.spawn_pentagon(60)
-            self.spawn_pentagon(60)
-            self.spawn_pentagon(60)
-            self.spawn_pentagon(60)
-            self.spawn_pentagon(60)
+            self.spawn_pentagon(100)
+            self.spawn_square(3,30)
+            self.spawn_square(3,30)
+            self.spawn_square(3,70)
+            self.spawn_triangles(3,10,30)
+            self.spawn_triangles(3,10,30)
             
 
         elif self.round_number == 5:
             self.spawn_pentagon(80)
             self.spawn_pentagon(120)
+            self.spawn_pentagon(120)
             self.spawn_triangles(3,10,20)
             self.spawn_triangles(3,10,20)   
             self.spawn_square(3,40)
+            self.spawn_square(3,70)
 
         elif self.round_number == 6:
             self.spawn_hexagons(7,30,10)
@@ -151,14 +158,16 @@ class Rounds:
         elif self.round_number == 7:
             self.spawn_heptagon(3,30)
             self.spawn_heptagon(3,30)
-            self.spawn_heptagon(3,30)
-            self.spawn_heptagon(3,30)
+            self.spawn_triangles(3,10,40)
+            self.spawn_triangles(3,10,50)
 
         elif self.round_number == 8:
             self.spawn_nonagon(3,30)
             self.spawn_nonagon(5,40)
-            self.spawn_nonagon(4,35)
-            self.spawn_nonagon(7,30)
+            self.spawn_square(3,50)
+            self.spawn_square(3,30)
+            self.spawn_square(3,30)
+
 
 
         # self.spawn_triangles(3,10,50)

@@ -67,7 +67,7 @@ def main():
                 game.rounds.round_end_time = pygame.time.get_ticks() - 11000
 
         else:
-            game.draw()
+            game.draw(0)
             if game.update(inputs):
                 pass
                 # main_menu = True

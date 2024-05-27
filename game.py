@@ -17,33 +17,30 @@ class Game:
         self.window = pygame.display.set_mode((length, width))
         pygame.display.set_caption("Arcade Game")
 
-        self.scroll = [
-            self.window.get_width()/2,
-            self.window.get_height()/2
-        ]
-
         self.game_color = [100,100,100]
 
     
-    def draw(self):
+    def draw(self, n):
+        scroll = self.player_container[n].scroll
+
         self.window.fill(self.game_color)
 
-        self.map.draw(self.window, self.scroll)
-        self.rounds.draw(self.window, self.game_color, self.scroll)
+        self.map.draw(self.window, scroll)
+        self.rounds.draw(self.window, self.game_color, scroll)
 
         for p in self.player_container:
-            p.draw(self.window, self.scroll)
+            p.draw(self.window)
 
         for s in self.rounds.shape_container:
-            s.draw(self.window, self.scroll)
+            s.draw(self.window, scroll)
 
         #particles
         for particle in self.particles:
-            pygame.draw.circle(self.window, (255,255,255), (int(particle[0][0] - self.scroll[0]), int(particle[0][1] - self.scroll[1])), int(particle[2]))
-            self.window.blit(circle_surf(particle[2]*2, (20,20,20)), (int(particle[0][0] - self.scroll[0] - particle[2]*2), int(particle[0][1] - self.scroll[1]  - particle[2]*2)), special_flags=pygame.BLEND_RGB_ADD)
+            pygame.draw.circle(self.window, (255,255,255), (int(particle[0][0] - scroll[0]), int(particle[0][1] - scroll[1])), int(particle[2]))
+            self.window.blit(circle_surf(particle[2]*2, (20,20,20)), (int(particle[0][0] - scroll[0] - particle[2]*2), int(particle[0][1] - scroll[1]  - particle[2]*2)), special_flags=pygame.BLEND_RGB_ADD)
 
         for b in self.bullet_container:
-            b.draw(self.window, self.scroll)
+            b.draw(self.window, scroll)
 
         self.window.blit(bar(self.player_container[0].hp, 100, 200, 50), (50,50)) 
         pygame.display.update()
@@ -62,7 +59,10 @@ class Game:
 
 
         for p in self.player_container:
-            p.update(inputs, self.bullet_container, self.map, self.scroll)
+            p.scroll[0] += (self.player_container[0].pos[0] - self.window.get_width()/2 - p.scroll[0]) / 10
+            p.scroll[1] += (self.player_container[0].pos[1] - self.window.get_height()/2 - p.scroll[1]) / 10
+            p.update(inputs, self.bullet_container, self.map)
+
 
         #bullets 
         self.bullet_container[:] = [b for b in self.bullet_container if b.active]
@@ -135,11 +135,10 @@ class Game:
             for p in self.player_container:
                 if p.polygon_collision(s1.points):
                     p.last_received_damage = pygame.time.get_ticks()
-                    p.hp -= 1    
+                    p.hp -= 1
 
-        #update later on
-        self.scroll[0] += (self.player_container[0].pos[0] - self.window.get_width()/2 - self.scroll[0]) / 10
-        self.scroll[1] += (self.player_container[0].pos[1] - self.window.get_height()/2 - self.scroll[1]) / 10
+
+
 
         if self.player_container[0].hp < 0:
             return True

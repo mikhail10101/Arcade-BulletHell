@@ -26,10 +26,10 @@ class Button:
         pygame.draw.rect(window, (self.monocolor,self.monocolor,self.monocolor), (self.topleft[0], self.topleft[1], self.length, self.height), 5)
         f = pygame.font.SysFont("Georgia Bold", int(self.height * 0.6))
         text_finish = f.render(self.text, True, (self.monocolor,self.monocolor,self.monocolor))
-        window.blit(text_finish, (self.topleft[0] + self.length//2 - text_finish.get_width()//2, self.topleft[1] + self.height//2 - text_finish.get_height()//2 + 4))
+        window.blit(text_finish, (self.topleft[0] + self.length//2 - text_finish.get_width()//2, self.topleft[1] + self.height//2 - text_finish.get_height()//2 + 2))
 
     def draw_hover(self, window):
         pygame.draw.rect(window, self.hovercolor, (self.topleft[0], self.topleft[1], self.length, self.height), 5)
         f = pygame.font.SysFont("Georgia Bold", int(self.height * 0.6))
         text_finish = f.render(self.text, True, self.hovercolor)
-        window.blit(text_finish, (self.topleft[0] + self.length//2 - text_finish.get_width()//2, self.topleft[1] + self.height//2 - text_finish.get_height()//2 + 4))
+        window.blit(text_finish, (self.topleft[0] + self.length//2 - text_finish.get_width()//2, self.topleft[1] + self.height//2 - text_finish.get_height()//2 + 2))

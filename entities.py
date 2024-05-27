@@ -31,8 +31,12 @@ class Player(ForceObject):
         self.last_received_damage = 0
         self.last_moved = 0
 
+        #scroll
+        self.scroll = [0,0]
 
-    def draw(self, window, offset=(0,0)):
+
+    def draw(self, window):
+        offset = self.scroll
         pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.size, 10)
 
         scale = 1/4
@@ -55,7 +59,7 @@ class Player(ForceObject):
         
 
 
-    def update(self, inputs, bullets, map, offset=(0,0), no_shapes = False):
+    def update(self, inputs, bullets, map):
         super().update()
         current_time = pygame.time.get_ticks()
 
@@ -86,8 +90,8 @@ class Player(ForceObject):
 
         mx, my = inputs["click_pos"]
  
-        mx += offset[0]
-        my += offset[1]
+        mx += self.scroll[0]
+        my += self.scroll[1]
 
         dx = mx - self.pos[0]
         dy = my - self.pos[1]
