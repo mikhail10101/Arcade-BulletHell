@@ -2,13 +2,16 @@ import pygame
 from physics import *
 from interface import Button
 
+LENGTH = 1440
+WIDTH = 810
+
 INNERCOLOR = 20
 LOWERCOLORBOUND = 100
 UPPERCOLORBOUND = 200
 
 class Menu:
-    def __init__(self,length,width):
-        self.window = pygame.display.set_mode((length, width))
+    def __init__(self):
+        self.window = pygame.display.set_mode((LENGTH, WIDTH))
         self.buttons = [
             Button((400,470), 250, 66, "Singleplayer", 255, (255,0,0)),
             Button((770,470), 250, 66, "Multiplayer", 255, (255,0,0))

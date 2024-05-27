@@ -2,15 +2,15 @@ import sys
 import pygame
 from game import Game
 from menu import Menu
+from network import Network
 pygame.font.init()
 
-LENGTH = 1440
-WIDTH = 810
+
 
 def main():
     run = True
-    game = Game(LENGTH, WIDTH)
-    menu = Menu(LENGTH, WIDTH)
+    game = Game()
+    menu = Menu()
     clock = pygame.time.Clock()
     
     #Inputs to be passed to the game
@@ -23,7 +23,10 @@ def main():
         "click_pos": [0,0]
     }
 
-    main_menu = True
+    mode = 0
+
+    n = None
+    player = -1
 
     #cursor
     pygame.mouse.set_cursor(pygame.cursors.diamond)
@@ -63,18 +66,49 @@ def main():
 
         inputs["click_pos"] = pygame.mouse.get_pos()
 
-        if main_menu:
+        if mode == 0:
             menu.draw(inputs["click_pos"])
             if menu.update(inputs) == "Singleplayer":
-                main_menu = False
+                mode = 1
                 game.rounds.round_end_time = pygame.time.get_ticks() - 11000
+            if menu.update(inputs) == "Multiplayer":
+                mode = 2
 
-        else:
+        elif mode == 1:
             game.draw(0)
             game.update_inputs(inputs, 0)
-            if game.update():
-                pass
-                # main_menu = True
-                # game.reset()
+            game.update()
+            if game.is_game_over():
+                mode = 0
+                game.reset()
+
+        elif mode == 2:
+            if n == None:
+                n = Network()
+                player = int(n.getP())
+
+            # try:
+                game = n.send("get")
+            # except:
+            #     mode = 0
+            #     print("Couldn't get game")
+            #     continue
+
+            game.draw(player)
+
+            if game.is_game_over():
+                mode = 0
+            
+            if game.connected():
+                n.send(
+                    str(player) + ":" +
+                    str(inputs["up"]) + ":" +
+                    str(inputs["down"]) + ":" +
+                    str(inputs["left"]) + ":" +
+                    str(inputs["right"]) + ":" +
+                    str(inputs["right"]) + ":" +
+                    str(inputs["click_pos"][0]) + ":" +
+                    str(inputs["click_pos"][1])
+                )
 
 main()

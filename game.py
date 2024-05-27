@@ -4,6 +4,9 @@ from map import Map
 from interface import *
 from rounds import Rounds
 
+LENGTH = 1440
+WIDTH = 810
+
 #shape to point conversions
 score = {
     "Triangle": 3,
@@ -16,7 +19,12 @@ score = {
 }
 
 class Game:
-    def __init__(self, length, width):
+    def __init__(self, id=-1):
+        #connection
+        self.id = id
+        self.ready = False
+
+
         self.map = Map()
 
         self.player_container = [Player()]
@@ -26,7 +34,7 @@ class Game:
         self.particles = []
         self.emps = []
 
-        self.window = pygame.display.set_mode((length, width))
+        self.window = pygame.display.set_mode((LENGTH, WIDTH))
         pygame.display.set_caption("Arcade Game")
         
         self.charge_bar = 0 #max is a thousand
@@ -35,48 +43,53 @@ class Game:
 
         self.game_color = [100,100,100]
 
-    
+    #connection
+    def connected(self):
+        return self.ready
+
     def draw(self, n):
-        scroll = self.player_container[n].scroll
-
-        if self.screen_shake > 0:
-            scroll[0] += random.randint(0,16) - 8
-            scroll[1] += random.randint(0,16) - 8
-
         self.window.fill(self.game_color)
+        if not self.player_container[n].dead:
+            scroll = self.player_container[n].scroll
 
-        self.map.draw(self.window, scroll)
+            if self.screen_shake > 0:
+                scroll[0] += random.randint(0,16) - 8
+                scroll[1] += random.randint(0,16) - 8
 
-        self.rounds.draw(self.window, self.game_color, scroll)
+            self.map.draw(self.window, scroll)
 
-        #charge bar
-        bar_length = 1152
-        self.window.blit(bar(self.charge_bar, self.charge_bar_max, bar_length, 70, 0), (64*50//2 - bar_length//2 - scroll[0], 64*50//2 + bar_length//2 + 30 - scroll[1]))
+            self.rounds.draw(self.window, self.game_color, scroll)
 
-        for p in self.player_container:
-            p.draw(self.window)
+            #charge bar
+            bar_length = 1152
+            self.window.blit(bar(self.charge_bar, self.charge_bar_max, bar_length, 70, 0), (64*50//2 - bar_length//2 - scroll[0], 64*50//2 + bar_length//2 + 30 - scroll[1]))
 
-        for s in self.rounds.shape_container:
-            s.draw(self.window, scroll)
+            for p in self.player_container:
+                if not p.dead:
+                    p.draw(self.window)
 
-        #particles
-        for particle in self.particles:
-            pygame.draw.circle(self.window, (255,255,255), (int(particle[0][0] - scroll[0]), int(particle[0][1] - scroll[1])), int(particle[2]))
-            self.window.blit(circle_surf(particle[2]*2, (20,20,20)), (int(particle[0][0] - scroll[0] - particle[2]*2), int(particle[0][1] - scroll[1]  - particle[2]*2)), special_flags=pygame.BLEND_RGB_ADD)
+            for s in self.rounds.shape_container:
+                s.draw(self.window, scroll)
 
-        #emps
-        for emp in self.emps:
-            if emp[1] > 0:
-                pygame.draw.circle(self.window, (255,255,255), (int(emp[0][0] - scroll[0]), int(emp[0][1] - scroll[1])), int(emp[1]), 10)
+            #particles
+            for particle in self.particles:
+                pygame.draw.circle(self.window, (255,255,255), (int(particle[0][0] - scroll[0]), int(particle[0][1] - scroll[1])), int(particle[2]))
+                self.window.blit(circle_surf(particle[2]*2, (20,20,20)), (int(particle[0][0] - scroll[0] - particle[2]*2), int(particle[0][1] - scroll[1]  - particle[2]*2)), special_flags=pygame.BLEND_RGB_ADD)
 
-        for b in self.bullet_container:
-            b.draw(self.window, scroll)
+            #emps
+            for emp in self.emps:
+                if emp[1] > 0:
+                    pygame.draw.circle(self.window, (255,255,255), (int(emp[0][0] - scroll[0]), int(emp[0][1] - scroll[1])), int(emp[1]), 10)
 
-        self.window.blit(bar(self.player_container[n].hp, 100, 300, 50), (50,50))
+            for b in self.bullet_container:
+                b.draw(self.window, scroll)
+
+            self.window.blit(bar(self.player_container[n].hp, 100, 300, 50), (50,50))
         pygame.display.update()
 
     def update_inputs(self, inputs, n):
-        self.player_container[n].update(inputs, self.bullet_container, self.map)
+        if not self.player_container[n].dead:
+            self.player_container[n].update(inputs, self.bullet_container, self.map)
 
     def update(self):
         self.rounds.update()
@@ -180,9 +193,9 @@ class Game:
             self.player_emp()
             self.charge_bar = 0
 
-
-        if self.player_container[0].hp < 0:
-            return True
+        for player in self.player_container:
+            if player.hp < 0:
+                player.dead = True
 
     def reset(self):
         self.player_container = [Player()]
@@ -224,6 +237,13 @@ class Game:
             self.emps.append([p.pos, -170])
             self.emps.append([p.pos, -300])
         self.screen_shake = 15
+
+    def is_game_over(self):
+        game_over = True
+        for p in self.player_container:
+            if not p.dead:
+                game_over = False
+        return game_over
 
 def circle_surf(radius, color):
     surf = pygame.Surface((radius*2, radius*2))

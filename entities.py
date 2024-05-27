@@ -34,6 +34,8 @@ class Player(ForceObject):
         #scroll
         self.scroll = [0,0]
 
+        self.dead = False
+
 
     def draw(self, window):
         offset = self.scroll
