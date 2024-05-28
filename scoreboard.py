@@ -17,18 +17,15 @@ class Scoreboard():
             Button((595,470), 250, 66, "Exit", 255, (255,0,0))
         ]
 
-        self.last = True
-
     def update(self, inputs):
         for b in self.buttons:
-            if b.clicked(inputs["click_pos"]) and inputs["click"] and not self.last:
+            if b.clicked(inputs["click_pos"]) and inputs["mouse_down"]:
                 if b.text == "Exit":
                     return "MainMenu"
-        self.last = inputs["click"]
         return ""
 
 
-    def draw(self, mousepos):
+    def draw(self, screen, mousepos):
         self.window.fill((INNERCOLOR,INNERCOLOR,INNERCOLOR))
 
         f = pygame.font.SysFont("Times New Roman", 200)
@@ -41,4 +38,4 @@ class Scoreboard():
             else:
                 b.draw(self.window)
 
-        pygame.display.update()
+        screen.blit(self.window, (0,0))

@@ -3,14 +3,24 @@ import pygame
 from game import Game
 from menu import Menu
 from scoreboard import Scoreboard
+from waiting import Waiting
 from network import Network
+
+pygame.init()
 pygame.font.init()
 
+LENGTH = 1440
+WIDTH = 810
+
 def main():
+    window = pygame.display.set_mode((LENGTH, WIDTH))
+    pygame.display.set_caption("Arcade")
+
     run = True
     game = Game()
     menu = Menu()
     scoreboard = Scoreboard()
+    waiting = Waiting()
     clock = pygame.time.Clock()
     
     #Inputs to be passed to the game
@@ -33,7 +43,7 @@ def main():
 
     while run:
         clock.tick(60)
-
+        inputs["mouse_down"] = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -60,6 +70,7 @@ def main():
                     inputs["right"] = False
 
             if event.type == pygame.MOUSEBUTTONDOWN:
+                inputs["mouse_down"] = True
                 inputs["click"] = True
             if event.type == pygame.MOUSEBUTTONUP:
                 inputs["click"] = False
@@ -68,7 +79,7 @@ def main():
 
         match mode:
             case 0:
-                menu.draw(inputs["click_pos"])
+                menu.draw(window, inputs["click_pos"])
                 if menu.update(inputs) == "Singleplayer":
                     mode = 1
                     game.rounds.round_end_time = pygame.time.get_ticks() - 10000
@@ -76,7 +87,7 @@ def main():
                     mode = 2
 
             case 1:
-                game.draw(0)
+                game.draw(window, 0)
                 game.update_inputs(inputs, 0)
                 game.update()
                 if game.is_game_over():
@@ -89,18 +100,43 @@ def main():
                 if n == None:
                     n = Network()
                     player = int(n.getP())
+                    # game = Game()
+                    # game.player_pers = player
+                    print("You are player", player)
 
-                # try:
+                try:
                     game = n.send("get")
-                # except:
-                #     mode = 0
-                #     print("Couldn't get game")
-                #     continue
+                    game.player_pers = player
+                    
+                    # game.ready = info["ready"]
+                    # game.player_container = info["player_container"]
+                    # game.bullet_container = info["bullet_container"]
+                    # game.rounds = info["rounds"]
+                    # game.particles = info["particles"] 
+                    # game.emps, info["emps"]
+                    # game.charge_bar = info["charge_bar"]
+                    # game.screen_shake = info["screen_shake"] 
+                    # game.score = info["score"] 
+                    # game.game_color = info["game_color"] 
 
-                game.draw(player)
+                except:
+                    mode = 0
+                    n = None
+                    game = Game()
+                    print("Couldn't get game")
+                    continue
+
+                if game.connected():
+                    game.draw(window, player)
+                else:
+                    waiting.draw(window)
 
                 if game.is_game_over():
-                    mode = 0
+                    scoreboard.score = game.score
+                    mode = 3
+                    n = None
+                    game = Game()
+                    continue
                 
                 if game.connected():
                     n.send(
@@ -109,16 +145,18 @@ def main():
                         str(inputs["down"]) + ":" +
                         str(inputs["left"]) + ":" +
                         str(inputs["right"]) + ":" +
-                        str(inputs["right"]) + ":" +
+                        str(inputs["click"]) + ":" +
                         str(inputs["click_pos"][0]) + ":" +
                         str(inputs["click_pos"][1])
                     )
 
             case 3:
-                scoreboard.draw(inputs["click_pos"])
+                scoreboard.draw(window, inputs["click_pos"])
                 if scoreboard.update(inputs) == "MainMenu":
                     mode = 0
 
             case _:
                 pass
+        
+        pygame.display.update()
 main()

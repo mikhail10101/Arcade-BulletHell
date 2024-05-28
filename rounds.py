@@ -40,12 +40,12 @@ class Rounds:
         half = self.round_interval//2
 
         if n <= half:
-            val = pygame.math.lerp(UPPERCOLORBOUND,LOWERCOLORBOUND,min(n/half, 1))
+            val = pygame.math.lerp(UPPERCOLORBOUND,LOWERCOLORBOUND,max(min(n/half, 1),0))
             game_color[0] = val
             game_color[1] = val
             game_color[2] = val
         else:
-            val = pygame.math.lerp(LOWERCOLORBOUND,UPPERCOLORBOUND,min((n-half)/half,1))
+            val = pygame.math.lerp(LOWERCOLORBOUND,UPPERCOLORBOUND,max(min((n-half)/half,1),0))
             game_color[0] = val
             game_color[1] = val
             game_color[2] = val
