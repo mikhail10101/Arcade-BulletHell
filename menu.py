@@ -18,16 +18,13 @@ class Menu:
             Button((770,470), 250, 66, "Multiplayer", 255, (255,0,0))
         ]
 
-        self.last = True
-
     def update(self, inputs):
         for b in self.buttons:
-            if b.clicked(inputs["click_pos"]) and inputs["click"] and not self.last:
+            if b.clicked(inputs["click_pos"]) and inputs["mouse_down"]:
                 if b.text == "Singleplayer":
                     return "Singleplayer"
                 if b.text == "Multiplayer":
                     return "Multiplayer"
-        self.last = inputs["click"]
         return ""
 
 

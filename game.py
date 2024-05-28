@@ -78,7 +78,7 @@ class Game:
 
         #particles
         for particle in self.particles:
-            pygame.draw.circle(window, (255,255,255), (int(particle[0][0] - scroll[0]), int(particle[0][1] - scroll[1])), int(particle[2]))
+            pygame.draw.circle(window, (200,200,200), (int(particle[0][0] - scroll[0]), int(particle[0][1] - scroll[1])), int(particle[2]))
             window.blit(circle_surf(particle[2]*2, (20,20,20)), (int(particle[0][0] - scroll[0] - particle[2]*2), int(particle[0][1] - scroll[1]  - particle[2]*2)), special_flags=pygame.BLEND_RGB_ADD)
 
         #emps
@@ -248,8 +248,8 @@ class Game:
             self.bullet_container.append(Bullet(pos, 8, angle + 2*i*math.pi/9, False, size/3))
 
     def shape_death(self, pos, size):
-        for i in range(40):
-            self.particles.append(list([list(pos), ((random.randint(0,20) / 10-1)*3 * (1.5 - 5//size), (random.randint(0,20) / 10-1)*3 * (1.5 - 5//size)), min(random.randint(2,int(size)),6), True]))
+        for i in range(10):
+            self.particles.append(list([list(pos), ((random.randint(0,20) / 10-1)*3 * (1.5 - 5//size), (random.randint(0,20) / 10-1)*3 * (1.5 - 5//size)), min(random.randint(1,int(size)),4), True]))
 
     def player_emp(self):
         for p in self.player_container:

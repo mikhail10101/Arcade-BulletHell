@@ -41,6 +41,7 @@ def main():
 
     while run:
         clock.tick(60)
+        inputs["mouse_down"] = False
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -67,6 +68,7 @@ def main():
                     inputs["right"] = False
 
             if event.type == pygame.MOUSEBUTTONDOWN:
+                inputs["mouse_down"] = True
                 inputs["click"] = True
             if event.type == pygame.MOUSEBUTTONUP:
                 inputs["click"] = False
@@ -96,11 +98,25 @@ def main():
                 if n == None:
                     n = Network()
                     player = int(n.getP())
+                    # game = Game()
+                    # game.player_pers = player
                     print("You are player", player)
 
                 try:
                     game = n.send("get")
                     game.player_pers = player
+                    
+                    # game.ready = info["ready"]
+                    # game.player_container = info["player_container"]
+                    # game.bullet_container = info["bullet_container"]
+                    # game.rounds = info["rounds"]
+                    # game.particles = info["particles"] 
+                    # game.emps, info["emps"]
+                    # game.charge_bar = info["charge_bar"]
+                    # game.screen_shake = info["screen_shake"] 
+                    # game.score = info["score"] 
+                    # game.game_color = info["game_color"] 
+
                 except:
                     mode = 0
                     n = None

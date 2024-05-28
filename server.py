@@ -9,7 +9,7 @@ import pygame
 
 clock = pygame.time.Clock()
 
-server = "10.195.221.188" #change
+server = "10.18.97.181" #change
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -26,13 +26,18 @@ games = {}
 idCount = 0
 
 def game_update(id):
+    print("RAWR")
+
     while True:
         clock.tick(60)
         games[id].update()
+        
 
 def threaded_client(conn, p, gameId):
     global idCount
     conn.send(str.encode(str(p)))
+
+    setup = False
 
     while True:
         do_update = True
@@ -41,6 +46,11 @@ def threaded_client(conn, p, gameId):
 
             if gameId in games:
                 game = games[gameId]
+
+                # if game.ready and (not setup) and p == 0:
+                #     start_new_thread(game_update, (gameId))
+                #     setup = True
+
                 if not data:
                     break
                 else:
@@ -57,10 +67,20 @@ def threaded_client(conn, p, gameId):
                             "click_pos": [int(arr[6]), int(arr[7])],
                         }
                         game.update_inputs(inputs, int(arr[0]))
-                        if do_update:
-                            game.update()
-                        do_update = not do_update
+                        game.update()
 
+                    # info = {
+                    #     "ready": game.ready,
+                    #     "player_container": game.player_container,
+                    #     "bullet_container": game.bullet_container,
+                    #     "rounds": game.rounds,
+                    #     "particles": game.particles,
+                    #     "emps": game.emps,
+                    #     "charge_bar": game.charge_bar,
+                    #     "screen_shake": game.screen_shake,
+                    #     "score": game.score,
+                    #     "game_color": game.game_color
+                    # }
                     conn.sendall(pickle.dumps(game))
             else:
                 break

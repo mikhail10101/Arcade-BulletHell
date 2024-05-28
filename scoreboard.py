@@ -17,14 +17,11 @@ class Scoreboard():
             Button((595,470), 250, 66, "Exit", 255, (255,0,0))
         ]
 
-        self.last = True
-
     def update(self, inputs):
         for b in self.buttons:
-            if b.clicked(inputs["click_pos"]) and inputs["click"] and not self.last:
+            if b.clicked(inputs["click_pos"]) and inputs["mouse_down"]:
                 if b.text == "Exit":
                     return "MainMenu"
-        self.last = inputs["click"]
         return ""
 
 
