@@ -2,15 +2,15 @@ import sys
 import pygame
 from game import Game
 from menu import Menu
+from scoreboard import Scoreboard
+from network import Network
 pygame.font.init()
-
-LENGTH = 1440
-WIDTH = 810
 
 def main():
     run = True
-    game = Game(LENGTH, WIDTH)
-    menu = Menu(LENGTH, WIDTH)
+    game = Game()
+    menu = Menu()
+    scoreboard = Scoreboard()
     clock = pygame.time.Clock()
     
     #Inputs to be passed to the game
@@ -23,7 +23,10 @@ def main():
         "click_pos": [0,0]
     }
 
-    main_menu = True
+    mode = 0
+
+    n = None
+    player = -1
 
     #cursor
     pygame.mouse.set_cursor(pygame.cursors.diamond)
@@ -63,18 +66,59 @@ def main():
 
         inputs["click_pos"] = pygame.mouse.get_pos()
 
-        if main_menu:
-            menu.draw(inputs["click_pos"])
-            if menu.update(inputs) == "Singleplayer":
-                main_menu = False
-                game.rounds.round_end_time = pygame.time.get_ticks() - 11000
+        match mode:
+            case 0:
+                menu.draw(inputs["click_pos"])
+                if menu.update(inputs) == "Singleplayer":
+                    mode = 1
+                    game.rounds.round_end_time = pygame.time.get_ticks() - 10000
+                if menu.update(inputs) == "Multiplayer":
+                    mode = 2
 
-        else:
-            game.draw(0)
-            game.update_inputs(inputs, 0)
-            if game.update():
+            case 1:
+                game.draw(0)
+                game.update_inputs(inputs, 0)
+                game.update()
+                if game.is_game_over():
+                    scoreboard.score = game.score
+                    mode = 3
+                    game.reset()
+
+            #MULTIPLAYER NOT WORKING
+            case 2:
+                if n == None:
+                    n = Network()
+                    player = int(n.getP())
+
+                # try:
+                    game = n.send("get")
+                # except:
+                #     mode = 0
+                #     print("Couldn't get game")
+                #     continue
+
+                game.draw(player)
+
+                if game.is_game_over():
+                    mode = 0
+                
+                if game.connected():
+                    n.send(
+                        str(player) + ":" +
+                        str(inputs["up"]) + ":" +
+                        str(inputs["down"]) + ":" +
+                        str(inputs["left"]) + ":" +
+                        str(inputs["right"]) + ":" +
+                        str(inputs["right"]) + ":" +
+                        str(inputs["click_pos"][0]) + ":" +
+                        str(inputs["click_pos"][1])
+                    )
+
+            case 3:
+                scoreboard.draw(inputs["click_pos"])
+                if scoreboard.update(inputs) == "MainMenu":
+                    mode = 0
+
+            case _:
                 pass
-                # main_menu = True
-                # game.reset()
-
 main()
