@@ -33,12 +33,15 @@ class Player(ForceObject):
 
         #scroll
         self.scroll = [0,0]
+        self.alive = True
 
-        self.dead = False
 
-
-    def draw(self, window):
+    def draw(self, window, val, new_offset=[0,0]):
         offset = self.scroll
+        if not val:
+            offset[0] = new_offset[0]
+            offset[1] = new_offset[1]
+
 
         alias_factor = 4
 

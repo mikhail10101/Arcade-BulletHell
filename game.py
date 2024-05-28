@@ -27,81 +27,85 @@ class Game:
         self.map = Map()
 
         self.player_container = [Player()]
-
-        #if multiplayer
-        if id != -2:
+        if not id==-2:
             self.player_container.append(Player())
 
         self.bullet_container = []
         self.rounds = Rounds(self.map)
         self.particles = []
         self.emps = []
-
-        self.window = pygame.Surface((LENGTH, WIDTH))
         
         self.charge_bar = 0
-        self.charge_bar_max = 1000
+        self.charge_bar_max = 500
         self.screen_shake = 0
 
         self.score = 0
 
         self.game_color = [100,100,100]
 
+        self.player_pers = 0
+
     #connection
     def connected(self):
         return self.ready
 
     def draw(self, screen, n):
-        self.window.fill(self.game_color)
+        window = pygame.Surface((LENGTH, WIDTH))
+        window.fill(self.game_color)
         scroll = self.player_container[n].scroll
 
         if self.screen_shake > 0:
             scroll[0] += random.randint(0,16) - 8
             scroll[1] += random.randint(0,16) - 8
 
-        self.map.draw(self.window, scroll)
+        self.map.draw(window, scroll)
 
-        self.rounds.draw(self.window, self.game_color, scroll)
+        self.rounds.draw(window, self.game_color, scroll)
 
         #charge bar
         bar_length = 1152
-        self.window.blit(bar(self.charge_bar, self.charge_bar_max, bar_length, 70, 0), (64*50//2 - bar_length//2 - scroll[0], 64*50//2 + bar_length//2 + 30 - scroll[1]))
+        window.blit(bar(self.charge_bar, self.charge_bar_max, bar_length, 70, 0), (64*50//2 - bar_length//2 - scroll[0], 64*50//2 + bar_length//2 + 30 - scroll[1]))
 
-        for p in self.player_container:
-            if not p.dead:
-                p.draw(self.window)
+        for i in range(len(self.player_container)):
+            if self.player_container[i].alive:
+                if self.player_pers == i:
+                    self.player_container[i].draw(window, True)
+                else:
+                    self.player_container[i].draw(window, False, self.player_container[self.player_pers].scroll)
 
         for s in self.rounds.shape_container:
-            s.draw(self.window, scroll)
+            s.draw(window, scroll)
 
         #particles
         for particle in self.particles:
-            pygame.draw.circle(self.window, (255,255,255), (int(particle[0][0] - scroll[0]), int(particle[0][1] - scroll[1])), int(particle[2]))
-            self.window.blit(circle_surf(particle[2]*2, (20,20,20)), (int(particle[0][0] - scroll[0] - particle[2]*2), int(particle[0][1] - scroll[1]  - particle[2]*2)), special_flags=pygame.BLEND_RGB_ADD)
+            pygame.draw.circle(window, (255,255,255), (int(particle[0][0] - scroll[0]), int(particle[0][1] - scroll[1])), int(particle[2]))
+            window.blit(circle_surf(particle[2]*2, (20,20,20)), (int(particle[0][0] - scroll[0] - particle[2]*2), int(particle[0][1] - scroll[1]  - particle[2]*2)), special_flags=pygame.BLEND_RGB_ADD)
 
         #emps
         for emp in self.emps:
             if emp[1] > 0:
-                pygame.draw.circle(self.window, (255,255,255), (int(emp[0][0] - scroll[0]), int(emp[0][1] - scroll[1])), int(emp[1]), 10)
+                pygame.draw.circle(window, (255,255,255), (int(emp[0][0] - scroll[0]), int(emp[0][1] - scroll[1])), int(emp[1]), 10)
 
         for b in self.bullet_container:
-            b.draw(self.window, scroll)
+            b.draw(window, scroll)
 
         #player health
-        self.window.blit(bar(self.player_container[n].hp, 100, 300, 50), (50,50))
+        window.blit(bar(self.player_container[n].hp, 100, 300, 50), (50,50))
 
         #display score
         f = pygame.font.SysFont("Times New Roman", 80)
         score_text = f.render(str(self.score), True, (255,255,255))
-        self.window.blit(score_text, (LENGTH - score_text.get_width() - 50,20))
+        window.blit(score_text, (LENGTH - score_text.get_width() - 50,20))
 
-        screen.blit(self.window, (0,0))
+        screen.blit(window, (0,0))
 
     def update_inputs(self, inputs, n):
-        if not self.player_container[n].dead:
+        if self.player_container[n].alive:
             self.player_container[n].update(inputs, self.bullet_container, self.map)
 
     def update(self):
+        alive_players = [p for p in self.player_container if p.alive]
+
         self.rounds.update()
 
         if self.rounds.round_number == 0:
@@ -127,10 +131,10 @@ class Game:
                 self.emps.remove(emp)
             self.charge_bar = 0
 
+        #player
         for p in self.player_container:
-            p.scroll[0] += (self.player_container[0].pos[0] - self.window.get_width()/2 - p.scroll[0]) / 10
-            p.scroll[1] += (self.player_container[0].pos[1] - self.window.get_height()/2 - p.scroll[1]) / 10
-
+            p.scroll[0] += (p.pos[0] - LENGTH/2 - p.scroll[0]) / 10
+            p.scroll[1] += (p.pos[1] - WIDTH/2 - p.scroll[1]) / 10
 
         #bullets 
         self.bullet_container[:] = [b for b in self.bullet_container if b.active]
@@ -161,16 +165,17 @@ class Game:
                             if b.collision(newb.pos, newb.radius):
                                 newb.active = False
                 for p in self.player_container:
-                    if b.collision(p.pos, p.size):
-                        p.last_received_damage = pygame.time.get_ticks()
-                        if b.__class__.__name__ == "Bullet":
-                            b.active = False
-                        if b.__class__.__name__ == "Wave":
-                            p.add_force((
-                                    b.radius /20 * math.cos(b.angle),
-                                    b.radius /20 * math.sin(b.angle)
-                                ),25,0,0)
-                        p.hp -= 2.5
+                    if p.alive:
+                        if b.collision(p.pos, p.size):
+                            p.last_received_damage = pygame.time.get_ticks()
+                            if b.__class__.__name__ == "Bullet":
+                                b.active = False
+                            if b.__class__.__name__ == "Wave":
+                                p.add_force((
+                                        b.radius /20 * math.cos(b.angle),
+                                        b.radius /20 * math.sin(b.angle)
+                                    ),25,0,0)
+                            p.hp -= 2.5
 
             if self.map.is_oob(b.pos):
                 b.active = False
@@ -181,18 +186,19 @@ class Game:
         for i in range(len(self.rounds.shape_container)):
             s1 = self.rounds.shape_container[i]
             if s1.__class__.__name__ == "Squarelet" or s1.__class__.__name__ == "Heptagon":
-                s1.update(self.player_container, self.bullet_container)
+                s1.update(alive_players, self.bullet_container)
             elif s1.__class__.__name__ == "Pentagon":
-                s1.update(self.player_container, self.map)
+                s1.update(alive_players, self.map)
             elif s1.__class__.__name__ == "Nonagon":
                 s1.update(self.bullet_container, self.map)
             else:
-                s1.update(self.player_container)
+                s1.update(alive_players)
             
             for p in self.player_container:
-                if p.polygon_collision(s1.points):
-                    p.last_received_damage = pygame.time.get_ticks()
-                    p.hp -= 1
+                if p.alive:
+                    if p.polygon_collision(s1.points):
+                        p.last_received_damage = pygame.time.get_ticks()
+                        p.hp -= 1
 
             for emp in self.emps:
                 if abs(dist(emp[0], s1.pos) - emp[1]) < 10:
@@ -208,7 +214,7 @@ class Game:
 
         for player in self.player_container:
             if player.hp < 0:
-                player.dead = True
+                player.alive = False
 
     def reset(self):
         self.player_container = [Player()]
@@ -255,7 +261,7 @@ class Game:
     def is_game_over(self):
         game_over = True
         for p in self.player_container:
-            if not p.dead:
+            if p.alive:
                 game_over = False
         return game_over
 

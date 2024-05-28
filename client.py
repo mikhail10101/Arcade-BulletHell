@@ -41,7 +41,6 @@ def main():
 
     while run:
         clock.tick(60)
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -97,28 +96,17 @@ def main():
                 if n == None:
                     n = Network()
                     player = int(n.getP())
+                    print("You are player", player)
 
                 try:
-                    values = n.send("get")
+                    game = n.send("get")
+                    game.player_pers = player
                 except:
                     mode = 0
+                    n = None
                     game = Game()
                     print("Couldn't get game")
                     continue
-
-                game.ready = values["ready"]
-                game.player_container = values["player_container"]
-                game.bullet_container = values["bullet_container"]
-                # game.rounds.shape_container = values["rounds-shape_container"]
-                # game.rounds.round_number = values["rounds-round_number"]
-                # game.rounds.mode = values["rounds-mode"]
-                # game.rounds.round_end_time = values["rounds-round_end_time"]
-                game.particles = values["particles"]
-                game.emps = values["emps"]
-                game.charge_bar = values["charge_bar"]
-                game.screen_shake = values["screen_shake"]
-                game.score = values["score"]
-                game.game_color = values["game_color"]
 
                 if game.connected():
                     game.draw(window, player)
@@ -126,7 +114,11 @@ def main():
                     waiting.draw(window)
 
                 if game.is_game_over():
-                    mode = 0
+                    scoreboard.score = game.score
+                    mode = 3
+                    n = None
+                    game = Game()
+                    continue
                 
                 if game.connected():
                     n.send(
@@ -135,7 +127,7 @@ def main():
                         str(inputs["down"]) + ":" +
                         str(inputs["left"]) + ":" +
                         str(inputs["right"]) + ":" +
-                        str(inputs["right"]) + ":" +
+                        str(inputs["click"]) + ":" +
                         str(inputs["click_pos"][0]) + ":" +
                         str(inputs["click_pos"][1])
                     )

@@ -3,11 +3,13 @@ from _thread import *
 import pickle
 from game import Game
 
+import copy
+
 import pygame
 
 clock = pygame.time.Clock()
 
-server = "192.168.68.127" #change
+server = "10.195.221.188" #change
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -33,9 +35,10 @@ def threaded_client(conn, p, gameId):
     conn.send(str.encode(str(p)))
 
     while True:
+        do_update = True
         try:
-            data = conn.recv(4096).decode()
-            
+            data = conn.recv(2048).decode()
+
             if gameId in games:
                 game = games[gameId]
                 if not data:
@@ -53,29 +56,12 @@ def threaded_client(conn, p, gameId):
                             "click": arr[5] == "True",
                             "click_pos": [int(arr[6]), int(arr[7])],
                         }
-                        print(inputs)
                         game.update_inputs(inputs, int(arr[0]))
-                        game.update()
-                    
-                    info = {
-                        "ready": game.ready,
-                        "player_container": game.player_container[:],
-                        "bullet_container": game.bullet_container[:],
-                        # "rounds-shape_container": game.rounds.shape_container[:],
-                        # "rounds-round_number": game.rounds.round_number,
-                        # "rounds-mode": game.rounds.mode,
-                        # "rounds-round_end_time": game.rounds.round_end_time,
-                        "particles": game.particles[:],
-                        "emps": game.emps[:],
-                        "charge_bar": game.charge_bar,
-                        "screen_shake": game.screen_shake,
-                        "score": game.score,
-                        "game_color": game.game_color[:]
-                    }
+                        if do_update:
+                            game.update()
+                        do_update = not do_update
 
-                    print(info)
-
-                    conn.sendall(pickle.dumps(info))
+                    conn.sendall(pickle.dumps(game))
             else:
                 break
 
