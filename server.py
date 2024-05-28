@@ -3,9 +3,9 @@ from _thread import *
 import pickle
 from game import Game
 
-import copy
-
 import pygame
+
+pygame.init()
 
 clock = pygame.time.Clock()
 

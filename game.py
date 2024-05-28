@@ -52,7 +52,9 @@ class Game:
     def draw(self, screen, n):
         window = pygame.Surface((LENGTH, WIDTH))
         window.fill(self.game_color)
+
         scroll = self.player_container[n].scroll
+        
 
         if self.screen_shake > 0:
             scroll[0] += random.randint(0,16) - 8

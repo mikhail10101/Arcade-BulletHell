@@ -5,6 +5,8 @@ from menu import Menu
 from scoreboard import Scoreboard
 from waiting import Waiting
 from network import Network
+
+pygame.init()
 pygame.font.init()
 
 LENGTH = 1440
