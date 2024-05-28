@@ -26,12 +26,9 @@ games = {}
 idCount = 0
 
 def game_update(id):
-    print("RAWR")
-
     while True:
         clock.tick(60)
         games[id].update()
-        
 
 def threaded_client(conn, p, gameId):
     global idCount
@@ -40,16 +37,18 @@ def threaded_client(conn, p, gameId):
     setup = False
 
     while True:
-        do_update = True
         try:
             data = conn.recv(2048).decode()
 
             if gameId in games:
                 game = games[gameId]
 
-                # if game.ready and (not setup) and p == 0:
-                #     start_new_thread(game_update, (gameId))
-                #     setup = True
+                try:
+                    if (not setup) and p==0:
+                        start_new_thread(game_update, (gameId,))
+                        setup = True
+                except Exception as error:
+                    print(error)
 
                 if not data:
                     break
@@ -67,7 +66,6 @@ def threaded_client(conn, p, gameId):
                             "click_pos": [int(arr[6]), int(arr[7])],
                         }
                         game.update_inputs(inputs, int(arr[0]))
-                        game.update()
 
                     # info = {
                     #     "ready": game.ready,
