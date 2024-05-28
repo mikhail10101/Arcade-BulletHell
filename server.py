@@ -23,6 +23,11 @@ print("Waiting for connection, Server Started")
 games = {}
 idCount = 0
 
+def game_update(id):
+    while True:
+        clock.tick(60)
+        games[id].update()
+
 def threaded_client(conn, p, gameId):
     global idCount
     conn.send(str.encode(str(p)))
@@ -41,19 +46,36 @@ def threaded_client(conn, p, gameId):
                     elif data != "get":
                         arr = data.split(":")
                         inputs = {
-                            "up": arr[1] == True,
-                            "down": arr[2] == True,
-                            "left": arr[3] == True,
-                            "right": arr[4] == True,
-                            "click": arr[5] == True,
+                            "up": arr[1] == "True",
+                            "down": arr[2] == "True",
+                            "left": arr[3] == "True",
+                            "right": arr[4] == "True",
+                            "click": arr[5] == "True",
                             "click_pos": [int(arr[6]), int(arr[7])],
                         }
+                        print(inputs)
                         game.update_inputs(inputs, int(arr[0]))
+                        game.update()
                     
-                    conn.sendall(pickle.dumps({
-                        "player_container": game.player_container,
-                        "bullet_container": game.bullet_container
-                    }))
+                    info = {
+                        "ready": game.ready,
+                        "player_container": game.player_container[:],
+                        "bullet_container": game.bullet_container[:],
+                        # "rounds-shape_container": game.rounds.shape_container[:],
+                        # "rounds-round_number": game.rounds.round_number,
+                        # "rounds-mode": game.rounds.mode,
+                        # "rounds-round_end_time": game.rounds.round_end_time,
+                        "particles": game.particles[:],
+                        "emps": game.emps[:],
+                        "charge_bar": game.charge_bar,
+                        "screen_shake": game.screen_shake,
+                        "score": game.score,
+                        "game_color": game.game_color[:]
+                    }
+
+                    print(info)
+
+                    conn.sendall(pickle.dumps(info))
             else:
                 break
 
@@ -83,6 +105,7 @@ while True:
         print("Creating new game...")
     else:
         games[gameId].ready = True
+        games[gameId].rounds.round_end_time = pygame.time.get_ticks() - 10000
         p = 1
 
     start_new_thread(threaded_client, (conn,p,gameId))

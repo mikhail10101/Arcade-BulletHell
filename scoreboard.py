@@ -28,7 +28,7 @@ class Scoreboard():
         return ""
 
 
-    def draw(self, mousepos):
+    def draw(self, screen, mousepos):
         self.window.fill((INNERCOLOR,INNERCOLOR,INNERCOLOR))
 
         f = pygame.font.SysFont("Times New Roman", 200)
@@ -41,4 +41,4 @@ class Scoreboard():
             else:
                 b.draw(self.window)
 
-        pygame.display.update()
+        screen.blit(self.window, (0,0))

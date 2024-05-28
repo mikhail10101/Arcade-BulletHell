@@ -3,14 +3,22 @@ import pygame
 from game import Game
 from menu import Menu
 from scoreboard import Scoreboard
+from waiting import Waiting
 from network import Network
 pygame.font.init()
 
+LENGTH = 1440
+WIDTH = 810
+
 def main():
+    window = pygame.display.set_mode((LENGTH, WIDTH))
+    pygame.display.set_caption("Arcade")
+
     run = True
     game = Game()
     menu = Menu()
     scoreboard = Scoreboard()
+    waiting = Waiting()
     clock = pygame.time.Clock()
     
     #Inputs to be passed to the game
@@ -68,7 +76,7 @@ def main():
 
         match mode:
             case 0:
-                menu.draw(inputs["click_pos"])
+                menu.draw(window, inputs["click_pos"])
                 if menu.update(inputs) == "Singleplayer":
                     mode = 1
                     game.rounds.round_end_time = pygame.time.get_ticks() - 10000
@@ -76,7 +84,7 @@ def main():
                     mode = 2
 
             case 1:
-                game.draw(0)
+                game.draw(window, 0)
                 game.update_inputs(inputs, 0)
                 game.update()
                 if game.is_game_over():
@@ -90,14 +98,32 @@ def main():
                     n = Network()
                     player = int(n.getP())
 
-                # try:
-                    game = n.send("get")
-                # except:
-                #     mode = 0
-                #     print("Couldn't get game")
-                #     continue
+                try:
+                    values = n.send("get")
+                except:
+                    mode = 0
+                    game = Game()
+                    print("Couldn't get game")
+                    continue
 
-                game.draw(player)
+                game.ready = values["ready"]
+                game.player_container = values["player_container"]
+                game.bullet_container = values["bullet_container"]
+                # game.rounds.shape_container = values["rounds-shape_container"]
+                # game.rounds.round_number = values["rounds-round_number"]
+                # game.rounds.mode = values["rounds-mode"]
+                # game.rounds.round_end_time = values["rounds-round_end_time"]
+                game.particles = values["particles"]
+                game.emps = values["emps"]
+                game.charge_bar = values["charge_bar"]
+                game.screen_shake = values["screen_shake"]
+                game.score = values["score"]
+                game.game_color = values["game_color"]
+
+                if game.connected():
+                    game.draw(window, player)
+                else:
+                    waiting.draw(window)
 
                 if game.is_game_over():
                     mode = 0
@@ -115,10 +141,12 @@ def main():
                     )
 
             case 3:
-                scoreboard.draw(inputs["click_pos"])
+                scoreboard.draw(window, inputs["click_pos"])
                 if scoreboard.update(inputs) == "MainMenu":
                     mode = 0
 
             case _:
                 pass
+        
+        pygame.display.update()
 main()

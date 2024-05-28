@@ -19,7 +19,7 @@ score = {
 }
 
 class Game:
-    def __init__(self, id=-1):
+    def __init__(self, id=-2):
         #connection
         self.id = id
         self.ready = False
@@ -27,13 +27,17 @@ class Game:
         self.map = Map()
 
         self.player_container = [Player()]
+
+        #if multiplayer
+        if id != -2:
+            self.player_container.append(Player())
+
         self.bullet_container = []
         self.rounds = Rounds(self.map)
         self.particles = []
         self.emps = []
 
-        self.window = pygame.display.set_mode((LENGTH, WIDTH))
-        pygame.display.set_caption("Arcade Game")
+        self.window = pygame.Surface((LENGTH, WIDTH))
         
         self.charge_bar = 0
         self.charge_bar_max = 1000
@@ -47,7 +51,7 @@ class Game:
     def connected(self):
         return self.ready
 
-    def draw(self, n):
+    def draw(self, screen, n):
         self.window.fill(self.game_color)
         scroll = self.player_container[n].scroll
 
@@ -91,7 +95,7 @@ class Game:
         score_text = f.render(str(self.score), True, (255,255,255))
         self.window.blit(score_text, (LENGTH - score_text.get_width() - 50,20))
 
-        pygame.display.update()
+        screen.blit(self.window, (0,0))
 
     def update_inputs(self, inputs, n):
         if not self.player_container[n].dead:

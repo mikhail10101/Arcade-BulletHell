@@ -12,7 +12,7 @@ UPPERCOLORBOUND = 200
 
 class Menu:
     def __init__(self):
-        self.window = pygame.display.set_mode((LENGTH, WIDTH))
+        self.window = pygame.Surface((LENGTH, WIDTH))
         self.buttons = [
             Button((400,470), 250, 66, "Singleplayer", 255, (255,0,0)),
             Button((770,470), 250, 66, "Multiplayer", 255, (255,0,0))
@@ -31,7 +31,7 @@ class Menu:
         return ""
 
 
-    def draw(self, mousepos):
+    def draw(self, screen, mousepos):
         self.window.fill((INNERCOLOR,INNERCOLOR,INNERCOLOR))
 
         f = pygame.font.SysFont("Times New Roman", 200)
@@ -44,5 +44,5 @@ class Menu:
             else:
                 b.draw(self.window)
 
-        pygame.display.update()
+        screen.blit(self.window, (0,0))
 
