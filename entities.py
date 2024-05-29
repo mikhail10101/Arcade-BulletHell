@@ -544,8 +544,8 @@ class Pentagon(Shape):
 
 
 
-    def draw(self, window, offset):
-        super().draw(window, offset)
+    def draw(self, window, offset, time):
+        super().draw(window, offset, time)
 
         for i in range(self.bounds[0],self.bounds[1]):
             laser = self.lasers[i]

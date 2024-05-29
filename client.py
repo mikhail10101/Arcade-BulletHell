@@ -88,8 +88,10 @@ def main():
 
             case 1:
                 game.draw(window, 0)
+                game.time_update()
                 game.update_inputs(inputs, 0)
                 game.client_update()
+                game.update_color()
                 game.update()
                 if game.is_game_over():
                     scoreboard.score = game.score
@@ -124,6 +126,7 @@ def main():
                     game.screen_shake = info["screen_shake"] 
                     game.score = info["score"] 
                     game.game_color = info["game_color"] 
+                    game.time = info["time"]
 
                 except:
                     mode = 0

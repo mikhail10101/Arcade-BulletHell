@@ -44,8 +44,9 @@ class Game:
         self.game_color = [100,100,100]
 
         self.player_pers = 0
-
         self.processed_particles = []
+
+        self.time = pygame.time.get_ticks()
 
     #connection
     def connected(self):
@@ -64,7 +65,7 @@ class Game:
 
         self.map.draw(window, scroll)
 
-        self.rounds.draw(window, self.game_color, scroll)
+        self.rounds.draw(window, scroll, self.time)
 
         #charge bar
         bar_length = 1152
@@ -78,7 +79,7 @@ class Game:
                     self.player_container[i].draw(window, False, self.player_container[self.player_pers].scroll)
 
         for s in self.rounds.shape_container:
-            s.draw(window, scroll)
+            s.draw(window, scroll, self.time)
 
         #particles
         for particle in self.processed_particles:
@@ -107,6 +108,12 @@ class Game:
         if self.player_container[n].alive:
             self.player_container[n].update(inputs, self.bullet_container, self.map)
 
+    def update_color(self):
+        self.rounds.update_color(self.game_color, self.time)
+
+    def time_update(self):
+        self.time = pygame.time.get_ticks()
+
     def client_update(self):
         for p in self.particles:
             self.processed_particles.append(p)
@@ -126,7 +133,7 @@ class Game:
     def update(self):
         alive_players = [p for p in self.player_container if p.alive]
 
-        self.rounds.update()
+        self.rounds.update(self.time)
 
         if self.rounds.round_number == 0:
             self.charge_bar = 0
@@ -154,7 +161,7 @@ class Game:
                 for s in self.rounds.shape_container:
                     if b.polygon_collision(s.points):
                         s.health -= 1
-                        s.last_hit = pygame.time.get_ticks()
+                        s.last_hit = self.time
                         if s.health == 0:
                             self.charge_bar += score[s.__class__.__name__]
                             self.score += score[s.__class__.__name__]
@@ -177,7 +184,7 @@ class Game:
                 for p in self.player_container:
                     if p.alive:
                         if b.collision(p.pos, p.size):
-                            p.last_received_damage = pygame.time.get_ticks()
+                            p.last_received_damage = self.time
                             if b.__class__.__name__ == "Bullet":
                                 b.active = False
                             if b.__class__.__name__ == "Wave":
@@ -207,7 +214,7 @@ class Game:
             for p in self.player_container:
                 if p.alive:
                     if p.polygon_collision(s1.points):
-                        p.last_received_damage = pygame.time.get_ticks()
+                        p.last_received_damage = self.time
                         p.hp -= 1
 
             for emp in self.emps:

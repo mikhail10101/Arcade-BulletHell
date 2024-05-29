@@ -62,7 +62,7 @@ class Shape(ForceObject):
         self.last_hit = -1000
         self.monocolor = 160
     
-    def draw(self, window, offset):
+    def draw(self, window, offset, time):
         self.monocolor = min(255, self.monocolor + (255-self.monocolor)*0.03)
 
         drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
@@ -83,7 +83,7 @@ class Shape(ForceObject):
 
         # window.blit(scaled_surf, (int(self.pos[0] - offset[0] - self.size), int(self.pos[1] - offset[1] - self.size)), special_flags = pygame.BLEND_PREMULTIPLIED)
 
-        if pygame.time.get_ticks() < self.last_hit + 75:
+        if time < self.last_hit + 75:
             pygame.draw.polygon(window, (self.monocolor,0,0), drawpoints, 3)
             for p in drawpoints:
                 pygame.draw.circle(window, (self.monocolor,0,0), p, 0.8)

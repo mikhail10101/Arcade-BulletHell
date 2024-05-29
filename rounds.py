@@ -18,27 +18,30 @@ class Rounds:
 
         self.bg_normalize_time = 2000
 
-    def update(self):
+    def update(self, time):
         #preround
         if self.mode == 0:
             self.start_round()
-            self.round_end_time = pygame.time.get_ticks()
+            self.round_end_time = time
             self.mode = 1
         elif self.mode == 1:
-            if pygame.time.get_ticks() > self.round_end_time + self.round_interval:
+            if time > self.round_end_time + self.round_interval:
                 self.mode = 0
                 self.round_number += 1
     
 
-    def draw(self,window, game_color, offset):
-        n = pygame.time.get_ticks() - self.round_end_time
+    def draw(self,window, offset, time):
+        n = time - self.round_end_time
         if n < 1500:
             f = pygame.font.SysFont("MS Gothic", 600)
             text_finish = f.render(str(self.round_number), True, (255,255,255))
             window.blit(text_finish, (CENTER[0] - text_finish.get_width()//2 - offset[0], CENTER[1] - text_finish.get_height()//2 - offset[1]))
 
-        half = self.round_interval//2
+        
 
+    def update_color(self, game_color, time):
+        n = time - self.round_end_time
+        half = self.round_interval//2
         if n <= half:
             val = pygame.math.lerp(UPPERCOLORBOUND,LOWERCOLORBOUND,max(min(n/half, 1),0))
             game_color[0] = val

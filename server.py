@@ -9,7 +9,7 @@ pygame.init()
 
 clock = pygame.time.Clock()
 
-server = "10.195.221.99" #change
+server = "10.195.221.52" #change
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -26,9 +26,13 @@ games = {}
 idCount = 0
 
 def game_update(id):
+    games[id].rounds.round_end_time = pygame.time.get_ticks() - 10000
+
     while True:
         clock.tick(60)
         games[id].particles = []
+        games[id].update_color()
+        games[id].time_update()
         games[id].update()
 
 def threaded_client(conn, p, gameId):
@@ -45,7 +49,7 @@ def threaded_client(conn, p, gameId):
                 game = games[gameId]
 
                 try:
-                    if (not setup) and p==0:
+                    if (not setup) and p==1:
                         start_new_thread(game_update, (gameId,))
                         setup = True
                 except Exception as error:
@@ -81,7 +85,8 @@ def threaded_client(conn, p, gameId):
                         "charge_bar": game.charge_bar,
                         "screen_shake": game.screen_shake,
                         "score": game.score,
-                        "game_color": game.game_color
+                        "game_color": game.game_color,
+                        "time": game.time
                     }
 
                     conn.sendall(pickle.dumps(info))
