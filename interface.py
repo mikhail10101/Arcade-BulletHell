@@ -9,6 +9,18 @@ def bar(a, b, length, height, black=0):
 
     return surf
 
+def generate_cursor():
+    inner = 35
+    length = 60
+    surf = pygame.Surface((200,200), pygame.SRCALPHA)
+    surf.set_colorkey((0,0,0))
+    pygame.draw.circle(surf, (0,255,0), (100,100), 70, 15)
+    pygame.draw.line(surf, (0,255,0), (100,100+inner), (100,100+inner+length), 20)
+    pygame.draw.line(surf, (0,255,0), (100,100-inner), (100,100-inner-length), 20)
+    pygame.draw.line(surf, (0,255,0), (100+inner,100), (100+inner+length,100), 20)
+    pygame.draw.line(surf, (0,255,0), (100-inner,100), (100-inner-length,100), 20)
+    return pygame.transform.smoothscale_by(surf, 0.1)
+
 class Button:
     def __init__(self, topleft, length, height, text, monocolor=200, hovercolor=(255,0,0)):
         self.topleft = topleft

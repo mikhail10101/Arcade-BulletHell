@@ -63,8 +63,6 @@ class Shape(ForceObject):
         self.monocolor = 160
     
     def draw(self, window, offset, time):
-        self.monocolor = min(255, self.monocolor + (255-self.monocolor)*0.03)
-
         drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
 
         #ANTI ALIASING

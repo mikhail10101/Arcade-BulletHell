@@ -21,7 +21,7 @@ class Player(ForceObject):
 
         #shot in milliseconds
         self.last_shot = -1000
-        self.shot_interval = 100
+        self.shot_interval = 125
 
         self.hp = 100
 

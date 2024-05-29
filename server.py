@@ -59,7 +59,7 @@ def threaded_client(conn, p, gameId):
                     break
                 else:
                     if data == "reset":
-                        game.reset()
+                        game = Game()
                     elif data != "get":
                         arr = data.split(":")
                         inputs = {

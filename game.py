@@ -104,6 +104,9 @@ class Game:
 
         screen.blit(window, (0,0))
 
+
+
+
     def update_inputs(self, inputs, n):
         if self.player_container[n].alive:
             self.player_container[n].update(inputs, self.bullet_container, self.map)
@@ -202,6 +205,7 @@ class Game:
         self.rounds.shape_container[:] = [s for s in self.rounds.shape_container if s.active]
         for i in range(len(self.rounds.shape_container)):
             s1 = self.rounds.shape_container[i]
+            s1.monocolor = min(255, s1.monocolor + (255-s1.monocolor)*0.03)
             if s1.__class__.__name__ == "Squarelet" or s1.__class__.__name__ == "Heptagon":
                 s1.update(alive_players, self.bullet_container)
             elif s1.__class__.__name__ == "Pentagon":
@@ -233,13 +237,11 @@ class Game:
             if player.hp < 0:
                 player.alive = False
 
-    def reset(self):
-        self.player_container = [Player()]
-        self.bullet_container = []
-        self.rounds = Rounds(self.map)
-        self.particles = []
-        self.game_color = [100,100,100]
-        self.score = 0
+
+
+
+
+
 
     def spawn_squarelets(self, pos, size):
         s1 = Squarelet(pos,2,size)

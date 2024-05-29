@@ -5,6 +5,7 @@ from menu import Menu
 from scoreboard import Scoreboard
 from waiting import Waiting
 from network import Network
+from interface import generate_cursor
 
 pygame.init()
 pygame.font.init()
@@ -39,7 +40,10 @@ def main():
     player = -1
 
     #cursor
-    pygame.mouse.set_cursor(pygame.cursors.diamond)
+    cursor_surf = generate_cursor()
+    custom = pygame.cursors.Cursor((10, 10), cursor_surf)
+    pygame.mouse.set_cursor(custom)
+    #pygame.mouse.set_visible(False)
 
     while run:
         clock.tick(60)
@@ -96,9 +100,9 @@ def main():
                 if game.is_game_over():
                     scoreboard.score = game.score
                     mode = 3
-                    game.reset()
+                    game = Game()
 
-            #MULTIPLAYER NOT WORKING
+            #MULTIPLAYER
             case 2:
                 if n == None:
                     n = Network()
@@ -138,6 +142,7 @@ def main():
                 if game.connected():
                     game.client_update()
                     game.draw(window, player)
+                    game.update_inputs(inputs, player)
                 else:
                     waiting.draw(window)
 
@@ -167,6 +172,5 @@ def main():
 
             case _:
                 pass
-        
         pygame.display.update()
 main()
