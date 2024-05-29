@@ -263,9 +263,10 @@ class Game:
 
     def player_emp(self):
         for p in self.player_container:
-            self.emps.append([p.pos, 0])
-            self.emps.append([p.pos, -170])
-            self.emps.append([p.pos, -300])
+            if p.alive:
+                self.emps.append([p.pos, 0])
+                self.emps.append([p.pos, -170])
+                self.emps.append([p.pos, -300])
         self.screen_shake = 15
 
     def is_game_over(self):
