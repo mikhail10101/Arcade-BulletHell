@@ -89,6 +89,7 @@ def main():
             case 1:
                 game.draw(window, 0)
                 game.update_inputs(inputs, 0)
+                game.client_update()
                 game.update()
                 if game.is_game_over():
                     scoreboard.score = game.score
@@ -100,24 +101,29 @@ def main():
                 if n == None:
                     n = Network()
                     player = int(n.getP())
-                    # game = Game()
-                    # game.player_pers = player
+                    game = Game()
+                    game.player_pers = player
                     print("You are player", player)
 
                 try:
-                    game = n.send("get")
-                    game.player_pers = player
+                    # game = n.send("get")
+                    # game.player_pers = player
                     
-                    # game.ready = info["ready"]
-                    # game.player_container = info["player_container"]
-                    # game.bullet_container = info["bullet_container"]
-                    # game.rounds = info["rounds"]
-                    # game.particles = info["particles"] 
-                    # game.emps, info["emps"]
-                    # game.charge_bar = info["charge_bar"]
-                    # game.screen_shake = info["screen_shake"] 
-                    # game.score = info["score"] 
-                    # game.game_color = info["game_color"] 
+                    info = n.send("get")
+
+                    game.ready = info["ready"]
+                    game.player_container = info["player_container"]
+                    game.bullet_container = info["bullet_container"]
+                    game.rounds.shape_container = info["rounds.shape_container"] 
+                    game.rounds.round_number = info["rounds.round_number"]
+                    game.rounds.mode = info["rounds.mode"]
+                    game.rounds.round_end_time = info["rounds.round_end_time"]
+                    game.particles = info["particles"] 
+                    game.emps = info["emps"]
+                    game.charge_bar = info["charge_bar"]
+                    game.screen_shake = info["screen_shake"] 
+                    game.score = info["score"] 
+                    game.game_color = info["game_color"] 
 
                 except:
                     mode = 0
@@ -127,6 +133,7 @@ def main():
                     continue
 
                 if game.connected():
+                    game.client_update()
                     game.draw(window, player)
                 else:
                     waiting.draw(window)

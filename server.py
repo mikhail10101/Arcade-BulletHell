@@ -28,6 +28,7 @@ idCount = 0
 def game_update(id):
     while True:
         clock.tick(60)
+        games[id].particles = []
         games[id].update()
 
 def threaded_client(conn, p, gameId):
@@ -67,19 +68,23 @@ def threaded_client(conn, p, gameId):
                         }
                         game.update_inputs(inputs, int(arr[0]))
 
-                    # info = {
-                    #     "ready": game.ready,
-                    #     "player_container": game.player_container,
-                    #     "bullet_container": game.bullet_container,
-                    #     "rounds": game.rounds,
-                    #     "particles": game.particles,
-                    #     "emps": game.emps,
-                    #     "charge_bar": game.charge_bar,
-                    #     "screen_shake": game.screen_shake,
-                    #     "score": game.score,
-                    #     "game_color": game.game_color
-                    # }
-                    conn.sendall(pickle.dumps(game))
+                    info = {
+                        "ready": game.ready,
+                        "player_container": game.player_container,
+                        "bullet_container": game.bullet_container,
+                        "rounds.shape_container": game.rounds.shape_container,
+                        "rounds.round_number": game.rounds.round_number,
+                        "rounds.mode": game.rounds.mode,
+                        "rounds.round_end_time": game.rounds.round_end_time,
+                        "particles": game.particles,
+                        "emps": game.emps,
+                        "charge_bar": game.charge_bar,
+                        "screen_shake": game.screen_shake,
+                        "score": game.score,
+                        "game_color": game.game_color
+                    }
+
+                    conn.sendall(pickle.dumps(info))
             else:
                 break
 

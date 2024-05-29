@@ -45,6 +45,8 @@ class Game:
 
         self.player_pers = 0
 
+        self.processed_particles = []
+
     #connection
     def connected(self):
         return self.ready
@@ -79,7 +81,7 @@ class Game:
             s.draw(window, scroll)
 
         #particles
-        for particle in self.particles:
+        for particle in self.processed_particles:
             pygame.draw.circle(window, (200,200,200), (int(particle[0][0] - scroll[0]), int(particle[0][1] - scroll[1])), int(particle[2]))
             window.blit(circle_surf(particle[2]*2, (20,20,20)), (int(particle[0][0] - scroll[0] - particle[2]*2), int(particle[0][1] - scroll[1]  - particle[2]*2)), special_flags=pygame.BLEND_RGB_ADD)
 
@@ -105,6 +107,22 @@ class Game:
         if self.player_container[n].alive:
             self.player_container[n].update(inputs, self.bullet_container, self.map)
 
+    def client_update(self):
+        for p in self.particles:
+            self.processed_particles.append(p)
+        
+        self.particles = []
+
+        #particles
+        self.processed_particles[:] = [p for p in self.processed_particles if p[3]]
+        for particle in self.processed_particles:
+            particle[0][0] += particle[1][0]
+            particle[0][1] += particle[1][1]
+            particle[2] -= 0.1
+
+            if particle[2] <= 0:
+                particle[3] = False
+
     def update(self):
         alive_players = [p for p in self.player_container if p.alive]
 
@@ -115,16 +133,6 @@ class Game:
 
         #screen shake
         self.screen_shake = max(self.screen_shake - 0.5, 0)
-
-        #particles
-        self.particles[:] = [p for p in self.particles if p[3]]
-        for particle in self.particles:
-            particle[0][0] += particle[1][0]
-            particle[0][1] += particle[1][1]
-            particle[2] -= 0.1
-
-            if particle[2] <= 0:
-                particle[3] = False
 
         #emp
         for emp in self.emps:
