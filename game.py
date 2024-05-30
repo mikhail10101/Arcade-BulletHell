@@ -80,7 +80,7 @@ class Game:
                 else:
                     self.player_container[i].draw(window, False, self.player_container[self.player_pers].scroll)
 
-        for s in self.rounds.shape_container:
+        for s in self.processed_shapes.values():
             s.draw(window, scroll, self.time)
 
         #particles
@@ -118,6 +118,13 @@ class Game:
 
     def time_update(self):
         self.time = pygame.time.get_ticks()
+
+    def client_update_shapes(self):
+        #process shapes
+        for s in self.rounds.shape_container:
+            self.processed_shapes[s.id] = s
+
+        self.rounds.shape_container = []
 
     def client_update(self):
         for p in self.particles:
@@ -163,7 +170,7 @@ class Game:
         for b in self.bullet_container:
             #bullets that target shapes
             if b.target_shapes:
-                for s in self.rounds.shape_container:
+                for s in self.processed_shapes.values():
                     if b.polygon_collision(s.points):
                         s.health -= 1
                         s.last_hit = self.time
@@ -204,30 +211,37 @@ class Game:
             b.update()
 
         #shapes
-        self.rounds.shape_container[:] = [s for s in self.rounds.shape_container if s.active]
-        for i in range(len(self.rounds.shape_container)):
-            s1 = self.rounds.shape_container[i]
-            s1.monocolor = min(255, s1.monocolor + (255-s1.monocolor)*0.03)
-            if s1.__class__.__name__ == "Squarelet" or s1.__class__.__name__ == "Heptagon":
-                s1.update(alive_players, self.bullet_container)
-            elif s1.__class__.__name__ == "Pentagon":
-                s1.update(alive_players, self.map)
-            elif s1.__class__.__name__ == "Nonagon":
-                s1.update(self.bullet_container, self.map)
-            else:
-                s1.update(alive_players)
-            
-            for p in self.player_container:
-                if p.alive:
-                    if p.polygon_collision(s1.points):
-                        p.last_received_damage = self.time
-                        p.hp -= 1
+        to_delete = []
+        for n,s in self.processed_shapes.items():
+            s = self.processed_shapes[n]
+            if s.active:
+                s.monocolor = min(255, s.monocolor + (255-s.monocolor)*0.03)
+                if s.__class__.__name__ == "Squarelet" or s.__class__.__name__ == "Heptagon":
+                    s.update(alive_players, self.bullet_container)
+                elif s.__class__.__name__ == "Pentagon":
+                    s.update(alive_players, self.map)
+                elif s.__class__.__name__ == "Nonagon":
+                    s.update(self.bullet_container, self.map)
+                else:
+                    s.update(alive_players)
+                
+                for p in self.player_container:
+                    if p.alive:
+                        if p.polygon_collision(s.points):
+                            p.last_received_damage = self.time
+                            p.hp -= 1
 
-            for emp in self.emps:
-                if abs(dist(emp[0], s1.pos) - emp[1]) < 10:
-                    s1.active = False
-                    self.score += score[s1.__class__.__name__]
-                    self.shape_death(s1.pos, s1.size)
+                for emp in self.emps:
+                    if abs(dist(emp[0], s.pos) - emp[1]) < 10:
+                        s.active = False
+                        self.score += score[s.__class__.__name__]
+                        self.shape_death(s.pos, s.size)
+            else:
+                to_delete.append(n)
+        for i in to_delete:
+            del self.processed_shapes[i]
+            
+
 
 
         #charge_bar

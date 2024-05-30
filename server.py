@@ -9,7 +9,7 @@ pygame.init()
 
 clock = pygame.time.Clock()
 
-server = "10.195.221.52" #change
+server = "10.195.220.225" #change
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -89,7 +89,9 @@ def threaded_client(conn, p, gameId):
                         "time": game.time
                     }
 
+
                     conn.sendall(pickle.dumps(info))
+                    game.client_update_shapes()
             else:
                 break
 

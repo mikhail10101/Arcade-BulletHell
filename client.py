@@ -95,6 +95,7 @@ def main():
                 game.time_update()
                 game.update_inputs(inputs, 0)
                 game.client_update()
+                game.client_update_shapes()
                 game.update_color()
                 game.update()
                 if game.is_game_over():
@@ -141,8 +142,9 @@ def main():
 
                 if game.connected():
                     game.client_update()
-                    game.draw(window, player)
+                    game.client_update_shapes()
                     game.update_inputs(inputs, player)
+                    game.draw(window, player)
                 else:
                     waiting.draw(window)
 
