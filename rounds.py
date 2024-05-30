@@ -18,6 +18,8 @@ class Rounds:
 
         self.bg_normalize_time = 2000
 
+        self.shape_id = 0
+
     def update(self, time):
         #preround
         if self.mode == 0:
@@ -57,15 +59,17 @@ class Rounds:
     
     def rec(self, pos, speed, size, amount):
         if amount == 1:
-            h = Hexagon((pos), speed, size, None)
+            h = Hexagon((pos), speed, size, None, self.shape_id)
             self.shape_container.append(h)
+            self.shape_id += 1
             return h
         
         vect = pygame.math.Vector2(CENTER[0]-pos[0], CENTER[1]-pos[1])
         vect.normalize_ip()
         vect.scale_to_length(size*5)
-        h = Hexagon((pos[0] - amount*vect[0],pos[1] - amount*vect[1]), speed, size, self.rec(pos, speed, size, amount-1))
+        h = Hexagon((pos[0] - amount*vect[0],pos[1] - amount*vect[1]), speed, size, self.rec(pos, speed, size, amount-1), self.shape_id)
         self.shape_container.append(h)
+        self.shape_id += 1
         return h
 
 
@@ -74,20 +78,23 @@ class Rounds:
     def spawn_triangles(self, speed, size, amount):
         tilepos = self.map.random_1()
         for i in range(amount):
-            self.shape_container.append(Triangle((tilepos[0] * TILESIZE + random.random()*200 - 100, tilepos[1] * TILESIZE + random.random()*200 - 100), speed, size))
+            self.shape_container.append(Triangle((tilepos[0] * TILESIZE + random.random()*200 - 100, tilepos[1] * TILESIZE + random.random()*200 - 100), speed, size, self.shape_id))
+            self.shape_id += 1
 
     def spawn_square(self, speed, size):
         tilepos = self.map.random_1()
         self.shape_container.append(Square(
-            (tilepos[0] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE, tilepos[1] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE), speed, size
+            (tilepos[0] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE, tilepos[1] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE), speed, size, self.shape_id
         ))
+        self.shape_id += 1
 
     def spawn_pentagon(self, size):
         tilepos = self.map.random_1_pentagon()
         self.shape_container.append(Pentagon(
             (tilepos[0] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE, tilepos[1] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE), size,
-            math.atan2(CENTER[1] - tilepos[1] * TILESIZE, CENTER[0] - tilepos[0] * TILESIZE)
+            math.atan2(CENTER[1] - tilepos[1] * TILESIZE, CENTER[0] - tilepos[0] * TILESIZE), self.shape_id
         ))
+        self.shape_id += 1
     
     def spawn_hexagons(self, speed, size, amount):
         tilepos = self.map.random_1()
@@ -96,15 +103,36 @@ class Rounds:
     def spawn_heptagon(self, speed, size):
         tilepos = self.map.random_1()
         self.shape_container.append(Heptagon(
-            (tilepos[0] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE, tilepos[1] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE), speed, size
+            (tilepos[0] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE, tilepos[1] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE), speed, size, self.shape_id
         ))
+        self.shape_id += 1
     
     def spawn_nonagon(self, speed, size):
         tilepos = self.map.random_1()
         self.shape_container.append(Nonagon(
             (tilepos[0] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE, tilepos[1] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE), speed, size,
-            math.atan2(CENTER[1] - tilepos[1] * TILESIZE, CENTER[0] - tilepos[0] * TILESIZE)
+            math.atan2(CENTER[1] - tilepos[1] * TILESIZE, CENTER[0] - tilepos[0] * TILESIZE), self.shape_id
         ))
+        self.shape_id += 1
+
+    def spawn_squarelets(self, pos, size):
+        s1 = Squarelet(pos,2,size, self.shape_id)
+        s2 = Squarelet(pos,2,size, self.shape_id + 1)
+        s3 = Squarelet(pos,2,size, self.shape_id + 2)
+        s4 = Squarelet(pos,2,size, self.shape_id + 3)
+
+        self.shape_id += 4
+
+        scale = 10
+        s1.add_force((0,scale),50,200,50)
+        s2.add_force((scale,0),50,200,50)
+        s3.add_force((0,-scale),50,200,50)
+        s4.add_force((-scale,0),50,200,50)
+
+        self.shape_container.append(s1)
+        self.shape_container.append(s2)
+        self.shape_container.append(s3)
+        self.shape_container.append(s4)
 
 
 

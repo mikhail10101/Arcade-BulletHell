@@ -242,7 +242,7 @@ class Wave(Bullet):
 
 
 class Triangle(Shape):
-    def __init__(self, pos, speed, size, health=1):
+    def __init__(self, pos, speed, size, id, health=1):
         super().__init__()
 
         self.pos = list(pos)
@@ -261,6 +261,8 @@ class Triangle(Shape):
 
         self.last_hit = -1000
         self.monocolor = 200
+
+        self.id = id
 
     def update(self, players):
         super().update()
@@ -291,7 +293,7 @@ class Triangle(Shape):
 
 
 class Square(Shape):
-    def __init__(self, pos, speed, size, health=4):
+    def __init__(self, pos, speed, size, id, health=4):
         super().__init__()
         self.pos = list(pos)
         self.speed = speed
@@ -318,6 +320,8 @@ class Square(Shape):
 
         #Shape class
         self.last_hit = -1000
+
+        self.id = id
 
     def update(self, players):
         super().update()
@@ -371,7 +375,7 @@ class Square(Shape):
 
 
 class Squarelet(Shape):
-    def __init__(self, pos, speed, size, health=1):
+    def __init__(self, pos, speed, size, id, health=1):
         super().__init__()
 
         self.pos = list(pos)
@@ -399,6 +403,8 @@ class Squarelet(Shape):
 
         #Shape class
         self.last_hit = -1000
+
+        self.id = id 
 
 
     def update(self, players, bullets):
@@ -448,7 +454,7 @@ class Squarelet(Shape):
 
 
 class Pentagon(Shape):
-    def __init__(self, pos, size, angle, health=5):
+    def __init__(self, pos, size, angle, id, health=5):
         super().__init__()
 
         self.pos = list(pos)
@@ -478,6 +484,8 @@ class Pentagon(Shape):
 
         #Shape class
         self.last_hit = -1000
+
+        self.id = id
     
     def update(self,players,map):
         super().update()
@@ -574,7 +582,7 @@ class Pentagon(Shape):
 
         
 class Hexagon(Shape):
-    def __init__(self, pos, speed, size, follow, health=3):
+    def __init__(self, pos, speed, size, follow, id, health=3):
         super().__init__()
 
         self.pos = list(pos)
@@ -595,6 +603,8 @@ class Hexagon(Shape):
 
         #Shape class
         self.last_hit = -1000
+
+        self.id = id
 
     def update(self, players):
         super().update()
@@ -624,7 +634,7 @@ class Hexagon(Shape):
 
 
 class Heptagon(Shape):
-    def __init__(self, pos, speed, size, health=7):
+    def __init__(self, pos, speed, size, id, health=7):
         super().__init__()
 
         self.pos = list(pos)
@@ -654,6 +664,8 @@ class Heptagon(Shape):
 
         #Shape class
         self.last_hit = -1000
+
+        self.id = id
 
 
     def update(self, players, bullets):
@@ -709,7 +721,7 @@ class Heptagon(Shape):
 
 
 class Nonagon(Shape):
-    def __init__(self, pos, speed, size, angle, health=2):
+    def __init__(self, pos, speed, size, angle, id, health=2):
         super().__init__()
 
         self.pos = list(pos)
@@ -734,6 +746,8 @@ class Nonagon(Shape):
 
         #Shape class
         self.last_hit = -1000
+
+        self.id = id
 
     def update(self, bullets, map):
         super().update()

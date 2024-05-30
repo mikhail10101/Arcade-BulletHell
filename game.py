@@ -46,6 +46,8 @@ class Game:
         self.player_pers = 0
         self.processed_particles = []
 
+        self.processed_shapes = {}
+
         self.time = pygame.time.get_ticks()
 
     #connection
@@ -169,7 +171,7 @@ class Game:
                             self.charge_bar += score[s.__class__.__name__]
                             self.score += score[s.__class__.__name__]
                             if s.__class__.__name__ == "Square":
-                                self.spawn_squarelets(s.pos,s.size/2)
+                                self.rounds.spawn_squarelets(s.pos,s.size/2)
                             elif s.__class__.__name__ == "Nonagon":
                                 self.nonagon_death(s.pos, s.size, s.angle_pos)
                             s.active = False
@@ -238,27 +240,6 @@ class Game:
                 player.alive = False
 
 
-
-
-
-
-
-    def spawn_squarelets(self, pos, size):
-        s1 = Squarelet(pos,2,size)
-        s2 = Squarelet(pos,2,size)
-        s3 = Squarelet(pos,2,size)
-        s4 = Squarelet(pos,2,size)
-
-        scale = 10
-        s1.add_force((0,scale),50,200,50)
-        s2.add_force((scale,0),50,200,50)
-        s3.add_force((0,-scale),50,200,50)
-        s4.add_force((-scale,0),50,200,50)
-
-        self.rounds.shape_container.append(s1)
-        self.rounds.shape_container.append(s2)
-        self.rounds.shape_container.append(s3)
-        self.rounds.shape_container.append(s4)
 
     def nonagon_death(self, pos, size, angle):
         for i in range(9):
