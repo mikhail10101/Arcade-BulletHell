@@ -9,7 +9,7 @@ pygame.init()
 
 clock = pygame.time.Clock()
 
-server = "10.195.220.225" #change
+server = "192.168.68.127" #change
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -39,10 +39,13 @@ def threaded_client(conn, p, gameId):
     global idCount
     conn.send(str.encode(str(p)))
 
+    n = 0
+
     setup = False
 
     while True:
         try:
+            n += 1
             data = conn.recv(2048).decode()
 
             if gameId in games:
@@ -71,27 +74,26 @@ def threaded_client(conn, p, gameId):
                             "click_pos": [int(arr[6]), int(arr[7])],
                         }
                         game.update_inputs(inputs, int(arr[0]))
-
-                    info = {
-                        "ready": game.ready,
-                        "player_container": game.player_container,
-                        "bullet_container": game.bullet_container,
-                        "rounds.shape_container": game.rounds.shape_container,
-                        "rounds.round_number": game.rounds.round_number,
-                        "rounds.mode": game.rounds.mode,
-                        "rounds.round_end_time": game.rounds.round_end_time,
-                        "particles": game.particles,
-                        "emps": game.emps,
-                        "charge_bar": game.charge_bar,
-                        "screen_shake": game.screen_shake,
-                        "score": game.score,
-                        "game_color": game.game_color,
-                        "time": game.time
-                    }
-
-
-                    conn.sendall(pickle.dumps(info))
-                    game.client_update_shapes()
+                    else:
+                        info = {
+                            "ready": game.ready,
+                            "player_container": game.player_container,
+                            "bullet_container": game.bullet_container,
+                            "rounds.shape_container": game.rounds.shape_container,
+                            "rounds.round_number": game.rounds.round_number,
+                            "rounds.mode": game.rounds.mode,
+                            "rounds.round_end_time": game.rounds.round_end_time,
+                            "particles": game.particles,
+                            "emps": game.emps,
+                            "charge_bar": game.charge_bar,
+                            "screen_shake": game.screen_shake,
+                            "score": game.score,
+                            "game_color": game.game_color,
+                            "time": game.time,
+                            "shape_positions": game.shape_positions()
+                        }
+                        conn.sendall(pickle.dumps(info))
+                        game.client_update_shapes()
             else:
                 break
 

@@ -126,6 +126,17 @@ class Game:
 
         self.rounds.shape_container = []
 
+    def shape_positions(self):
+        arr = []
+        for key, value in self.processed_shapes.items():
+            arr.append([key, value.pos[0], value.pos[1]])
+        return arr
+
+    def update_shape_positions(self,arr):
+        for e in arr:
+            self.processed_shapes[e[0]].pos[0] = e[1]
+            self.processed_shapes[e[0]].pos[1] = e[2]
+
     def client_update(self):
         for p in self.particles:
             self.processed_particles.append(p)

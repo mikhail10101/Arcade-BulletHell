@@ -113,9 +113,6 @@ def main():
                     print("You are player", player)
 
                 try:
-                    # game = n.send("get")
-                    # game.player_pers = player
-                    
                     info = n.send("get")
 
                     game.ready = info["ready"]
@@ -132,6 +129,9 @@ def main():
                     game.score = info["score"] 
                     game.game_color = info["game_color"] 
                     game.time = info["time"]
+                    game.update_shape_positions(info["shape_positions"])
+
+                    game.client_update_shapes()
 
                 except:
                     mode = 0
@@ -142,7 +142,6 @@ def main():
 
                 if game.connected():
                     game.client_update()
-                    game.client_update_shapes()
                     game.update_inputs(inputs, player)
                     game.draw(window, player)
                 else:
@@ -166,6 +165,22 @@ def main():
                         str(inputs["click_pos"][0]) + ":" +
                         str(inputs["click_pos"][1])
                     )
+                    # game.ready = info["ready"]
+                    # game.player_container = info["player_container"]
+                    # game.bullet_container = info["bullet_container"]
+                    # game.rounds.shape_container = info["rounds.shape_container"] 
+                    # game.rounds.round_number = info["rounds.round_number"]
+                    # game.rounds.mode = info["rounds.mode"]
+                    # game.rounds.round_end_time = info["rounds.round_end_time"]
+                    # game.particles = info["particles"] 
+                    # game.emps = info["emps"]
+                    # game.charge_bar = info["charge_bar"]
+                    # game.screen_shake = info["screen_shake"] 
+                    # game.score = info["score"] 
+                    # game.game_color = info["game_color"] 
+                    # game.time = info["time"]
+
+                    # game.client_update_shapes()
 
             case 3:
                 scoreboard.draw(window, inputs["click_pos"])
