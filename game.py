@@ -78,7 +78,10 @@ class Game:
                 else:
                     self.player_container[i].draw(window, False, self.player_container[self.player_pers].scroll)
 
+        #shapes
         for s in self.rounds.shape_container:
+            s.draw(window, scroll, self.time)
+        for s in self.rounds.pentagons:
             s.draw(window, scroll, self.time)
 
         #particles
@@ -169,9 +172,20 @@ class Game:
                             self.charge_bar += score[s.__class__.__name__]
                             self.score += score[s.__class__.__name__]
                             if s.__class__.__name__ == "Square":
-                                self.spawn_squarelets(s.pos,s.size/2)
+                                self.rounds.spawn_squarelets(s.pos,s.size/2)
                             elif s.__class__.__name__ == "Nonagon":
                                 self.nonagon_death(s.pos, s.size, s.angle_pos)
+                            s.active = False
+                            self.shape_death(s.pos, s.size)
+                        b.active = False
+                        break
+                for s in self.rounds.pentagons:
+                    if b.polygon_collision(s.points):
+                        s.health -= 1
+                        s.last_hit = self.time
+                        if s.health == 0:
+                            self.charge_bar += score[s.__class__.__name__]
+                            self.score += score[s.__class__.__name__]
                             s.active = False
                             self.shape_death(s.pos, s.size)
                         b.active = False
@@ -227,6 +241,18 @@ class Game:
                     self.score += score[s1.__class__.__name__]
                     self.shape_death(s1.pos, s1.size)
 
+        #pentagons
+        self.rounds.pentagons[:] = [s for s in self.rounds.pentagons if s.active]
+        for s in self.rounds.pentagons:
+            s.monocolor = min(255, s.monocolor + (255-s.monocolor)*0.03)
+            s.update(alive_players, self.map)
+            
+            for emp in self.emps:
+                if abs(dist(emp[0], s.pos) - emp[1]) < 10:
+                    s.active = False
+                    self.score += score[s.__class__.__name__]
+                    self.shape_death(s.pos, s.size)
+
 
         #charge_bar
         if self.charge_bar > self.charge_bar_max:
@@ -238,27 +264,6 @@ class Game:
                 player.alive = False
 
 
-
-
-
-
-
-    def spawn_squarelets(self, pos, size):
-        s1 = Squarelet(pos,2,size)
-        s2 = Squarelet(pos,2,size)
-        s3 = Squarelet(pos,2,size)
-        s4 = Squarelet(pos,2,size)
-
-        scale = 10
-        s1.add_force((0,scale),50,200,50)
-        s2.add_force((scale,0),50,200,50)
-        s3.add_force((0,-scale),50,200,50)
-        s4.add_force((-scale,0),50,200,50)
-
-        self.rounds.shape_container.append(s1)
-        self.rounds.shape_container.append(s2)
-        self.rounds.shape_container.append(s3)
-        self.rounds.shape_container.append(s4)
 
     def nonagon_death(self, pos, size, angle):
         for i in range(9):

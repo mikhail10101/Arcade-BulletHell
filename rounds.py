@@ -10,6 +10,7 @@ UPPERCOLORBOUND = 160
 class Rounds:
     def __init__(self, map):
         self.shape_container = []
+        self.pentagons = []
         self.round_number = 0
         self.mode = 1
         self.round_end_time = pygame.time.get_ticks()
@@ -84,7 +85,7 @@ class Rounds:
 
     def spawn_pentagon(self, size):
         tilepos = self.map.random_1_pentagon()
-        self.shape_container.append(Pentagon(
+        self.pentagons.append(Pentagon(
             (tilepos[0] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE, tilepos[1] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE), size,
             math.atan2(CENTER[1] - tilepos[1] * TILESIZE, CENTER[0] - tilepos[0] * TILESIZE)
         ))
@@ -106,6 +107,22 @@ class Rounds:
             math.atan2(CENTER[1] - tilepos[1] * TILESIZE, CENTER[0] - tilepos[0] * TILESIZE)
         ))
 
+    def spawn_squarelets(self, pos, size):
+        s1 = Squarelet(pos,2,size)
+        s2 = Squarelet(pos,2,size)
+        s3 = Squarelet(pos,2,size)
+        s4 = Squarelet(pos,2,size)
+
+        scale = 10
+        s1.add_force((0,scale),50,200,50)
+        s2.add_force((scale,0),50,200,50)
+        s3.add_force((0,-scale),50,200,50)
+        s4.add_force((-scale,0),50,200,50)
+
+        self.shape_container.append(s1)
+        self.shape_container.append(s2)
+        self.shape_container.append(s3)
+        self.shape_container.append(s4)
 
 
 
