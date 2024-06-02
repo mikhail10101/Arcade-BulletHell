@@ -242,8 +242,8 @@ class Wave(Bullet):
 
 
 class Triangle(Shape):
-    def __init__(self, pos, speed, size, health=1):
-        super().__init__()
+    def __init__(self, pos, speed, size, id, health=1):
+        super().__init__(id)
 
         self.pos = list(pos)
         self.speed = speed
@@ -291,8 +291,8 @@ class Triangle(Shape):
 
 
 class Square(Shape):
-    def __init__(self, pos, speed, size, health=4):
-        super().__init__()
+    def __init__(self, pos, speed, size, id, health=4):
+        super().__init__(id)
         self.pos = list(pos)
         self.speed = speed
         self.size = size
@@ -371,8 +371,8 @@ class Square(Shape):
 
 
 class Squarelet(Shape):
-    def __init__(self, pos, speed, size, health=1):
-        super().__init__()
+    def __init__(self, pos, speed, size, id, health=1):
+        super().__init__(id)
 
         self.pos = list(pos)
         self.speed = speed
@@ -448,8 +448,8 @@ class Squarelet(Shape):
 
 
 class Pentagon(Shape):
-    def __init__(self, pos, size, angle, health=5):
-        super().__init__()
+    def __init__(self, pos, size, angle, id, health=5):
+        super().__init__(id)
 
         self.pos = list(pos)
         self.size = size
@@ -574,8 +574,8 @@ class Pentagon(Shape):
 
         
 class Hexagon(Shape):
-    def __init__(self, pos, speed, size, follow, health=3):
-        super().__init__()
+    def __init__(self, pos, speed, size, follow, id, health=3):
+        super().__init__(id)
 
         self.pos = list(pos)
         self.speed = speed
@@ -624,8 +624,8 @@ class Hexagon(Shape):
 
 
 class Heptagon(Shape):
-    def __init__(self, pos, speed, size, health=7):
-        super().__init__()
+    def __init__(self, pos, speed, size, id, health=7):
+        super().__init__(id)
 
         self.pos = list(pos)
         self.speed = speed
@@ -709,8 +709,8 @@ class Heptagon(Shape):
 
 
 class Nonagon(Shape):
-    def __init__(self, pos, speed, size, angle, health=2):
-        super().__init__()
+    def __init__(self, pos, speed, size, angle, id, health=2):
+        super().__init__(id)
 
         self.pos = list(pos)
         self.size = size

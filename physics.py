@@ -53,7 +53,7 @@ class ForceObject:
 
 
 class Shape(ForceObject):
-    def __init__(self):
+    def __init__(self, id):
         super().__init__()
         self.size = 1
         self.pos = [0,0]
@@ -61,6 +61,8 @@ class Shape(ForceObject):
         self.points = []
         self.last_hit = -1000
         self.monocolor = 160
+
+        self.id = id
     
     def draw(self, window, offset, time):
         drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]

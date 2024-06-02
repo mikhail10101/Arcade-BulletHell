@@ -19,7 +19,11 @@ class Rounds:
 
         self.bg_normalize_time = 2000
 
+        self.id_count = 0
+
     def update(self, time):
+        print(self.id_count, len(self.shape_container))
+
         #preround
         if self.mode == 0:
             self.start_round()
@@ -58,36 +62,38 @@ class Rounds:
     
     def rec(self, pos, speed, size, amount):
         if amount == 1:
-            h = Hexagon((pos), speed, size, None)
+            h = Hexagon((pos), speed, size, None, self.get_id())
             self.shape_container.append(h)
             return h
         
         vect = pygame.math.Vector2(CENTER[0]-pos[0], CENTER[1]-pos[1])
         vect.normalize_ip()
         vect.scale_to_length(size*5)
-        h = Hexagon((pos[0] - amount*vect[0],pos[1] - amount*vect[1]), speed, size, self.rec(pos, speed, size, amount-1))
+        h = Hexagon((pos[0] - amount*vect[0],pos[1] - amount*vect[1]), speed, size, self.rec(pos, speed, size, amount-1), self.get_id())
         self.shape_container.append(h)
         return h
 
 
-
+    def get_id(self):
+        self.id_count += 1
+        return self.id_count - 1
 
     def spawn_triangles(self, speed, size, amount):
         tilepos = self.map.random_1()
         for i in range(amount):
-            self.shape_container.append(Triangle((tilepos[0] * TILESIZE + random.random()*200 - 100, tilepos[1] * TILESIZE + random.random()*200 - 100), speed, size))
+            self.shape_container.append(Triangle((tilepos[0] * TILESIZE + random.random()*200 - 100, tilepos[1] * TILESIZE + random.random()*200 - 100), speed, size, self.get_id()))
 
     def spawn_square(self, speed, size):
         tilepos = self.map.random_1()
         self.shape_container.append(Square(
-            (tilepos[0] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE, tilepos[1] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE), speed, size
+            (tilepos[0] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE, tilepos[1] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE), speed, size, self.get_id()
         ))
 
     def spawn_pentagon(self, size):
         tilepos = self.map.random_1_pentagon()
         self.pentagons.append(Pentagon(
             (tilepos[0] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE, tilepos[1] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE), size,
-            math.atan2(CENTER[1] - tilepos[1] * TILESIZE, CENTER[0] - tilepos[0] * TILESIZE)
+            math.atan2(CENTER[1] - tilepos[1] * TILESIZE, CENTER[0] - tilepos[0] * TILESIZE), self.get_id()
         ))
     
     def spawn_hexagons(self, speed, size, amount):
@@ -97,21 +103,21 @@ class Rounds:
     def spawn_heptagon(self, speed, size):
         tilepos = self.map.random_1()
         self.shape_container.append(Heptagon(
-            (tilepos[0] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE, tilepos[1] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE), speed, size
+            (tilepos[0] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE, tilepos[1] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE), speed, size, self.get_id()
         ))
     
     def spawn_nonagon(self, speed, size):
         tilepos = self.map.random_1()
         self.shape_container.append(Nonagon(
             (tilepos[0] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE, tilepos[1] * TILESIZE + random.randint(0,TILESIZE-1) - TILESIZE), speed, size,
-            math.atan2(CENTER[1] - tilepos[1] * TILESIZE, CENTER[0] - tilepos[0] * TILESIZE)
+            math.atan2(CENTER[1] - tilepos[1] * TILESIZE, CENTER[0] - tilepos[0] * TILESIZE), self.get_id()
         ))
 
     def spawn_squarelets(self, pos, size):
-        s1 = Squarelet(pos,2,size)
-        s2 = Squarelet(pos,2,size)
-        s3 = Squarelet(pos,2,size)
-        s4 = Squarelet(pos,2,size)
+        s1 = Squarelet(pos,2,size, self.get_id())
+        s2 = Squarelet(pos,2,size, self.get_id())
+        s3 = Squarelet(pos,2,size, self.get_id())
+        s4 = Squarelet(pos,2,size, self.get_id())
 
         scale = 10
         s1.add_force((0,scale),50,200,50)
