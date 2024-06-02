@@ -117,7 +117,7 @@ class Game:
     def time_update(self):
         self.time = pygame.time.get_ticks()
 
-    def client_update(self):
+    def update_client(self):
         for p in self.particles:
             self.processed_particles.append(p)
         
