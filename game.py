@@ -45,6 +45,7 @@ class Game:
 
         self.player_pers = 0
         self.processed_particles = []
+        self.processed_shapes = {}
 
         self.time = pygame.time.get_ticks()
 
@@ -79,7 +80,7 @@ class Game:
                     self.player_container[i].draw(window, False, self.player_container[self.player_pers].scroll)
 
         #shapes
-        for s in self.rounds.shape_container:
+        for s in self.processed_shapes.values():
             s.draw(window, scroll, self.time)
         for s in self.rounds.pentagons:
             s.draw(window, scroll, self.time)
@@ -117,13 +118,12 @@ class Game:
     def update_color(self):
         self.rounds.update_color(self.game_color, self.time)
 
-    def time_update(self):
+    def update_time(self):
         self.time = pygame.time.get_ticks()
 
     def update_client(self):
         for p in self.particles:
             self.processed_particles.append(p)
-        
         self.particles = []
 
         #particles
@@ -135,6 +135,13 @@ class Game:
 
             if particle[2] <= 0:
                 particle[3] = False
+
+    def transfer_shapes(self):
+        for s in self.rounds.shape_container:
+            self.processed_shapes[s.id] = s
+        self.rounds.shape_container = []
+
+
 
     def update(self):
         alive_players = [p for p in self.player_container if p.alive]
@@ -164,7 +171,7 @@ class Game:
         for b in self.bullet_container:
             #bullets that target shapes
             if b.target_shapes:
-                for s in self.rounds.shape_container:
+                for s in self.processed_shapes.values():
                     if b.polygon_collision(s.points):
                         s.health -= 1
                         s.last_hit = self.time
@@ -216,30 +223,36 @@ class Game:
             b.update()
 
         #shapes
-        self.rounds.shape_container[:] = [s for s in self.rounds.shape_container if s.active]
-        for i in range(len(self.rounds.shape_container)):
-            s1 = self.rounds.shape_container[i]
-            s1.monocolor = min(255, s1.monocolor + (255-s1.monocolor)*0.03)
-            if s1.__class__.__name__ == "Squarelet" or s1.__class__.__name__ == "Heptagon":
-                s1.update(alive_players, self.bullet_container)
-            elif s1.__class__.__name__ == "Pentagon":
-                s1.update(alive_players, self.map)
-            elif s1.__class__.__name__ == "Nonagon":
-                s1.update(self.bullet_container, self.map)
+        delete = []
+        for i,s in self.processed_shapes.items():
+            if not s.active:
+                delete.append(i)
+                continue
+
+            s.monocolor = min(255, s.monocolor + (255-s.monocolor)*0.03)
+            if s.__class__.__name__ == "Squarelet" or s.__class__.__name__ == "Heptagon":
+                s.update(alive_players, self.bullet_container)
+            elif s.__class__.__name__ == "Pentagon":
+                s.update(alive_players, self.map)
+            elif s.__class__.__name__ == "Nonagon":
+                s.update(self.bullet_container, self.map)
             else:
-                s1.update(alive_players)
+                s.update(alive_players)
             
             for p in self.player_container:
                 if p.alive:
-                    if p.polygon_collision(s1.points):
+                    if p.polygon_collision(s.points):
                         p.last_received_damage = self.time
                         p.hp -= 1
 
             for emp in self.emps:
-                if abs(dist(emp[0], s1.pos) - emp[1]) < 10:
-                    s1.active = False
-                    self.score += score[s1.__class__.__name__]
-                    self.shape_death(s1.pos, s1.size)
+                if abs(dist(emp[0], s.pos) - emp[1]) < 10:
+                    s.active = False
+                    self.score += score[s.__class__.__name__]
+                    self.shape_death(s.pos, s.size)
+        
+        for d in delete:
+            del self.processed_shapes[d]
 
         #pentagons
         self.rounds.pentagons[:] = [s for s in self.rounds.pentagons if s.active]

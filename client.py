@@ -92,10 +92,11 @@ def main():
 
             case 1:
                 game.draw(window, 0)
-                game.time_update()
+                game.update_time()
                 game.update_inputs(inputs, 0)
                 game.update_client()
                 game.update_color()
+                game.transfer_shapes()
                 game.update()
                 if game.is_game_over():
                     scoreboard.score = game.score

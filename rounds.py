@@ -139,9 +139,15 @@ class Rounds:
     def start_round(self):
         match self.round_number:
             case 1:
-                self.spawn_triangles(3,10,20)
-                self.spawn_triangles(3,10,20)
-                self.spawn_triangles(3,10,20)
+                self.spawn_triangles(3,10,50)
+                self.spawn_square(3,30)
+                self.spawn_pentagon(80)
+                self.spawn_hexagons(3,30,10)
+                self.spawn_heptagon(3,30)
+                self.spawn_nonagon(3,30)
+
+                # self.spawn_triangles(3,10,20)
+                # self.spawn_triangles(3,10,20)
 
             case 2:
                 self.spawn_square(3,40)
