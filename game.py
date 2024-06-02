@@ -134,8 +134,9 @@ class Game:
 
     def update_shape_positions(self,arr):
         for e in arr:
-            self.processed_shapes[e[0]].pos[0] = e[1]
-            self.processed_shapes[e[0]].pos[1] = e[2]
+            if e[0] in self.processed_shapes:
+                self.processed_shapes[e[0]].pos[0] = e[1]
+                self.processed_shapes[e[0]].pos[1] = e[2]
 
     def client_update(self):
         for p in self.particles:

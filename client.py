@@ -129,9 +129,10 @@ def main():
                     game.score = info["score"] 
                     game.game_color = info["game_color"] 
                     game.time = info["time"]
-                    game.update_shape_positions(info["shape_positions"])
 
                     game.client_update_shapes()
+                    game.update_shape_positions(info["shape_positions"])
+                    
 
                 except:
                     mode = 0
@@ -143,6 +144,7 @@ def main():
                 if game.connected():
                     game.client_update()
                     game.update_inputs(inputs, player)
+                    print(game.processed_shapes)
                     game.draw(window, player)
                 else:
                     waiting.draw(window)

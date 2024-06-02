@@ -39,13 +39,10 @@ def threaded_client(conn, p, gameId):
     global idCount
     conn.send(str.encode(str(p)))
 
-    n = 0
-
     setup = False
 
     while True:
         try:
-            n += 1
             data = conn.recv(2048).decode()
 
             if gameId in games:
