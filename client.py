@@ -148,8 +148,8 @@ def main():
                     game.time = info["time"]
                     game.delete = info["delete"]
                     
-                    game.transfer_shapes()
                     game.apply_shape_positions(info["shape_positions"])
+                    game.transfer_shapes()
 
                 except:
                     mode = 0

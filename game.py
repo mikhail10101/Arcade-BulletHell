@@ -36,7 +36,7 @@ class Game:
         self.emps = []
         
         self.charge_bar = 0
-        self.charge_bar_max = 500
+        self.charge_bar_max = 100
         self.screen_shake = 0
 
         self.score = 0
@@ -146,15 +146,7 @@ class Game:
         dic = {}
         for s in self.processed_shapes.values():
             dic[s.id] = (s.pos[0], s.pos[1], s.angle_pos, s.last_hit, s.monocolor)
-        print(dic)
         return dic
-
-        # arr = []
-        # for s in self.processed_shapes.values():
-        #     arr.append(
-        #         (s.id, s.pos[0], s.pos[1], s.angle_pos, s.last_hit, s.monocolor)
-        #     )
-        # return arr
     
     def apply_shape_positions(self, dic):
         delete = []
@@ -172,17 +164,6 @@ class Game:
 
         for d in delete:
             del self.processed_shapes[d]
-
-        print(self.processed_shapes)
-
-        # for a in arr:
-        #     s = self.processed_shapes[a[0]]
-        #     s.pos[0] = a[1]
-        #     s.pos[1] = a[2]
-        #     s.angle_pos = a[3]
-        #     s.last_hit = a[4]
-        #     s.monocolor = a[5]
-        #     points_modifier(s.points, s.pos, s.sides, s.size, s.angle_pos)
 
 
     def update(self):
