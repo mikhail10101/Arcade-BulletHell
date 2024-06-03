@@ -19,6 +19,9 @@ class Rounds:
 
         self.bg_normalize_time = 2000
 
+        self.multiplayer = [False, False]
+        self.transferred = True
+
         self.id_count = 0
 
     def update(self, time):
@@ -135,6 +138,9 @@ class Rounds:
         return len(self.shape_container) == 0
     
     def start_round(self):
+        self.multiplayer[0] = True
+        self.multiplayer[1] = True
+        self.transferred = False
         match self.round_number:
             case 1:
                 self.spawn_triangles(3,10,50)

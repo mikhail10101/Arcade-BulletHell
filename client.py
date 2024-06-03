@@ -96,7 +96,7 @@ def main():
                 game.update_inputs(inputs, 0)
                 game.update_client()
                 game.update_color()
-                
+
                 game.transfer_shapes()
                 game.rounds.shape_container = []
 
@@ -135,6 +135,8 @@ def main():
                     game.score = info["score"] 
                     game.game_color = info["game_color"] 
                     game.time = info["time"]
+                    
+                    game.transfer_shapes()
 
                 except:
                     mode = 0
@@ -145,8 +147,9 @@ def main():
 
                 if game.connected():
                     game.update_client()
-                    game.draw(window, player)
                     game.update_inputs(inputs, player)
+                    game.draw(window, player)
+                    print(game.processed_shapes)
                 else:
                     waiting.draw(window)
 
@@ -158,7 +161,7 @@ def main():
                     continue
                 
                 if game.connected():
-                    n.send(
+                    info = n.send(
                         str(player) + ":" +
                         str(inputs["up"]) + ":" +
                         str(inputs["down"]) + ":" +
@@ -168,6 +171,23 @@ def main():
                         str(inputs["click_pos"][0]) + ":" +
                         str(inputs["click_pos"][1])
                     )
+
+                    game.ready = info["ready"]
+                    game.player_container = info["player_container"]
+                    game.bullet_container = info["bullet_container"]
+                    game.rounds.shape_container = info["rounds.shape_container"] 
+                    game.rounds.round_number = info["rounds.round_number"]
+                    game.rounds.mode = info["rounds.mode"]
+                    game.rounds.round_end_time = info["rounds.round_end_time"]
+                    game.particles = info["particles"] 
+                    game.emps = info["emps"]
+                    game.charge_bar = info["charge_bar"]
+                    game.screen_shake = info["screen_shake"] 
+                    game.score = info["score"] 
+                    game.game_color = info["game_color"] 
+                    game.time = info["time"]
+                    
+                    game.transfer_shapes()
 
             case 3:
                 scoreboard.draw(window, inputs["click_pos"])

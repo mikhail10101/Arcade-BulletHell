@@ -40,8 +40,9 @@ def threaded_client(conn, p, gameId):
     conn.send(str.encode(str(p)))
 
     setup = False
-
+    n = 0
     while True:
+        n += 1
         try:
             data = conn.recv(2048).decode()
 
@@ -72,26 +73,36 @@ def threaded_client(conn, p, gameId):
                         }
                         game.update_inputs(inputs, int(arr[0]))
 
-                    info = {
-                        "ready": game.ready,
-                        "player_container": game.player_container,
-                        "bullet_container": game.bullet_container,
-                        "rounds.shape_container": game.rounds.shape_container,
-                        "rounds.round_number": game.rounds.round_number,
-                        "rounds.mode": game.rounds.mode,
-                        "rounds.round_end_time": game.rounds.round_end_time,
-                        "particles": game.particles,
-                        "emps": game.emps,
-                        "charge_bar": game.charge_bar,
-                        "screen_shake": game.screen_shake,
-                        "score": game.score,
-                        "game_color": game.game_color,
-                        "time": game.time
-                    }
+                info = {
+                    "ready": game.ready,
+                    "player_container": game.player_container,
+                    "bullet_container": game.bullet_container,
+                    "rounds.shape_container": [],
+                    "rounds.round_number": game.rounds.round_number,
+                    "rounds.mode": game.rounds.mode,
+                    "rounds.round_end_time": game.rounds.round_end_time,
+                    "particles": game.particles,
+                    "emps": game.emps,
+                    "charge_bar": game.charge_bar,
+                    "screen_shake": game.screen_shake,
+                    "score": game.score,
+                    "game_color": game.game_color,
+                    "time": game.time,
+                    "test": n
+                }
 
+                if not game.rounds.transferred:
                     game.transfer_shapes()
+                    game.rounds.transferred = True
+                
+                if (not game.rounds.multiplayer[0]) and (not game.rounds.multiplayer[1]):
+                    game.rounds.shape_container = []
+                else:
+                    if game.rounds.multiplayer[p]:
+                        game.rounds.multiplayer[p] = False
+                        info["rounds.shape_container"] = game.rounds.shape_container
 
-                    conn.sendall(pickle.dumps(info))
+                conn.sendall(pickle.dumps(info))
             else:
                 break
 
