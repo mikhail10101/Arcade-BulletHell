@@ -11,6 +11,7 @@ class Rounds:
     def __init__(self, map):
         self.shape_container = []
         self.pentagons = []
+        self.squarelets = []
         self.round_number = 0
         self.mode = 1
         self.round_end_time = pygame.time.get_ticks()
@@ -126,10 +127,10 @@ class Rounds:
         s3.add_force((0,-scale),50,200,50)
         s4.add_force((-scale,0),50,200,50)
 
-        self.shape_container.append(s1)
-        self.shape_container.append(s2)
-        self.shape_container.append(s3)
-        self.shape_container.append(s4)
+        self.squarelets.append(s1)
+        self.squarelets.append(s2)
+        self.squarelets.append(s3)
+        self.squarelets.append(s4)
 
 
 

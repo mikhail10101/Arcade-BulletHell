@@ -78,6 +78,7 @@ def threaded_client(conn, p, gameId):
                     "bullet_container": game.bullet_container,
                     "rounds.shape_container": [],
                     "rounds.pentagons": game.rounds.pentagons,
+                    "rounds.squarelets": game.rounds.squarelets,
                     "rounds.round_number": game.rounds.round_number,
                     "rounds.mode": game.rounds.mode,
                     "rounds.round_end_time": game.rounds.round_end_time,

@@ -135,6 +135,7 @@ def main():
                     game.bullet_container = info["bullet_container"]
                     game.rounds.shape_container = info["rounds.shape_container"] 
                     game.rounds.pentagons = info["rounds.pentagons"]
+                    game.rounds.squarelets = info["rounds.squarelets"]
                     game.rounds.round_number = info["rounds.round_number"]
                     game.rounds.mode = info["rounds.mode"]
                     game.rounds.round_end_time = info["rounds.round_end_time"]
