@@ -40,9 +40,7 @@ def threaded_client(conn, p, gameId):
     conn.send(str.encode(str(p)))
 
     setup = False
-    n = 0
     while True:
-        n += 1
         try:
             data = conn.recv(2048).decode()
 
@@ -78,6 +76,7 @@ def threaded_client(conn, p, gameId):
                     "player_container": game.player_container,
                     "bullet_container": game.bullet_container,
                     "rounds.shape_container": [],
+                    "rounds.pentagons": game.rounds.pentagons,
                     "rounds.round_number": game.rounds.round_number,
                     "rounds.mode": game.rounds.mode,
                     "rounds.round_end_time": game.rounds.round_end_time,
@@ -88,7 +87,7 @@ def threaded_client(conn, p, gameId):
                     "score": game.score,
                     "game_color": game.game_color,
                     "time": game.time,
-                    "test": n
+                    "shape_positions": game.retrieve_shape_positions()
                 }
 
                 if not game.rounds.transferred:

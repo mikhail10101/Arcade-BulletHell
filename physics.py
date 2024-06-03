@@ -66,6 +66,7 @@ class Shape(ForceObject):
     
     def draw(self, window, offset, time):
         drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]
+        print(self.points)
 
         #ANTI ALIASING
         # surf = pygame.Surface((self.size*4, self.size*4), pygame.SRCALPHA)

@@ -59,7 +59,6 @@ class Game:
 
         scroll = self.player_container[n].scroll
         
-
         if self.screen_shake > 0:
             scroll[0] += random.randint(0,16) - 8
             scroll[1] += random.randint(0,16) - 8
@@ -139,6 +138,22 @@ class Game:
     def transfer_shapes(self):
         for s in self.rounds.shape_container:
             self.processed_shapes[s.id] = s
+
+    def retrieve_shape_positions(self):
+        arr = []
+        for s in self.processed_shapes.values():
+            arr.append(
+                (s.id, s.pos[0], s.pos[1], s.angle_pos)
+            )
+        return arr
+    
+    def apply_shape_positions(self, arr):
+        for a in arr:
+            self.processed_shapes[a[0]].pos[0] = a[1]
+            self.processed_shapes[a[0]].pos[1] = a[2]
+            self.processed_shapes[a[0]].angle_pos = a[3]
+
+    
 
 
     def update(self):

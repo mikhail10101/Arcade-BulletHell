@@ -259,6 +259,8 @@ class Triangle(Shape):
         self.last_hit = -1000
         self.monocolor = 200
 
+        self.sides = 3
+
     def update(self, players):
         super().update()
 
@@ -270,7 +272,7 @@ class Triangle(Shape):
         target_angle = math.atan2(closest.pos[1] - self.pos[1], closest.pos[0] - self.pos[0])
         self.angle_pos = move_angle(self.angle_pos, target_angle, self.angle_vel)
 
-        points_modifier(self.points, self.pos, 3, self.size, self.angle_pos)
+        points_modifier(self.points, self.pos, self.sides, self.size, self.angle_pos)
 
         if pygame.time.get_ticks()//1000 % 1 == 0:
             rand_scale = self.size/50
@@ -315,6 +317,8 @@ class Square(Shape):
 
         #Shape class
         self.last_hit = -1000
+
+        self.sides = 4
 
     def update(self, players):
         super().update()
@@ -361,7 +365,7 @@ class Square(Shape):
                 self.mode = 0
 
 
-        points_modifier(self.points, self.pos, 4, self.size, self.angle_pos)
+        points_modifier(self.points, self.pos, self.sides, self.size, self.angle_pos)
 
         self.pos[0] += self.disp[0]
         self.pos[1] += self.disp[1]
@@ -397,6 +401,7 @@ class Squarelet(Shape):
         #Shape class
         self.last_hit = -1000
 
+        self.sides = 4
 
     def update(self, players, bullets):
         super().update()
@@ -411,7 +416,7 @@ class Squarelet(Shape):
         target_angle = math.atan2(closest.pos[1] - self.pos[1], closest.pos[0] - self.pos[0])
         self.angle_pos = move_angle(self.angle_pos, target_angle, self.angle_vel)
 
-        points_modifier(self.points, self.pos, 4, self.size, self.angle_pos)
+        points_modifier(self.points, self.pos, self.sides, self.size, self.angle_pos)
 
         #control distance
         d = dist(closest.pos, self.pos)
@@ -476,6 +481,8 @@ class Pentagon(Shape):
         #Shape class
         self.last_hit = -1000
     
+        self.sides = 5
+
     def update(self,players,map):
         super().update()
         current_time = pygame.time.get_ticks()
@@ -537,7 +544,7 @@ class Pentagon(Shape):
             if current_time > self.laser_duration + self.pause_duration + self.last_laser:
                 self.mode = 0
 
-        points_modifier(self.points, self.pos, 5, self.size, self.angle_pos)
+        points_modifier(self.points, self.pos, self.sides, self.size, self.angle_pos)
 
 
 
@@ -593,10 +600,12 @@ class Hexagon(Shape):
         #Shape class
         self.last_hit = -1000
 
+        self.sides = 6
+
     def update(self, players):
         super().update()
 
-        points_modifier(self.points, self.pos, 6, self.size, self.angle_pos)
+        points_modifier(self.points, self.pos, self.sides, self.size, self.angle_pos)
 
         reach = [0,0]
         if self.follow == None or not self.follow.active:
@@ -652,6 +661,8 @@ class Heptagon(Shape):
         #Shape class
         self.last_hit = -1000
 
+        self.sides = 7
+
 
     def update(self, players, bullets):
         super().update()
@@ -666,7 +677,7 @@ class Heptagon(Shape):
         target_angle = math.atan2(closest.pos[1] - self.pos[1], closest.pos[0] - self.pos[0])
         self.angle_pos = move_angle(self.angle_pos, target_angle, self.angle_vel)
 
-        points_modifier(self.points, self.pos, 7, self.size, self.angle_pos)
+        points_modifier(self.points, self.pos, self.sides, self.size, self.angle_pos)
 
 
         #control distance
@@ -732,6 +743,8 @@ class Nonagon(Shape):
         #Shape class
         self.last_hit = -1000
 
+        self.sides = 9
+
     def update(self, bullets, map):
         super().update()
         current_time = pygame.time.get_ticks()
@@ -742,7 +755,7 @@ class Nonagon(Shape):
             self.nonagon_shoot(bullets)
             self.last_shot = current_time
 
-        points_modifier(self.points,self.pos,9,self.size,self.angle_pos)
+        points_modifier(self.points,self.pos,self.sides,self.size,self.angle_pos)
 
         self.disp[0] = self.fx + self.speed*math.cos(self.movement_angle)
         self.disp[1] = self.fy + self.speed*math.sin(self.movement_angle)
