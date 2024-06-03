@@ -7,6 +7,8 @@ from waiting import Waiting
 from network import Network
 from interface import generate_cursor
 
+from entities import *
+
 pygame.init()
 pygame.font.init()
 
@@ -92,11 +94,16 @@ def main():
 
             case 1:
                 game.draw(window, 0)
-                game.time_update()
+                game.update_time()
                 game.update_inputs(inputs, 0)
                 game.update_client()
                 game.update_color()
+
+                game.transfer_shapes()
+                game.rounds.shape_container = []
+
                 game.update()
+                game.delete_shapes()
                 if game.is_game_over():
                     scoreboard.score = game.score
                     mode = 3
@@ -112,15 +119,23 @@ def main():
                     print("You are player", player)
 
                 try:
-                    # game = n.send("get")
-                    # game.player_pers = player
-                    
-                    info = n.send("get")
+                    info = n.send(
+                        str(player) + ":" +
+                        str(inputs["up"]) + ":" +
+                        str(inputs["down"]) + ":" +
+                        str(inputs["left"]) + ":" +
+                        str(inputs["right"]) + ":" +
+                        str(inputs["click"]) + ":" +
+                        str(inputs["click_pos"][0]) + ":" +
+                        str(inputs["click_pos"][1])
+                    )
 
                     game.ready = info["ready"]
                     game.player_container = info["player_container"]
                     game.bullet_container = info["bullet_container"]
                     game.rounds.shape_container = info["rounds.shape_container"] 
+                    game.rounds.pentagons = info["rounds.pentagons"]
+                    game.rounds.squarelets = info["rounds.squarelets"]
                     game.rounds.round_number = info["rounds.round_number"]
                     game.rounds.mode = info["rounds.mode"]
                     game.rounds.round_end_time = info["rounds.round_end_time"]
@@ -131,6 +146,10 @@ def main():
                     game.score = info["score"] 
                     game.game_color = info["game_color"] 
                     game.time = info["time"]
+                    game.delete = info["delete"]
+                    
+                    game.apply_shape_positions(info["shape_positions"])
+                    game.transfer_shapes()
 
                 except:
                     mode = 0
@@ -141,8 +160,8 @@ def main():
 
                 if game.connected():
                     game.update_client()
-                    game.draw(window, player)
                     game.update_inputs(inputs, player)
+                    game.draw(window, player)
                 else:
                     waiting.draw(window)
 
@@ -151,19 +170,7 @@ def main():
                     mode = 3
                     n = None
                     game = Game()
-                    continue
-                
-                if game.connected():
-                    n.send(
-                        str(player) + ":" +
-                        str(inputs["up"]) + ":" +
-                        str(inputs["down"]) + ":" +
-                        str(inputs["left"]) + ":" +
-                        str(inputs["right"]) + ":" +
-                        str(inputs["click"]) + ":" +
-                        str(inputs["click_pos"][0]) + ":" +
-                        str(inputs["click_pos"][1])
-                    )
+                    continue                    
 
             case 3:
                 scoreboard.draw(window, inputs["click_pos"])

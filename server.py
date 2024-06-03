@@ -9,7 +9,7 @@ pygame.init()
 
 clock = pygame.time.Clock()
 
-server = "192.168.68.127" #change
+server = "10.195.222.105" #change
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -32,15 +32,15 @@ def game_update(id):
         clock.tick(60)
         games[id].particles = []
         games[id].update_color()
-        games[id].time_update()
+        games[id].update_time()
         games[id].update()
+        games[id].delete_shapes()
 
 def threaded_client(conn, p, gameId):
     global idCount
     conn.send(str.encode(str(p)))
 
     setup = False
-
     while True:
         try:
             data = conn.recv(2048).decode()
@@ -72,24 +72,39 @@ def threaded_client(conn, p, gameId):
                         }
                         game.update_inputs(inputs, int(arr[0]))
 
-                    info = {
-                        "ready": game.ready,
-                        "player_container": game.player_container,
-                        "bullet_container": game.bullet_container,
-                        "rounds.shape_container": game.rounds.shape_container,
-                        "rounds.round_number": game.rounds.round_number,
-                        "rounds.mode": game.rounds.mode,
-                        "rounds.round_end_time": game.rounds.round_end_time,
-                        "particles": game.particles,
-                        "emps": game.emps,
-                        "charge_bar": game.charge_bar,
-                        "screen_shake": game.screen_shake,
-                        "score": game.score,
-                        "game_color": game.game_color,
-                        "time": game.time
-                    }
+                info = {
+                    "ready": game.ready,
+                    "player_container": game.player_container,
+                    "bullet_container": game.bullet_container,
+                    "rounds.shape_container": [],
+                    "rounds.pentagons": game.rounds.pentagons,
+                    "rounds.squarelets": game.rounds.squarelets,
+                    "rounds.round_number": game.rounds.round_number,
+                    "rounds.mode": game.rounds.mode,
+                    "rounds.round_end_time": game.rounds.round_end_time,
+                    "particles": game.particles,
+                    "emps": game.emps,
+                    "charge_bar": game.charge_bar,
+                    "screen_shake": game.screen_shake,
+                    "score": game.score,
+                    "game_color": game.game_color,
+                    "time": game.time,
+                    "shape_positions": game.retrieve_shape_positions(),
+                    "delete": game.delete
+                }
 
-                    conn.sendall(pickle.dumps(info))
+                if not game.rounds.transferred:
+                    game.transfer_shapes()
+                    game.rounds.transferred = True
+                
+                if (not game.rounds.multiplayer[0]) and (not game.rounds.multiplayer[1]):
+                    game.rounds.shape_container = []
+                else:
+                    if game.rounds.multiplayer[p]:
+                        game.rounds.multiplayer[p] = False
+                        info["rounds.shape_container"] = game.rounds.shape_container
+
+                conn.sendall(pickle.dumps(info))
             else:
                 break
 

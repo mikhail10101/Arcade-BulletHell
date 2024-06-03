@@ -7,7 +7,7 @@ class ForceObject:
         self.fx = 0
         self.fy = 0
 
-    def update(self):
+    def update(self, currtime):
         fx = 0
         fy = 0
 
@@ -21,7 +21,7 @@ class ForceObject:
             deccel_time = force[3]
             time_created = force[4]
 
-            force_lifetime = pygame.time.get_ticks() - time_created
+            force_lifetime = currtime - time_created
 
             if force_lifetime > accel_time + duration + deccel_time:
                 force[5] = False
@@ -46,14 +46,14 @@ class ForceObject:
         self.fx = fx
         self.fy = fy
     
-    def add_force(self, target_vel, accel_time, duration, deccel_time):
+    def add_force(self, target_vel, accel_time, duration, deccel_time, currtime):
         #0 at the end is passed time in milliseconds
         #True shows that the force is still valid
-        self.forces.append([target_vel, duration, accel_time, deccel_time, pygame.time.get_ticks(), True])        
+        self.forces.append([target_vel, duration, accel_time, deccel_time, currtime, True])        
 
 
 class Shape(ForceObject):
-    def __init__(self):
+    def __init__(self, id):
         super().__init__()
         self.size = 1
         self.pos = [0,0]
@@ -61,6 +61,8 @@ class Shape(ForceObject):
         self.points = []
         self.last_hit = -1000
         self.monocolor = 160
+
+        self.id = id
     
     def draw(self, window, offset, time):
         drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in self.points]

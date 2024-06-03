@@ -36,7 +36,7 @@ class Game:
         self.emps = []
         
         self.charge_bar = 0
-        self.charge_bar_max = 500
+        self.charge_bar_max = 100
         self.screen_shake = 0
 
         self.score = 0
@@ -45,6 +45,8 @@ class Game:
 
         self.player_pers = 0
         self.processed_particles = []
+        self.processed_shapes = {}
+        self.delete = []
 
         self.time = pygame.time.get_ticks()
 
@@ -58,7 +60,6 @@ class Game:
 
         scroll = self.player_container[n].scroll
         
-
         if self.screen_shake > 0:
             scroll[0] += random.randint(0,16) - 8
             scroll[1] += random.randint(0,16) - 8
@@ -78,7 +79,12 @@ class Game:
                 else:
                     self.player_container[i].draw(window, False, self.player_container[self.player_pers].scroll)
 
-        for s in self.rounds.shape_container:
+        #shapes
+        for s in self.processed_shapes.values():
+            s.draw(window, scroll, self.time)
+        for s in self.rounds.pentagons:
+            s.draw(window, scroll, self.time)
+        for s in self.rounds.squarelets:
             s.draw(window, scroll, self.time)
 
         #particles
@@ -109,18 +115,17 @@ class Game:
 
     def update_inputs(self, inputs, n):
         if self.player_container[n].alive:
-            self.player_container[n].update(inputs, self.bullet_container, self.map)
+            self.player_container[n].update(inputs, self.bullet_container, self.map, self.time)
 
     def update_color(self):
         self.rounds.update_color(self.game_color, self.time)
 
-    def time_update(self):
+    def update_time(self):
         self.time = pygame.time.get_ticks()
 
     def update_client(self):
         for p in self.particles:
             self.processed_particles.append(p)
-        
         self.particles = []
 
         #particles
@@ -133,7 +138,36 @@ class Game:
             if particle[2] <= 0:
                 particle[3] = False
 
+    def transfer_shapes(self):
+        for s in self.rounds.shape_container:
+            self.processed_shapes[s.id] = s
+
+    def retrieve_shape_positions(self):
+        dic = {}
+        for s in self.processed_shapes.values():
+            dic[s.id] = (s.pos[0], s.pos[1], s.angle_pos, s.last_hit, s.monocolor)
+        return dic
+    
+    def apply_shape_positions(self, dic):
+        delete = []
+        for s in self.processed_shapes.values():
+            if s.id in dic:
+                a = dic[s.id]
+                s.pos[0] = a[0]
+                s.pos[1] = a[1]
+                s.angle_pos = a[2]
+                s.last_hit = a[3]
+                s.monocolor = a[4]
+                points_modifier(s.points, s.pos, s.sides, s.size, s.angle_pos)
+            else:
+                delete.append(s.id)
+
+        for d in delete:
+            del self.processed_shapes[d]
+
+
     def update(self):
+        self.delete = []
         alive_players = [p for p in self.player_container if p.alive]
 
         self.rounds.update(self.time)
@@ -161,7 +195,7 @@ class Game:
         for b in self.bullet_container:
             #bullets that target shapes
             if b.target_shapes:
-                for s in self.rounds.shape_container:
+                for s in self.processed_shapes.values():
                     if b.polygon_collision(s.points):
                         s.health -= 1
                         s.last_hit = self.time
@@ -169,9 +203,31 @@ class Game:
                             self.charge_bar += score[s.__class__.__name__]
                             self.score += score[s.__class__.__name__]
                             if s.__class__.__name__ == "Square":
-                                self.spawn_squarelets(s.pos,s.size/2)
+                                self.rounds.spawn_squarelets(s.pos,s.size/2, self.time)
                             elif s.__class__.__name__ == "Nonagon":
                                 self.nonagon_death(s.pos, s.size, s.angle_pos)
+                            s.active = False
+                            self.shape_death(s.pos, s.size)
+                        b.active = False
+                        break
+                for s in self.rounds.pentagons:
+                    if b.polygon_collision(s.points):
+                        s.health -= 1
+                        s.last_hit = self.time
+                        if s.health == 0:
+                            self.charge_bar += score[s.__class__.__name__]
+                            self.score += score[s.__class__.__name__]
+                            s.active = False
+                            self.shape_death(s.pos, s.size)
+                        b.active = False
+                        break
+                for s in self.rounds.squarelets:
+                    if b.polygon_collision(s.points):
+                        s.health -= 1
+                        s.last_hit = self.time
+                        if s.health == 0:
+                            self.charge_bar += score[s.__class__.__name__]
+                            self.score += score[s.__class__.__name__]
                             s.active = False
                             self.shape_death(s.pos, s.size)
                         b.active = False
@@ -194,7 +250,7 @@ class Game:
                                 p.add_force((
                                         b.radius /20 * math.cos(b.angle),
                                         b.radius /20 * math.sin(b.angle)
-                                    ),25,0,0)
+                                    ),25,0,0, self.time)
                             p.hp -= 2.5
 
             if self.map.is_oob(b.pos):
@@ -202,30 +258,58 @@ class Game:
             b.update()
 
         #shapes
-        self.rounds.shape_container[:] = [s for s in self.rounds.shape_container if s.active]
-        for i in range(len(self.rounds.shape_container)):
-            s1 = self.rounds.shape_container[i]
-            s1.monocolor = min(255, s1.monocolor + (255-s1.monocolor)*0.03)
-            if s1.__class__.__name__ == "Squarelet" or s1.__class__.__name__ == "Heptagon":
-                s1.update(alive_players, self.bullet_container)
-            elif s1.__class__.__name__ == "Pentagon":
-                s1.update(alive_players, self.map)
-            elif s1.__class__.__name__ == "Nonagon":
-                s1.update(self.bullet_container, self.map)
+        for i,s in self.processed_shapes.items():
+            if not s.active:
+                self.delete.append(i)
+                continue
+
+            s.monocolor = min(255, s.monocolor + (255-s.monocolor)*0.03)
+            if s.__class__.__name__ == "Heptagon":
+                s.update(alive_players, self.bullet_container, self.time)
+            elif s.__class__.__name__ == "Pentagon":
+                s.update(alive_players, self.map, self.time)
+            elif s.__class__.__name__ == "Nonagon":
+                s.update(self.bullet_container, self.map, self.time)
             else:
-                s1.update(alive_players)
+                s.update(alive_players, self.time)
             
             for p in self.player_container:
                 if p.alive:
-                    if p.polygon_collision(s1.points):
+                    if p.polygon_collision(s.points):
                         p.last_received_damage = self.time
                         p.hp -= 1
 
             for emp in self.emps:
-                if abs(dist(emp[0], s1.pos) - emp[1]) < 10:
-                    s1.active = False
-                    self.score += score[s1.__class__.__name__]
-                    self.shape_death(s1.pos, s1.size)
+                if abs(dist(emp[0], s.pos) - emp[1]) < 10:
+                    s.active = False
+                    self.score += score[s.__class__.__name__]
+                    self.shape_death(s.pos, s.size)
+        
+
+
+        #pentagons
+        self.rounds.pentagons[:] = [s for s in self.rounds.pentagons if s.active]
+        for s in self.rounds.pentagons:
+            s.monocolor = min(255, s.monocolor + (255-s.monocolor)*0.03)
+            s.update(alive_players, self.map, self.time)
+            
+            for emp in self.emps:
+                if abs(dist(emp[0], s.pos) - emp[1]) < 10:
+                    s.active = False
+                    self.score += score[s.__class__.__name__]
+                    self.shape_death(s.pos, s.size)
+
+        #squarelets
+        self.rounds.squarelets[:] = [s for s in self.rounds.squarelets if s.active]
+        for s in self.rounds.squarelets:
+            s.monocolor = min(255, s.monocolor + (255-s.monocolor)*0.03)
+            s.update(alive_players, self.bullet_container, self.time)
+            
+            for emp in self.emps:
+                if abs(dist(emp[0], s.pos) - emp[1]) < 10:
+                    s.active = False
+                    self.score += score[s.__class__.__name__]
+                    self.shape_death(s.pos, s.size)
 
 
         #charge_bar
@@ -239,27 +323,6 @@ class Game:
 
 
 
-
-
-
-
-    def spawn_squarelets(self, pos, size):
-        s1 = Squarelet(pos,2,size)
-        s2 = Squarelet(pos,2,size)
-        s3 = Squarelet(pos,2,size)
-        s4 = Squarelet(pos,2,size)
-
-        scale = 10
-        s1.add_force((0,scale),50,200,50)
-        s2.add_force((scale,0),50,200,50)
-        s3.add_force((0,-scale),50,200,50)
-        s4.add_force((-scale,0),50,200,50)
-
-        self.rounds.shape_container.append(s1)
-        self.rounds.shape_container.append(s2)
-        self.rounds.shape_container.append(s3)
-        self.rounds.shape_container.append(s4)
-
     def nonagon_death(self, pos, size, angle):
         for i in range(9):
             self.bullet_container.append(Bullet(pos, 13, angle + 2*i*math.pi/9, False, size/3))
@@ -269,6 +332,10 @@ class Game:
     def shape_death(self, pos, size):
         for i in range(10):
             self.particles.append(list([list(pos), ((random.randint(0,20) / 10-1)*3 * (1.5 - 5//size), (random.randint(0,20) / 10-1)*3 * (1.5 - 5//size)), min(random.randint(1,int(size)),4), True]))
+
+    def delete_shapes(self):
+        for d in self.delete:
+            del self.processed_shapes[d]
 
     def player_emp(self):
         for p in self.player_container:
