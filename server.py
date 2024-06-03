@@ -32,7 +32,7 @@ def game_update(id):
         clock.tick(60)
         games[id].particles = []
         games[id].update_color()
-        games[id].time_update()
+        games[id].update_time()
         games[id].update()
 
 def threaded_client(conn, p, gameId):
@@ -88,6 +88,8 @@ def threaded_client(conn, p, gameId):
                         "game_color": game.game_color,
                         "time": game.time
                     }
+
+                    game.transfer_shapes()
 
                     conn.sendall(pickle.dumps(info))
             else:

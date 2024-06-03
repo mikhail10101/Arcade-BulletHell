@@ -22,8 +22,6 @@ class Rounds:
         self.id_count = 0
 
     def update(self, time):
-        print(self.id_count, len(self.shape_container))
-
         #preround
         if self.mode == 0:
             self.start_round()

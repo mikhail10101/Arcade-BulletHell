@@ -139,8 +139,6 @@ class Game:
     def transfer_shapes(self):
         for s in self.rounds.shape_container:
             self.processed_shapes[s.id] = s
-        self.rounds.shape_container = []
-
 
 
     def update(self):

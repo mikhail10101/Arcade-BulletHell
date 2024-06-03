@@ -96,7 +96,10 @@ def main():
                 game.update_inputs(inputs, 0)
                 game.update_client()
                 game.update_color()
+                
                 game.transfer_shapes()
+                game.rounds.shape_container = []
+
                 game.update()
                 if game.is_game_over():
                     scoreboard.score = game.score

@@ -71,9 +71,6 @@ class Player(ForceObject):
         window.blit(scaled_surf, (int(self.pos[0] - offset[0] - self.size*8/4), int(self.pos[1] - offset[1] - self.size*8/4)), special_flags = pygame.BLEND_PREMULTIPLIED)
 
         #pygame.draw.circle(window, (255,255,255), (int(self.pos[0] - offset[0]), int(self.pos[1] - offset[1])), self.size, 10)
-
-        
-
         # drawpoints = [ [int(pair[0] - offset[0]), int(pair[1] - offset[1])] for pair in arrow_points]
         # pygame.draw.polygon(window, (255,255,255), drawpoints)
 
