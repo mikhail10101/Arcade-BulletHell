@@ -115,17 +115,17 @@ class Rounds:
             math.atan2(CENTER[1] - tilepos[1] * TILESIZE, CENTER[0] - tilepos[0] * TILESIZE), self.get_id()
         ))
 
-    def spawn_squarelets(self, pos, size):
+    def spawn_squarelets(self, pos, size, currtime):
         s1 = Squarelet(pos,2,size, self.get_id())
         s2 = Squarelet(pos,2,size, self.get_id())
         s3 = Squarelet(pos,2,size, self.get_id())
         s4 = Squarelet(pos,2,size, self.get_id())
 
         scale = 10
-        s1.add_force((0,scale),50,200,50)
-        s2.add_force((scale,0),50,200,50)
-        s3.add_force((0,-scale),50,200,50)
-        s4.add_force((-scale,0),50,200,50)
+        s1.add_force((0,scale),50,200,50, currtime)
+        s2.add_force((scale,0),50,200,50, currtime)
+        s3.add_force((0,-scale),50,200,50, currtime)
+        s4.add_force((-scale,0),50,200,50, currtime)
 
         self.squarelets.append(s1)
         self.squarelets.append(s2)
@@ -145,6 +145,7 @@ class Rounds:
         match self.round_number:
             case 1:
                 self.spawn_triangles(3,10,1)
+                self.spawn_heptagon(3,30)
                 # self.spawn_square(3,30)
                 # self.spawn_pentagon(80)
                 # self.spawn_hexagons(3,30,10)

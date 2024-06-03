@@ -77,8 +77,8 @@ class Player(ForceObject):
         
 
 
-    def update(self, inputs, bullets, map):
-        super().update()
+    def update(self, inputs, bullets, map, currtime):
+        super().update(currtime)
         current_time = pygame.time.get_ticks()
 
         #HEALTH
@@ -261,8 +261,8 @@ class Triangle(Shape):
 
         self.sides = 3
 
-    def update(self, players):
-        super().update()
+    def update(self, players, currtime):
+        super().update(currtime)
 
         closest = players[0]
         for i in range(1,len(players)):
@@ -278,7 +278,7 @@ class Triangle(Shape):
             rand_scale = self.size/50
             a = random.random() * 2 - 1
             b = random.random() * 2 - 1
-            self.add_force((rand_scale*a, rand_scale*b),250,500,250)
+            self.add_force((rand_scale*a, rand_scale*b),250,500,250, currtime)
 
         self.disp[0] = self.speed * math.cos(self.angle_pos) + self.fx
         self.disp[1] = self.speed * math.sin(self.angle_pos) + self.fy
@@ -320,8 +320,8 @@ class Square(Shape):
 
         self.sides = 4
 
-    def update(self, players):
-        super().update()
+    def update(self, players, currtime):
+        super().update(currtime)
         current_time = pygame.time.get_ticks()
 
         if self.mode == 0:
@@ -354,7 +354,8 @@ class Square(Shape):
                 self.add_force(( self.charge_strength* math.cos(self.angle_pos), self.charge_strength* math.sin(self.angle_pos) ),
                     100,
                     1500,
-                    500
+                    500,
+                    currtime
                 )
 
         else:
@@ -403,8 +404,8 @@ class Squarelet(Shape):
 
         self.sides = 4
 
-    def update(self, players, bullets):
-        super().update()
+    def update(self, players, bullets, currtime):
+        super().update(currtime)
 
         current_time = pygame.time.get_ticks()
 
@@ -430,7 +431,7 @@ class Squarelet(Shape):
             rand_scale = self.size/40
             a = random.random() * 2 - 1
             b = random.random() * 2 - 1
-            self.add_force((rand_scale*a, rand_scale*b),250,1250,500)
+            self.add_force((rand_scale*a, rand_scale*b),250,1250,500, currtime)
 
         self.curr_speed = phys_single_helper(self.curr_speed, target_speed, self.accel, self.deccel)
         self.disp[0] = self.curr_speed * math.cos(self.angle_pos) + self.fx 
@@ -483,8 +484,8 @@ class Pentagon(Shape):
     
         self.sides = 5
 
-    def update(self,players,map):
-        super().update()
+    def update(self,players,map,currtime):
+        super().update(currtime)
         current_time = pygame.time.get_ticks()
 
         if self.mode == 0:
@@ -602,8 +603,8 @@ class Hexagon(Shape):
 
         self.sides = 6
 
-    def update(self, players):
-        super().update()
+    def update(self, players,currtime):
+        super().update(currtime)
 
         points_modifier(self.points, self.pos, self.sides, self.size, self.angle_pos)
 
@@ -664,8 +665,8 @@ class Heptagon(Shape):
         self.sides = 7
 
 
-    def update(self, players, bullets):
-        super().update()
+    def update(self, players, bullets, currtime):
+        super().update(currtime)
 
         current_time = pygame.time.get_ticks()
 
@@ -692,7 +693,7 @@ class Heptagon(Shape):
             rand_scale = self.size
             a = random.random() * 2 - 1
             b = random.random() * 2 - 1
-            self.add_force((rand_scale*a, rand_scale*b),250,1250,500)
+            self.add_force((rand_scale*a, rand_scale*b),250,1250,500, currtime)
 
         self.curr_speed = phys_single_helper(self.curr_speed, target_speed, self.accel, self.deccel)
         self.disp[0] = self.curr_speed * math.cos(self.angle_pos) + self.fx 
@@ -707,7 +708,7 @@ class Heptagon(Shape):
             rads = math.atan2(dy,dx)
             bullets.append(Wave((self.pos[0] - math.cos(self.angle_pos)*self.size,self.pos[1] - math.sin(self.angle_pos)*self.size), self.speed*2, rads, False, self.size*2.5))
             self.forces = []
-            self.add_force((-math.cos(rads) * self.size/30, -math.sin(rads) * self.size/30), 250, 750, 1000)
+            self.add_force((-math.cos(rads) * self.size/30, -math.sin(rads) * self.size/30), 250, 750, 1000, currtime)
             
             self.last_shot = current_time
 
@@ -745,8 +746,8 @@ class Nonagon(Shape):
 
         self.sides = 9
 
-    def update(self, bullets, map):
-        super().update()
+    def update(self, bullets, map, currtime):
+        super().update(currtime)
         current_time = pygame.time.get_ticks()
 
         self.angle_pos += self.angle_vel

@@ -115,7 +115,7 @@ class Game:
 
     def update_inputs(self, inputs, n):
         if self.player_container[n].alive:
-            self.player_container[n].update(inputs, self.bullet_container, self.map)
+            self.player_container[n].update(inputs, self.bullet_container, self.map, self.time)
 
     def update_color(self):
         self.rounds.update_color(self.game_color, self.time)
@@ -203,7 +203,7 @@ class Game:
                             self.charge_bar += score[s.__class__.__name__]
                             self.score += score[s.__class__.__name__]
                             if s.__class__.__name__ == "Square":
-                                self.rounds.spawn_squarelets(s.pos,s.size/2)
+                                self.rounds.spawn_squarelets(s.pos,s.size/2, self.time)
                             elif s.__class__.__name__ == "Nonagon":
                                 self.nonagon_death(s.pos, s.size, s.angle_pos)
                             s.active = False
@@ -250,7 +250,7 @@ class Game:
                                 p.add_force((
                                         b.radius /20 * math.cos(b.angle),
                                         b.radius /20 * math.sin(b.angle)
-                                    ),25,0,0)
+                                    ),25,0,0, self.time)
                             p.hp -= 2.5
 
             if self.map.is_oob(b.pos):
@@ -265,13 +265,13 @@ class Game:
 
             s.monocolor = min(255, s.monocolor + (255-s.monocolor)*0.03)
             if s.__class__.__name__ == "Heptagon":
-                s.update(alive_players, self.bullet_container)
+                s.update(alive_players, self.bullet_container, self.time)
             elif s.__class__.__name__ == "Pentagon":
-                s.update(alive_players, self.map)
+                s.update(alive_players, self.map, self.time)
             elif s.__class__.__name__ == "Nonagon":
-                s.update(self.bullet_container, self.map)
+                s.update(self.bullet_container, self.map, self.time)
             else:
-                s.update(alive_players)
+                s.update(alive_players, self.time)
             
             for p in self.player_container:
                 if p.alive:
@@ -291,7 +291,7 @@ class Game:
         self.rounds.pentagons[:] = [s for s in self.rounds.pentagons if s.active]
         for s in self.rounds.pentagons:
             s.monocolor = min(255, s.monocolor + (255-s.monocolor)*0.03)
-            s.update(alive_players, self.map)
+            s.update(alive_players, self.map, self.time)
             
             for emp in self.emps:
                 if abs(dist(emp[0], s.pos) - emp[1]) < 10:
@@ -303,7 +303,7 @@ class Game:
         self.rounds.squarelets[:] = [s for s in self.rounds.squarelets if s.active]
         for s in self.rounds.squarelets:
             s.monocolor = min(255, s.monocolor + (255-s.monocolor)*0.03)
-            s.update(alive_players, self.bullet_container)
+            s.update(alive_players, self.bullet_container, self.time)
             
             for emp in self.emps:
                 if abs(dist(emp[0], s.pos) - emp[1]) < 10:
