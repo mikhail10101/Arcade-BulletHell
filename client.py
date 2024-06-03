@@ -103,6 +103,7 @@ def main():
                 game.rounds.shape_container = []
 
                 game.update()
+                game.delete_shapes()
                 if game.is_game_over():
                     scoreboard.score = game.score
                     mode = 3
@@ -144,6 +145,7 @@ def main():
                     game.score = info["score"] 
                     game.game_color = info["game_color"] 
                     game.time = info["time"]
+                    game.delete = info["delete"]
                     
                     game.transfer_shapes()
                     game.apply_shape_positions(info["shape_positions"])

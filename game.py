@@ -46,6 +46,7 @@ class Game:
         self.player_pers = 0
         self.processed_particles = []
         self.processed_shapes = {}
+        self.delete = []
 
         self.time = pygame.time.get_ticks()
 
@@ -143,20 +144,23 @@ class Game:
         arr = []
         for s in self.processed_shapes.values():
             arr.append(
-                (s.id, s.pos[0], s.pos[1], s.angle_pos)
+                (s.id, s.pos[0], s.pos[1], s.angle_pos, s.last_hit, s.monocolor)
             )
         return arr
     
     def apply_shape_positions(self, arr):
         for a in arr:
-            self.processed_shapes[a[0]].pos[0] = a[1]
-            self.processed_shapes[a[0]].pos[1] = a[2]
-            self.processed_shapes[a[0]].angle_pos = a[3]
-
-    
+            s = self.processed_shapes[a[0]]
+            s.pos[0] = a[1]
+            s.pos[1] = a[2]
+            s.angle_pos = a[3]
+            s.last_hit = a[4]
+            s.monocolor = a[5]
+            points_modifier(s.points, s.pos, s.sides, s.size, s.angle_pos)
 
 
     def update(self):
+        self.delete = []
         alive_players = [p for p in self.player_container if p.alive]
 
         self.rounds.update(self.time)
@@ -236,10 +240,9 @@ class Game:
             b.update()
 
         #shapes
-        delete = []
         for i,s in self.processed_shapes.items():
             if not s.active:
-                delete.append(i)
+                self.delete.append(i)
                 continue
 
             s.monocolor = min(255, s.monocolor + (255-s.monocolor)*0.03)
@@ -264,8 +267,7 @@ class Game:
                     self.score += score[s.__class__.__name__]
                     self.shape_death(s.pos, s.size)
         
-        for d in delete:
-            del self.processed_shapes[d]
+
 
         #pentagons
         self.rounds.pentagons[:] = [s for s in self.rounds.pentagons if s.active]
@@ -300,6 +302,10 @@ class Game:
     def shape_death(self, pos, size):
         for i in range(10):
             self.particles.append(list([list(pos), ((random.randint(0,20) / 10-1)*3 * (1.5 - 5//size), (random.randint(0,20) / 10-1)*3 * (1.5 - 5//size)), min(random.randint(1,int(size)),4), True]))
+
+    def delete_shapes(self):
+        for d in self.delete:
+            del self.processed_shapes[d]
 
     def player_emp(self):
         for p in self.player_container:

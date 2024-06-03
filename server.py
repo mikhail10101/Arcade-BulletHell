@@ -9,7 +9,7 @@ pygame.init()
 
 clock = pygame.time.Clock()
 
-server = "192.168.68.127" #change
+server = "10.195.222.105" #change
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -34,6 +34,7 @@ def game_update(id):
         games[id].update_color()
         games[id].update_time()
         games[id].update()
+        games[id].delete_shapes()
 
 def threaded_client(conn, p, gameId):
     global idCount
@@ -87,7 +88,8 @@ def threaded_client(conn, p, gameId):
                     "score": game.score,
                     "game_color": game.game_color,
                     "time": game.time,
-                    "shape_positions": game.retrieve_shape_positions()
+                    "shape_positions": game.retrieve_shape_positions(),
+                    "delete": game.delete
                 }
 
                 if not game.rounds.transferred:
