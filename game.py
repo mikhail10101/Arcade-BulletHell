@@ -84,6 +84,8 @@ class Game:
             s.draw(window, scroll, self.time)
         for s in self.rounds.pentagons:
             s.draw(window, scroll, self.time)
+        for s in self.rounds.squarelets:
+            s.draw(window, scroll, self.time)
 
         #particles
         for particle in self.processed_particles:
@@ -141,22 +143,28 @@ class Game:
             self.processed_shapes[s.id] = s
 
     def retrieve_shape_positions(self):
-        arr = []
+        d = {}
         for s in self.processed_shapes.values():
-            arr.append(
-                (s.id, s.pos[0], s.pos[1], s.angle_pos, s.last_hit, s.monocolor)
-            )
-        return arr
+            d[s.id] = (s.pos[0], s.pos[1], s.angle_pos, s.last_hit, s.monocolor)
+        return d
     
-    def apply_shape_positions(self, arr):
-        for a in arr:
-            s = self.processed_shapes[a[0]]
-            s.pos[0] = a[1]
-            s.pos[1] = a[2]
-            s.angle_pos = a[3]
-            s.last_hit = a[4]
-            s.monocolor = a[5]
-            points_modifier(s.points, s.pos, s.sides, s.size, s.angle_pos)
+    def apply_shape_positions(self, dict):
+        delete = []
+        for id in self.processed_shapes:
+            if id in dict:
+                s = self.processed_shapes[id]
+                a = dict[id]
+                s.pos[0] = a[0]
+                s.pos[1] = a[1]
+                s.angle_pos = a[2]
+                s.last_hit = a[3]
+                s.monocolor = a[4]
+                points_modifier(s.points, s.pos, s.sides, s.size, s.angle_pos)
+            else:
+                delete.append(id)
+
+        for d in delete:
+            del self.processed_shapes[id]
 
 
     def update(self):
@@ -204,6 +212,17 @@ class Game:
                         b.active = False
                         break
                 for s in self.rounds.pentagons:
+                    if b.polygon_collision(s.points):
+                        s.health -= 1
+                        s.last_hit = self.time
+                        if s.health == 0:
+                            self.charge_bar += score[s.__class__.__name__]
+                            self.score += score[s.__class__.__name__]
+                            s.active = False
+                            self.shape_death(s.pos, s.size)
+                        b.active = False
+                        break
+                for s in self.rounds.squarelets:
                     if b.polygon_collision(s.points):
                         s.health -= 1
                         s.last_hit = self.time
@@ -267,6 +286,8 @@ class Game:
                     self.score += score[s.__class__.__name__]
                     self.shape_death(s.pos, s.size)
         
+        self.delete_shapes()
+        
 
 
         #pentagons
@@ -274,6 +295,18 @@ class Game:
         for s in self.rounds.pentagons:
             s.monocolor = min(255, s.monocolor + (255-s.monocolor)*0.03)
             s.update(alive_players, self.map)
+            
+            for emp in self.emps:
+                if abs(dist(emp[0], s.pos) - emp[1]) < 10:
+                    s.active = False
+                    self.score += score[s.__class__.__name__]
+                    self.shape_death(s.pos, s.size)
+
+        #squarelets
+        self.rounds.squarelets[:] = [s for s in self.rounds.squarelets if s.active]
+        for s in self.rounds.squarelets:
+            s.monocolor = min(255, s.monocolor + (255-s.monocolor)*0.03)
+            s.update(alive_players, self.bullet_container)
             
             for emp in self.emps:
                 if abs(dist(emp[0], s.pos) - emp[1]) < 10:

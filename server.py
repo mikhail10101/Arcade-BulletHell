@@ -30,11 +30,16 @@ def game_update(id):
 
     while True:
         clock.tick(60)
-        games[id].particles = []
-        games[id].update_color()
-        games[id].update_time()
-        games[id].update()
-        games[id].delete_shapes()
+        try:
+            games[id].particles = []
+            games[id].update_color()
+            games[id].update_time()
+            games[id].update()
+        except Exception as e:
+            print(e)
+            break
+            
+
 
 def threaded_client(conn, p, gameId):
     global idCount
@@ -78,6 +83,7 @@ def threaded_client(conn, p, gameId):
                     "bullet_container": game.bullet_container,
                     "rounds.shape_container": [],
                     "rounds.pentagons": game.rounds.pentagons,
+                    "rounds.squarelets": game.rounds.squarelets,
                     "rounds.round_number": game.rounds.round_number,
                     "rounds.mode": game.rounds.mode,
                     "rounds.round_end_time": game.rounds.round_end_time,
@@ -95,7 +101,6 @@ def threaded_client(conn, p, gameId):
                 if not game.rounds.transferred:
                     game.transfer_shapes()
                     game.rounds.transferred = True
-                
                 if (not game.rounds.multiplayer[0]) and (not game.rounds.multiplayer[1]):
                     game.rounds.shape_container = []
                 else:
@@ -107,7 +112,8 @@ def threaded_client(conn, p, gameId):
             else:
                 break
 
-        except:
+        except Exception as e:
+            print(e)
             break
 
     print("Lost connection")
