@@ -9,7 +9,7 @@ pygame.init()
 
 clock = pygame.time.Clock()
 
-server = "10.195.222.105" #change
+server = "10.195.220.168" #change
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
