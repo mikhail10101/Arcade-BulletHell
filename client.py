@@ -93,7 +93,7 @@ def main():
                     mode = 2
 
             case 1:
-                game.draw(window, 0)
+                game.draw(window)
                 game.update_time()
                 game.update_inputs(inputs, 0)
                 game.update_client()
@@ -161,7 +161,7 @@ def main():
                 if game.connected():
                     game.update_client()
                     game.update_inputs(inputs, player)
-                    game.draw(window, player)
+                    game.draw(window)
                 else:
                     waiting.draw(window)
 
