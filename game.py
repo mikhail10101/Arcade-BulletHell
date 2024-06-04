@@ -54,11 +54,15 @@ class Game:
     def connected(self):
         return self.ready
 
-    def draw(self, screen, n):
+    def draw(self, screen):
         window = pygame.Surface((LENGTH, WIDTH))
         window.fill(self.game_color)
 
-        scroll = self.player_container[n].scroll
+        see_from = 1-self.player_pers
+        if self.player_container[self.player_pers].alive:
+            see_from = self.player_pers
+
+        scroll = self.player_container[see_from].scroll
         
         if self.screen_shake > 0:
             scroll[0] += random.randint(0,16) - 8
@@ -72,12 +76,13 @@ class Game:
         bar_length = 1152
         window.blit(bar(self.charge_bar, self.charge_bar_max, bar_length, 70, 0), (64*50//2 - bar_length//2 - scroll[0], 64*50//2 + bar_length//2 + 30 - scroll[1]))
 
-        for i in range(len(self.player_container)):
-            if self.player_container[i].alive:
-                if self.player_pers == i:
-                    self.player_container[i].draw(window, True)
-                else:
-                    self.player_container[i].draw(window, False, self.player_container[self.player_pers].scroll)
+        if self.player_container[see_from].alive:
+            for i in range(len(self.player_container)):
+                if self.player_container[i].alive:
+                    if see_from == i:
+                        self.player_container[i].draw(window, True)
+                    else:
+                        self.player_container[i].draw(window, False, self.player_container[see_from].scroll)
 
         #shapes
         for s in self.processed_shapes.values():
@@ -101,12 +106,19 @@ class Game:
             b.draw(window, scroll)
 
         #player health
-        window.blit(bar(self.player_container[n].hp, 100, 300, 50), (50,50))
+        window.blit(bar(self.player_container[see_from].hp, 100, 300, 50), (50,50))
 
         #display score
         f = pygame.font.SysFont("Times New Roman", 80)
         score_text = f.render(str(self.score), True, (255,255,255))
         window.blit(score_text, (LENGTH - score_text.get_width() - 50,20))
+
+        #display spectating
+        if see_from == 1-self.player_pers:
+            f = pygame.font.SysFont("Calibri", 50)
+            spectator_text = f.render("Spectating", True, (255,255,255))
+            window.blit(spectator_text, (LENGTH//2 - spectator_text.get_width(), 50))
+
 
         screen.blit(window, (0,0))
 
