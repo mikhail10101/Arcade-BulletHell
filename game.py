@@ -115,9 +115,9 @@ class Game:
 
         #display spectating
         if see_from == 1-self.player_pers:
-            f = pygame.font.SysFont("Calibri", 50)
+            f = pygame.font.SysFont("Calibri Bold", 50)
             spectator_text = f.render("Spectating", True, (255,255,255))
-            window.blit(spectator_text, (LENGTH//2 - spectator_text.get_width(), 50))
+            window.blit(spectator_text, (LENGTH//2 - spectator_text.get_width()//2, 50))
 
 
         screen.blit(window, (0,0))
