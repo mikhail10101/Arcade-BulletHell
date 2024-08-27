@@ -36,7 +36,7 @@ class Game:
         self.emps = []
         
         self.charge_bar = 0
-        self.charge_bar_max = 100
+        self.charge_bar_max = 300
         self.screen_shake = 0
 
         self.score = 0
